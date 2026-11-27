@@ -5,14 +5,14 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | Epic | Name | Stories | Points |
 |---|---|---|---|
 | E0 | Inception and platform | 9 | 24 |
-| EA | HR Guru ATS restore and integration | 9 | 28 |
+| EA | HR Guru ATS restore and integration | 10 | 30 |
 | E1 | Requirement agent | 8 | 28 |
 | E2 | Intelligent retrieval | 7 | 29 |
 | E3 | Multi-agent orchestration | 6 | 32 |
 | E4 | MCP and memory | 5 | 21 |
 | E5 | Responsible AI and LLMOps | 9 | 31 |
 | E6 | Interoperability, delivery and pilot | 7 | 27 |
-| **Total** | | **60** | **220** |
+| **Total** | | **61** | **222** |
 
 ## E0: Inception and platform
 
@@ -144,7 +144,7 @@ Acceptance criteria:
 - Given pip-audit and Trivy, then apps/ats/requirements.txt has 0 known vulnerabilities (was 61, 7 critical)
 - Given the upgrade, then SQLite and PostgreSQL smoke tests pass
 
-### TS-EA-04: Recover production ATS data  (3 pts, Sprint 0, In progress, Jira TS-12)
+### TS-EA-04: Recover production ATS data  (3 pts, Sprint 0, Done, Jira TS-12)
 
 *As a director I want the production candidates, requirements and CVs back so that recruiters do not start from zero.*
 
@@ -154,6 +154,7 @@ Acceptance criteria:
 - Given the legacy ats.db on the MacBook, when scripts/restore_from_sqlite.sh runs, then the copy is upgraded to the current schema, migrated, and counts and newest dates are printed (tested on a synthetic legacy-schema file)
 - Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)
 - Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)
+- Result 2026-11-27: restored 9,988 candidates, 1,685 requirements, 41 team members, 5 app users from ats.db (sha256 0eb4a831...). Newest records 2026-05-26; data entered on the AWS PostgreSQL after that date is not in this file (gap tracked as R-13 and TS-EA-10)
 
 ### TS-EA-05: Expose the local ATS to 25 recruiters securely  (3 pts, Sprint 0, To do, Jira TS-13)
 
@@ -205,6 +206,16 @@ Traces to: NFR-4
 
 Acceptance criteria:
 - Given the ATS stops responding, then an alert is sent within 5 minutes (existing monitor_health script or a free uptime monitor)
+
+### TS-EA-10: Close the post-May 2026 data gap  (2 pts, Sprint 0, To do, Jira TS-69)
+
+*As a director I want candidates and requirements added after 26 May 2026 recovered or re-entered so that recruiters work from complete data.*
+
+Traces to: FR-ATS-1
+
+Acceptance criteria:
+- Given any remaining AWS artefact (EBS snapshot, RDS or pg_dump, S3 backup, recruiter Excel uploads), when found, then the missing records are imported with the runbook B1 procedure
+- Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded
 
 ## E1: Requirement agent
 

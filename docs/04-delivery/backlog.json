@@ -168,7 +168,7 @@
       "epic": "EA",
       "sprint": 0,
       "points": 3,
-      "status": "in_progress",
+      "status": "done",
       "owner": "You (script: Claude)",
       "fr": [
         "FR-ATS-1"
@@ -178,7 +178,8 @@
       "ac": [
         "Given the legacy ats.db on the MacBook, when scripts/restore_from_sqlite.sh runs, then the copy is upgraded to the current schema, migrated, and counts and newest dates are printed (tested on a synthetic legacy-schema file)",
         "Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)",
-        "Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)"
+        "Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)",
+        "Result 2026-11-27: restored 9,988 candidates, 1,685 requirements, 41 team members, 5 app users from ats.db (sha256 0eb4a831...). Newest records 2026-05-26; data entered on the AWS PostgreSQL after that date is not in this file (gap tracked as R-13 and TS-EA-10)"
       ],
       "jira": "TS-12"
     },
@@ -275,6 +276,24 @@
         "Given the ATS stops responding, then an alert is sent within 5 minutes (existing monitor_health script or a free uptime monitor)"
       ],
       "jira": "TS-17"
+    },
+    {
+      "id": "TS-EA-10",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 2,
+      "status": "todo",
+      "owner": "You",
+      "fr": [
+        "FR-ATS-1"
+      ],
+      "title": "Close the post-May 2026 data gap",
+      "story": "As a director I want candidates and requirements added after 26 May 2026 recovered or re-entered so that recruiters work from complete data.",
+      "ac": [
+        "Given any remaining AWS artefact (EBS snapshot, RDS or pg_dump, S3 backup, recruiter Excel uploads), when found, then the missing records are imported with the runbook B1 procedure",
+        "Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded"
+      ],
+      "jira": "TS-69"
     },
     {
       "id": "TS-E0-01",
@@ -1221,8 +1240,8 @@
     },
     {
       "task": "Run the ATS restore from ats.db on the Mac",
-      "why": "Backup confirmed (legacy ats.db). Follow docs/runbooks/ats-local-restore.md B2, then report the printed counts and newest dates (TS-EA-04).",
-      "status": "todo"
+      "why": "Done 2026-11-27: 9,988 candidates, 1,685 requirements restored; newest 2026-05-26.",
+      "status": "done"
     },
     {
       "task": "Create the Jira project (Scrum, key TS, name TalentScout)",
