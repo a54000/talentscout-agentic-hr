@@ -450,17 +450,38 @@ def schedule_candidate_ai_screening_retry(candidate_id, trigger, run_id, gemini_
     )
     return True
 
+def _lock_instance_file(handle):
+    """Non-blocking exclusive lock; raises OSError if another instance holds it.
+
+    msvcrt on Windows, fcntl on macOS/Linux (the ATS now runs locally on macOS).
+    """
+    if os.name == "nt":
+        import msvcrt
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def _unlock_instance_file(handle):
+    if os.name == "nt":
+        import msvcrt
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 def acquire_single_instance_lock():
     global APP_INSTANCE_LOCK_HANDLE
     lock_path = os.path.join(BASE_DIR, "ats_pg.lock" if USE_POSTGRES else "ats.lock")
     handle = open(lock_path, "a+b")
     try:
-        import msvcrt
         handle.seek(0)
         handle.write(str(os.getpid()).encode("ascii", errors="ignore"))
         handle.flush()
         handle.seek(0)
-        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        _lock_instance_file(handle)
     except OSError as e:
         try:
             handle.close()
@@ -477,10 +498,9 @@ def release_single_instance_lock():
     if not handle:
         return
     try:
-        import msvcrt
         try:
             handle.seek(0)
-            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            _unlock_instance_file(handle)
         except Exception:
             pass
         handle.close()

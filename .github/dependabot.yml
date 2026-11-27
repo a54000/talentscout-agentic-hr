@@ -6,11 +6,11 @@ updates:
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: pip
-    directory: /services/agents
+    directories: [/services/agents, /apps/ats]
     schedule: { interval: weekly }
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
   - package-ecosystem: docker
-    directories: [/apps/api, /apps/web, /services/agents]
+    directories: [/apps/api, /apps/web, /services/agents, /apps/ats]
     schedule: { interval: weekly }

@@ -1,4 +1,6 @@
 # Local stack. Ollama runs NATIVELY on macOS (Metal GPU) - not in Docker.
+# HR Guru ATS (live system for recruiters): `docker compose up -d ats-db ats`
+# See docs/runbooks/ats-local-restore.md before first start.
 #   brew install ollama && ollama serve
 #   ollama pull qwen3:8b && ollama pull nomic-embed-text
 name: talentscout
@@ -11,6 +13,34 @@ services:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       retries: 10
+
+  # --- HR Guru ATS (system of record for candidates, CVs, requirements) ---
+  ats-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hrguru_ats
+      POSTGRES_USER: hrguru
+      POSTGRES_PASSWORD: ${ATS_DB_PASSWORD:?set ATS_DB_PASSWORD in .env}
+    volumes: [ats-pgdata:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5432:5432"]   # localhost only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hrguru -d hrguru_ats"]
+      interval: 10s
+      retries: 10
+    restart: unless-stopped
+
+  ats:
+    build: ./apps/ats
+    env_file:
+      - path: apps/ats/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://hrguru:${ATS_DB_PASSWORD}@ats-db:5432/hrguru_ats
+    volumes: [ats-uploads:/app/uploads]
+    ports: ["5001:5001"]
+    depends_on:
+      ats-db: { condition: service_healthy }
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -47,3 +77,5 @@ services:
 
 volumes:
   mongo-data:
+  ats-pgdata:
+  ats-uploads:

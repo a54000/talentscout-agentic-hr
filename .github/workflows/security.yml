@@ -67,7 +67,23 @@ jobs:
           docker run --rm -v "$PWD:/src" -w /src "$SEMGREP_IMAGE"
           semgrep scan --error --metrics=off
           --config p/default --config p/owasp-top-ten --config p/secrets
-          --exclude node_modules --exclude dist
+          --exclude node_modules --exclude dist --exclude apps/ats
+
+  semgrep-ats:
+    # The imported ATS monolith has a findings backlog (TS-EA-06). Report without blocking
+    # until the baseline is triaged; new TalentScout code stays blocking above.
+    name: SAST rules (Semgrep CE) - ATS baseline, non-blocking
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: semgrep scan (apps/ats)
+        run: >
+          docker run --rm -v "$PWD:/src" -w /src "$SEMGREP_IMAGE"
+          semgrep scan --metrics=off --config p/default --config p/owasp-top-ten apps/ats
 
   dependencies:
     name: Dependency audit (npm + pip)
@@ -85,8 +101,11 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
-      - name: pip-audit (agents)
-        run: python -m pip install pip-audit==2.10.1 && pip-audit -r services/agents/requirements.txt
+      - name: pip-audit (agents, ATS)
+        run: |
+          python -m pip install pip-audit==2.10.1
+          pip-audit -r services/agents/requirements.txt
+          pip-audit -r apps/ats/requirements.txt
 
   trivy-fs:
     name: Filesystem + IaC scan (Trivy)

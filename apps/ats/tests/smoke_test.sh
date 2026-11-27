@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ATS smoke test: boots the app with waitress and checks health, admin login and core APIs.
+# Usage: apps/ats/tests/smoke_test.sh [python-bin]
+# Uses SQLite unless DATABASE_URL is set. Runs in a temporary copy so no state is left behind.
+set -euo pipefail
+PY="${1:-python3}"
+SRC="$(cd "$(dirname "$0")/.." && pwd)"
+WORK="$(mktemp -d)"; JAR="$WORK/cookies"; PORT="${ATS_SMOKE_PORT:-5099}"
+cp -r "$SRC/." "$WORK/app"; cd "$WORK/app"
+export SECRET_KEY="smoke-test-only" ADMIN_PASSWORD="smoke-admin-pw"
+"$(dirname "$PY")/waitress-serve" --host=127.0.0.1 --port="$PORT" app:app >"$WORK/ats.log" 2>&1 &
+PID=$!; trap 'kill $PID 2>/dev/null || true; rm -rf "$WORK"' EXIT
+for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:$PORT/healthz" 2>/dev/null | grep -q '"ok":true' && break; sleep 1; done
+fail() { echo "FAIL: $1"; tail -40 "$WORK/ats.log"; exit 1; }
+curl -fsS "http://127.0.0.1:$PORT/healthz" | grep -q '"database":"ok"' || fail "healthz"
+if grep -qiE "Traceback|initialization error" "$WORK/ats.log"; then fail "startup errors in log"; fi
+code=$(curl -s -o /dev/null -w '%{http_code}' -c "$JAR" -b "$JAR" -d "username=admin&password=$ADMIN_PASSWORD" "http://127.0.0.1:$PORT/login")
+[ "$code" = "302" ] || fail "admin login returned $code"
+for path in /app /api/candidates /api/requirements; do
+  code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" "http://127.0.0.1:$PORT$path")
+  [ "$code" = "200" ] || fail "$path returned $code"
+done
+if [ -n "${DATABASE_URL:-}" ]; then MODE=postgres; else MODE=sqlite; fi
+echo "ATS smoke test passed ($MODE)"
