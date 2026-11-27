@@ -4,12 +4,12 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Total |
 |---|---|---|---|---|
-| 4 | 5 | 1 | 50 | 60 |
+| 4 | 6 | 0 | 50 | 60 |
 
 ## Your actions (outside the backlog)
 
 - [ ] **Make a54000/hireflow private**: Its git history contains real candidate name, email and phone (tools/case_001). Also consider a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app.
-- [ ] **Find a backup of the production ATS database and uploads**: pg_dump, EC2/EBS snapshot, or the legacy ats.db in /Users/surindersingh/Coding/ats; needed for TS-EA-04.
+- [ ] **Run the ATS restore from ats.db on the Mac**: Backup confirmed (legacy ats.db). Follow docs/runbooks/ats-local-restore.md B2, then report the printed counts and newest dates (TS-EA-04).
 - [x] **Create the Jira project (Scrum, key TS, name TalentScout)**: The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.
 - [ ] **Decide on Gemini AI screening in the ATS (R-11)**: It sends real CVs to Gemini; options: disable, paid tier with no-training terms, or local model.
 - [ ] **Review and merge the Sprint 0 and ATS pull requests**: Runs CI and all security scans on GitHub for the first time.
@@ -23,7 +23,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-01 Import ATS into the monorepo**: The ATS code in this repository, so that one pipeline builds, tests and scans everything. _(2 pts, owner: Claude, Jira TS-9)_
 - [ ] **TS-EA-02 Make the ATS run locally on macOS** **[In progress]**: The ATS available again, so that I can keep uploading candidates and managing requirements. _(3 pts, owner: Claude + You, Jira TS-10)_
 - [x] **TS-EA-03 Patch vulnerable ATS dependencies**: Known CVEs fixed, so that the live ATS is not exposed through old libraries. _(2 pts, owner: Claude, Jira TS-11)_
-- [ ] **TS-EA-04 Recover production ATS data** **[Blocked]**: The production candidates, requirements and CVs back, so that recruiters do not start from zero. _(3 pts, owner: You, Jira TS-12)_
+- [ ] **TS-EA-04 Recover production ATS data** **[In progress]**: The production candidates, requirements and CVs back, so that recruiters do not start from zero. _(3 pts, owner: You (script: Claude), Jira TS-12)_
 - [ ] **TS-EA-05 Expose the local ATS to 25 recruiters securely**: To reach the ATS from my own laptop, so that I can work as before. _(3 pts, owner: You + Claude, Jira TS-13)_
 - [ ] **TS-EA-06 ATS backups and restore drill**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
 - [ ] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_

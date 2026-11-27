@@ -23,7 +23,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-01 | Import ATS into the monorepo | 2 | Done |
 | TS-EA-02 | Make the ATS run locally on macOS | 3 | In progress |
 | TS-EA-03 | Patch vulnerable ATS dependencies | 2 | Done |
-| TS-EA-04 | Recover production ATS data | 3 | Blocked |
+| TS-EA-04 | Recover production ATS data | 3 | In progress |
 | TS-EA-05 | Expose the local ATS to 25 recruiters securely | 3 | To do |
 | TS-EA-06 | ATS backups and restore drill | 3 | To do |
 | TS-EA-09 | ATS health monitoring | 2 | To do |

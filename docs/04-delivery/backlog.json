@@ -168,14 +168,15 @@
       "epic": "EA",
       "sprint": 0,
       "points": 3,
-      "status": "blocked",
-      "owner": "You",
+      "status": "in_progress",
+      "owner": "You (script: Claude)",
       "fr": [
         "FR-ATS-1"
       ],
       "title": "Recover production ATS data",
       "story": "As a director I want the production candidates, requirements and CVs back so that recruiters do not start from zero.",
       "ac": [
+        "Given the legacy ats.db on the MacBook, when scripts/restore_from_sqlite.sh runs, then the copy is upgraded to the current schema, migrated, and counts and newest dates are printed (tested on a synthetic legacy-schema file)",
         "Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)",
         "Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)"
       ],
@@ -1219,8 +1220,8 @@
       "status": "todo"
     },
     {
-      "task": "Find a backup of the production ATS database and uploads",
-      "why": "pg_dump, EC2/EBS snapshot, or the legacy ats.db in /Users/surindersingh/Coding/ats; needed for TS-EA-04.",
+      "task": "Run the ATS restore from ats.db on the Mac",
+      "why": "Backup confirmed (legacy ats.db). Follow docs/runbooks/ats-local-restore.md B2, then report the printed counts and newest dates (TS-EA-04).",
       "status": "todo"
     },
     {

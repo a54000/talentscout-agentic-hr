@@ -144,13 +144,14 @@ Acceptance criteria:
 - Given pip-audit and Trivy, then apps/ats/requirements.txt has 0 known vulnerabilities (was 61, 7 critical)
 - Given the upgrade, then SQLite and PostgreSQL smoke tests pass
 
-### TS-EA-04: Recover production ATS data  (3 pts, Sprint 0, Blocked, Jira TS-12)
+### TS-EA-04: Recover production ATS data  (3 pts, Sprint 0, In progress, Jira TS-12)
 
 *As a director I want the production candidates, requirements and CVs back so that recruiters do not start from zero.*
 
 Traces to: FR-ATS-1
 
 Acceptance criteria:
+- Given the legacy ats.db on the MacBook, when scripts/restore_from_sqlite.sh runs, then the copy is upgraded to the current schema, migrated, and counts and newest dates are printed (tested on a synthetic legacy-schema file)
 - Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)
 - Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)
 

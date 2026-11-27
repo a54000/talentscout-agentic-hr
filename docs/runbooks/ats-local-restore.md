@@ -44,11 +44,35 @@ docker compose exec -T ats-db pg_restore -U hrguru -d hrguru_ats --no-owner < hr
 
 (For a plain `.sql` dump use `psql -U hrguru -d hrguru_ats` instead of `pg_restore`.)
 
-**B2. From a legacy SQLite `ats.db`.** Copy the file to `apps/ats/ats.db`, then:
+**B2. From a legacy SQLite `ats.db`** (the HR Guru case: the file is on the MacBook).
+`scripts/restore_from_sqlite.sh` works on a **copy** of the file, so the original is never changed. It:
+- upgrades the copy to the current ATS schema;
+- migrates every table into the empty PostgreSQL database;
+- prints row counts and the newest record dates.
+
+It refuses to run if the database already has ATS tables.
+
+1. Back up the original file first:
 
 ```bash
-docker compose run --rm -v "$PWD/apps/ats/ats.db:/app/ats.db:ro" ats python scripts/migrate_sqlite_to_postgres.py --sqlite /app/ats.db
+cp /Users/surindersingh/Coding/ats/ats.db ~/ats-backup-$(date +%Y%m%d).db
 ```
+
+2. One-time Python setup for the ATS tools (from the repo root):
+
+```bash
+cd apps/ats && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+```
+
+3. Restore into the `ats-db` container. Use the `ATS_DB_PASSWORD` from your root `.env`:
+
+```bash
+DATABASE_URL="postgresql://hrguru:YOUR_ATS_DB_PASSWORD@127.0.0.1:5432/hrguru_ats" PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /Users/surindersingh/Coding/ats/ats.db
+```
+
+4. Check the printed counts against the last known production figures (about 3,600 candidates and 400 requirements). Also check the **newest created_at** dates: production moved from SQLite to PostgreSQL around May–June 2026, so anything entered after that move is not in `ats.db`. Record the result in TS-EA-04.
+
+Existing users and passwords come across with the data, so recruiters log in as before.
 
 **B3. Fresh, empty ATS.** This refuses to run if tables already exist:
 
