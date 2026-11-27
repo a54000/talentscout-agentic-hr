@@ -1,6 +1,6 @@
 # High-Level Design (HLD)
 
-Version 0.1. Architecture decisions are recorded in [adr/](adr/).
+Version 0.3. Architecture decisions are recorded in [adr/](adr/). The HR Guru ATS is the system of record for candidates, CVs and requirements ([ADR-0006](adr/0006-monorepo-with-hr-guru-ats.md), [ADR-0007](adr/0007-ats-as-system-of-record.md)).
 
 ## 1. Architecture at a glance
 
@@ -8,7 +8,18 @@ Version 0.1. Architecture decisions are recorded in [adr/](adr/).
 flowchart TB
   subgraph Client
     WEB[React SPA<br/>Vite + TypeScript]
+    RUI[Recruiters' browser<br/>ATS UI]
   end
+
+  subgraph ATSTier["HR Guru ATS (system of record)"]
+    ATS[ATS app<br/>Flask + Waitress<br/>uploads CVs, requirements]
+    APG[(ATS PostgreSQL)]
+    UPL[(CV / JD uploads)]
+    ATS --> APG
+    ATS --> UPL
+  end
+
+  CON[ATS connector<br/>read-only sync]
 
   subgraph Product["Product tier (MERN)"]
     API[Express API / BFF<br/>auth, RBAC, REST, SSE]
@@ -46,6 +57,10 @@ flowchart TB
 
   OBS[Langfuse<br/>traces, cost, evals]
 
+  RUI -->|HTTPS via Cloudflare Tunnel| ATS
+  APG -.->|SELECT-only role| CON
+  UPL -.->|read-only| CON
+  CON -->|profiles, masked chunks, embeddings, requirement snapshots| MDB
   WEB -->|HTTPS JSON / SSE| API
   API -->|REST + service token| AGS
   API --> MDB
@@ -66,10 +81,12 @@ flowchart TB
 
 | Component | Tech | Responsibility | Owns data |
 |---|---|---|---|
+| HR Guru ATS | Flask, Waitress, PostgreSQL 16, server-rendered templates | Live recruiter system: candidate and CV upload (including Naukri-sourced candidates), requirements, submissions, reports. Restored to run locally in Docker and exposed through Cloudflare Tunnel | candidates, CVs, requirements, submissions (**source of truth**) |
+| ATS connector | Python, in the agent service | Incremental read-only sync from the ATS (`updated_at`), resume parsing via the ATS parser, PII masking, embeddings; deletion propagation | — (writes derived data to MongoDB) |
 | Web | React 19, Vite, TypeScript, TanStack Query | UI for requirements, agent execution dashboard (live run view, run history, KPIs), shortlist review, approvals | — |
 | API / BFF | Node 22, Express 5, Zod, Mongoose | Auth (JWT plus refresh), RBAC, CRUD, approval endpoints, proxying run events to the UI over Server-Sent Events (SSE), audit writes | users, requirements, approvals |
 | Agent Service | Python 3.12, FastAPI, LangGraph, Pydantic | Run orchestration, agents, guardrails, model calls, checkpointing | runs, checkpoints |
-| Existing HR Guru parsers | Reused (language TBC) | JD and resume parsing, wrapped as `jd.parse` / `resume.parse` MCP tools. The existing platform itself is not modified | — |
+| ATS parsers (reused) | Python (`ats_pipeline.py`, `app.py` parse functions, `skill_aliases.py`) | JD and resume parsing, wrapped as `jd.parse` / `resume.parse` tools | — |
 | MCP Server | Node 22, `@modelcontextprotocol/sdk` | Typed, permissioned tools over recruitment data; enforces tool scopes per agent | — (reads/writes via the data layer) |
 | LiteLLM | Python (OSS) | Single model interface, routing rules, fallbacks, retries, budgets | — |
 | Ollama | Native on macOS | Local LLM (8B class) and embedding model; the PII-safe path | — |
@@ -134,6 +151,7 @@ The **data classification tag** travels with every request (`pii: true|false`). 
 | Edge / API | Helmet headers, CORS allow-list, rate limiting, Zod validation on every input, JWT (15 min) plus rotating refresh token, RBAC middleware, CSRF protection on cookie routes |
 | Service-to-service | Shared service token (dev) → mTLS or signed JWT (pilot); agent service is not exposed publicly |
 | Agents | Untrusted-content wrapping for resumes and JDs (treated as data, not instructions); allow-listed tools per agent; argument schema validation; approval tokens for side-effecting tools; loop, time and token limits |
+| ATS boundary | TalentScout uses a `SELECT`-only database role; no TalentScout code path writes to ATS tables; connector contract tests; the ATS is published only through Cloudflare Tunnel with HTTPS |
 | Data | PII masking before any cloud call; encryption at rest (Atlas); field-level separation of protected attributes; retention job; erasure endpoint |
 | Supply chain | Lockfiles, Dependabot, CodeQL, Semgrep, npm audit / pip-audit, gitleaks, Trivy image scans, SBOM |
 | Audit | Append-only audit events; every approval linked to user and time |
@@ -141,6 +159,8 @@ The **data classification tag** travels with every request (`pii: true|false`). 
 Threat model (STRIDE plus OWASP LLM Top 10): [threat-model.md](threat-model.md).
 
 ## 6. Deployment views
+
+**ATS (live, from Sprint 0):** on the same Mac in Docker (`ats`, `ats-db`). Recruiters reach it at `https://ats.hrgp.in` through a Cloudflare Tunnel (no public IP). Nightly `pg_dump` plus uploads backup. See the [runbook](../runbooks/ats-local-restore.md).
 
 **Dev and pilot (primary):** MacBook M2 16 GB.
 - `docker compose up` runs web, api, agents, mcp, mongo (atlas-local), redis and litellm.

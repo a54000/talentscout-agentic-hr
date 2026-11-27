@@ -2,7 +2,7 @@
 
 | Item | Value |
 |---|---|
-| Product | HR Guru: Agentic AI Recruitment Command Centre (codename TalentScout) |
+| Product | TalentScout: Agentic AI Recruitment Command Centre (for HR Guru) |
 | Version | 0.2 |
 | Sponsor | HR Guru Director |
 | Author | Product Owner |
@@ -10,7 +10,7 @@
 
 ## 1. Business background
 
-HR Guru provides recruitment and resource augmentation services to multiple enterprise clients, with about 40 recruitment professionals. The process relies heavily on manual work, individual recruiter experience and repetitive decisions.
+HR Guru provides recruitment and resource augmentation services to multiple enterprise clients, with about 40 recruitment professionals, **25 of whom are the MVP users**. Recruiters work in the HR Guru ATS, which is the source of all candidates and CVs. The process relies heavily on manual work, individual recruiter experience and repetitive decisions.
 
 Agentic AI can improve recruiter productivity, candidate quality and delivery efficiency. Details are in [requirements gathering](../00-discovery/requirements-gathering.md).
 
@@ -66,8 +66,8 @@ The first release is kept small but architecturally extensible.
 | Observability and evaluation | Included |
 | Automated candidate outreach | Future phase |
 | Voice-based candidate screening | Future phase |
-| Naukri API integration | Subject to authorised API access |
-| ATS integration | Future phase |
+| HR Guru ATS | **Included:** restored to run locally; read-only source of candidates, CVs and requirements. Write-back is future |
+| Naukri | No profile API is available. Recruiters source on Naukri and upload candidates and CVs into the ATS, which TalentScout reads |
 | Delivery monitoring agent | Future phase |
 | Autonomous hiring decisions | **Excluded** |
 
@@ -88,7 +88,7 @@ Also out of scope: modifying the existing recruitment platform, scraping unlicen
 
 ## 7. Engineering principles (agreed)
 
-1. Separate repository; the existing recruitment platform is not modified.
+1. One repository for TalentScout and the ATS (ADR-0006); the live ATS is only changed to restore and secure it, never by TalentScout at runtime.
 2. Version-controlled engineering documentation.
 3. Major architecture decisions are understood and recorded (ADRs) before implementation.
 4. AI-generated code is reviewed before it is accepted.

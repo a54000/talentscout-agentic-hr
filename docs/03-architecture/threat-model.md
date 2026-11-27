@@ -8,14 +8,18 @@ Scope: MVP architecture in [HLD](HLD.md). Reviewed every sprint; owner: Tech Lea
 3. Agent Service ↔ MCP Server (internal).
 4. Agent Service ↔ LLM providers (**external**; local Ollama is a separate, trusted boundary).
 5. Untrusted *content* inside trusted flows: JD text, resumes, client emails.
+6. Recruiters' browsers ↔ HR Guru ATS (internet, via Cloudflare Tunnel).
+7. TalentScout connector ↔ ATS database (read-only role).
 
 ## STRIDE
 
 | Threat | Example | Mitigation | Story |
 |---|---|---|---|
 | Spoofing | Stolen JWT used to approve a shortlist or a constraint relaxation | Short-lived access token, refresh rotation and reuse detection, re-auth for approvals | TS-E1-02, TS-E5-06 |
+| Tampering | TalentScout bug corrupts live ATS data | SELECT-only DB role; no write code path; contract tests | TS-EA-08 |
 | Tampering | Audit events edited to hide an action | Append-only collection, DB role without update/delete, hash chain per run | TS-E5-07 |
 | Repudiation | "I never approved that shortlist" | Approval records with user, time and final text hash | TS-E3-06 |
+| Information disclosure | The ATS returns internal error text to clients; ATS repo history leaks PII | ATS hardening; error handler without internals; hireflow repo made private | TS-EA-07 |
 | Information disclosure | Candidate PII sent to a free cloud LLM tier | Data-classification tag; router refuses `pii=true` on cloud routes; masking; tests | TS-E5-02, TS-E6-01 |
 | Denial of service | Prompt causes infinite agent loop and burns quota | Iteration, time and token limits; per-user rate limits | TS-E5-04 |
 | Elevation of privilege | Sourcing agent calls `shortlist.finalise` or writes to memory | Per-agent MCP scopes; approval token required by the tool | TS-E4-03, TS-E5-05 |

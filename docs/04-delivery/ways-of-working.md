@@ -35,7 +35,9 @@ The project follows the full engineering lifecycle. Each phase ends with a gate;
 | 5 AI engineering and governance | Guardrail, evaluation and security checks green; threat model reviewed | CI reports, governance review |
 | 6 Deployment and pilot | Performance targets met; pilot report against baseline | Pilot report |
 
-Gates 1–3 close in Sprint 0. Sprint 0 has **no feature code**: only the repository, CI/CD and security scanning, so that development starts on a pipeline that already works.
+Gates 1–3 close in Sprint 0. Sprint 0 has **no TalentScout feature code**: the repository, CI/CD, security scanning and the ATS restore.
+
+The [task checklist](task-checklist.md) is the one-page view of every task and its status.
 
 ## 3a. Engineering principles
 1. Separate repository; the existing recruitment platform is not modified.
@@ -77,6 +79,7 @@ Gates 1–3 close in Sprint 0. Sprint 0 has **no feature code**: only the reposi
 ## 8. Environments
 | Env | Where | Data | Deploy |
 |---|---|---|---|
+| ats-live | Mac, Docker (`ats`, `ats-db`) + Cloudflare Tunnel | **real** (recruiters' live data) | reviewed PR + smoke tests, manual restart |
 | local | Mac, Docker Compose + native Ollama | synthetic | manual |
 | ci | GitHub Actions | synthetic | every PR |
 | demo | OCI Always Free (optional) | synthetic | auto on `main` if secrets configured |

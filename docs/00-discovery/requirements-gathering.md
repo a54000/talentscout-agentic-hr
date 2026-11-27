@@ -1,15 +1,15 @@
-# Requirements Gathering: HR Guru Agentic AI Recruitment Command Centre
+# Requirements Gathering: TalentScout (Agentic AI Recruitment Command Centre for HR Guru)
 
 | Item | Value |
 |---|---|
-| Codename / repo | TalentScout (`talentscout-agentic-hr`) |
+| Repo | `talentscout-agentic-hr` (also contains the HR Guru ATS in `apps/ats`) |
 | Document owner | Product Owner (PO) |
 | Status | v0.2: updated with the business brief of 2026-11-27 |
 | Approvers | HR Guru Director (sponsor), Delivery Lead |
 
 ## 1. Business background
 
-HR Guru provides **recruitment and resource augmentation services** to multiple enterprise clients, with about **40 recruitment professionals**.
+HR Guru provides **recruitment and resource augmentation services** to multiple enterprise clients, with about 40 recruitment professionals. **TalentScout's MVP is rolled out to 25 recruiters.**
 
 The current process depends heavily on:
 - manual activities;
@@ -18,7 +18,7 @@ The current process depends heavily on:
 
 There is an opportunity to improve recruiter productivity, candidate quality and delivery efficiency with agentic AI.
 
-This is a **separate repository and platform**. The existing recruitment platform is not modified. Its JD and resume parsing components may be reused after a code review (TS-E1-08).
+**The HR Guru ATS** (Flask + PostgreSQL) is the live system where recruiters upload candidates and CVs and manage requirements. Its AWS host was torn down, so it is being **restored to run locally** (TS-EA epic) and is kept in this repository (ADR-0006). TalentScout reads from it and never replaces it (ADR-0007). Its JD and CV parsing logic is reused (TS-E1-08).
 
 ## 2. Stakeholders
 
@@ -26,7 +26,7 @@ This is a **separate repository and platform**. The existing recruitment platfor
 |---|---|---|---|---|
 | HR Guru Director | Sponsor, budget owner | Productivity, quality, delivery efficiency | High | Phase gates, sprint review |
 | Delivery Lead(s) | Key users and SMEs | Submission quality, conversion, SLAs | High | Sprint reviews, backlog refinement |
-| Recruiters (~40 professionals; pilot group of 3–5) | Primary users | Less manual sourcing, better shortlists | Medium | Interviews, UAT, feedback |
+| Recruiters (25 in the MVP rollout; pilot group of 3–5 first) | Primary users | Less manual sourcing, better shortlists | Medium | Interviews, UAT, feedback |
 | Enterprise clients | Indirect beneficiaries | Relevant submissions, faster closure | Medium | Not involved in MVP |
 | Candidates | Data subjects | Privacy, fair treatment | Low (high ethically) | Consent notice, erasure |
 | Data protection contact | Compliance | DPDP Act 2023 | High (veto) | Sign-off before real data is used |
@@ -94,10 +94,10 @@ The reference scenario is [UC-001: Intelligent Candidate Sourcing](UC-001-intell
 
 | # | Question | Current answer | Status |
 |---|---|---|---|
-| Q1 | Team size and split | ~40 recruitment professionals (confirmed). Split between recruiters and delivery leads TBC | **Partly confirmed (A-01)** |
+| Q1 | Team size and split | 25 recruiters in the MVP rollout (confirmed); about 40 professionals in total | **Confirmed (A-01)** |
 | Q2 | Open requirements per month, number of clients | Planning figure 200 per month (≈ 5 per recruiter); multiple enterprise clients | **Assumption A-02** |
-| Q3 | Candidate sources and database size | Internal candidate database and job portals; Naukri only with authorised API access | **Partly confirmed (A-03)** |
-| Q4 | Existing JD and resume parsers: language, quality, reusability | Exist; reuse subject to code review | **Confirmed exists; review TS-E1-08** |
+| Q3 | Candidate sources and database size | **The HR Guru ATS** is the only source. Recruiters upload candidates sourced anywhere, including Naukri (no profile API), into the ATS. Production had about 3,600 candidates and 400 requirements | **Confirmed (A-03)**; data recovery open (TS-EA-04) |
+| Q4 | Existing JD and resume parsers: language, quality, reusability | Python, inside the ATS (`ats_pipeline.py`, `app.py`, `skill_aliases.py`); reuse subject to review | **Confirmed; review TS-E1-08** |
 | Q5 | Top pain points | BP-1 … BP-8 (§5) | **Confirmed** |
 | Q6 | KPIs tracked today | Baseline to be established before measuring (TS-E0-08) | **Open** |
 | Q7 | AI budget | $0 cash: free tiers plus local model | **Decision D-01** |
@@ -120,7 +120,7 @@ Record the answers in `docs/00-discovery/interview-notes/`, one file per intervi
 - **C1 — Zero cash budget.** Free tiers, open source and the local MacBook M2 16 GB only.
 - **C2 — Candidate PII never goes to a free cloud LLM tier.** Real PII is processed by local models only.
 - **C3 — Bounded autonomy.** No autonomous hiring decisions, no autonomous relaxing of constraints, no candidate contact in the MVP.
-- **C4 — Authorised sources only.** Internal database, licensed exports, direct applicants. Naukri only via authorised API.
+- **C4 — The ATS is the only candidate source.** No scraping. Naukri candidates enter only through recruiter uploads to the ATS.
 - **C5 — Synthetic or properly authorised data** during development. Only synthetic data is committed (public repository).
 - **C6 — No unnecessary frameworks** just to demonstrate newer technology.
-- **C7 — Separate repository.** The existing recruitment platform is not modified.
+- **C7 — The live ATS is protected.** TalentScout reads it read-only. ATS changes are limited to restoring and securing it, each through a reviewed PR with smoke tests.
