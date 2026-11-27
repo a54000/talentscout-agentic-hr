@@ -67,7 +67,7 @@ cd apps/ats && python3 -m venv .venv && .venv/bin/pip install -r requirements.tx
 3. Restore into the `ats-db` container. Use the `ATS_DB_PASSWORD` from your root `.env`:
 
 ```bash
-DATABASE_URL="postgresql://hrguru:YOUR_ATS_DB_PASSWORD@127.0.0.1:5432/hrguru_ats" PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /Users/surindersingh/Coding/ats/ats.db
+DATABASE_URL="postgresql://hrguru:YOUR_ATS_DB_PASSWORD@127.0.0.1:5433/hrguru_ats" PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /Users/surindersingh/Coding/ats/ats.db
 ```
 
 4. Check the printed counts against the last known production figures (about 3,600 candidates and 400 requirements). Also check the **newest created_at** dates: production moved from SQLite to PostgreSQL around May–June 2026, so anything entered after that move is not in `ats.db`. Record the result in TS-EA-04.

@@ -8,8 +8,8 @@
 #   4. print row counts and the newest candidate/requirement dates for verification
 # Refuses to run if the target already has ATS tables (protects data written after restore).
 #
-# Usage (from apps/ats, with the ats-db container running):
-#   DATABASE_URL=postgresql://hrguru:<password>@127.0.0.1:5432/hrguru_ats \
+# Usage (from apps/ats, with the ats-db container running on host port 5433):
+#   DATABASE_URL=postgresql://hrguru:<password>@127.0.0.1:5433/hrguru_ats \
 #   PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /path/to/ats.db
 set -euo pipefail
 SRC="${1:?usage: restore_from_sqlite.sh /path/to/ats.db}"

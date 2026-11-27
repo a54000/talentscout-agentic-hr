@@ -22,7 +22,7 @@ services:
       POSTGRES_USER: hrguru
       POSTGRES_PASSWORD: ${ATS_DB_PASSWORD:?set ATS_DB_PASSWORD in .env}
     volumes: [ats-pgdata:/var/lib/postgresql/data]
-    ports: ["127.0.0.1:5432:5432"]   # localhost only
+    ports: ["127.0.0.1:${ATS_DB_PORT:-5433}:5432"]   # localhost only; 5433 avoids a local PostgreSQL on 5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hrguru -d hrguru_ats"]
       interval: 10s
