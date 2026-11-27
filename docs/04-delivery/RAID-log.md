@@ -40,7 +40,7 @@ Scale: Probability and Impact are rated 1 (low) to 5 (high). Score = P × I.
 | ID | Issue | Raised | Action | Status |
 |---|---|---|---|---|
 | I-03 | The live ATS is down (EC2 torn down) | 2026-11-27 | Restore locally (TS-EA-01…06) | In progress |
-| I-01 | Jira project must be created manually (the tooling cannot create projects) | 2026-11-27 | Owner creates a Scrum project with key `TS`; then import the backlog | Open |
+| I-01 | Jira project must be created manually (the tooling cannot create projects) | 2026-11-27 | Owner created project TS; 8 epics, 60 stories and 8 sprints imported | Closed |
 | I-02 | Discovery questions partly answered by the business brief (team size, problems, scope, KPIs, UC-001) | 2026-11-27 | Volumes, DB size and baselines still open (A-01…A-03, TS-E0-08) | Open |
 
 ## Dependencies

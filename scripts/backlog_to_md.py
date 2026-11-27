@@ -46,8 +46,9 @@ def write_checklist(data: dict, sprints: dict, by_sprint: dict) -> None:
             st = s.get("status", "todo")
             box = "x" if st == "done" else " "
             tag = "" if st in ("done", "todo") else f" **[{STATUS_LABEL[st]}]**"
+            jira = f", Jira {s['jira']}" if s.get("jira") else ""
             out.append(f"- [{box}] **{s['id']} {s['title']}**{tag}: {short_description(s)} "
-                       f"_({s['points']} pts, owner: {s.get('owner', 'Claude')})_")
+                       f"_({s['points']} pts, owner: {s.get('owner', 'Claude')}{jira})_")
         out.append("")
     (DELIVERY / "task-checklist.md").write_text("\n".join(out))
 
@@ -75,7 +76,8 @@ def main() -> None:
         for s in by_epic[eid]:
             fr = ", ".join(s["fr"]) or "n/a"
             status = STATUS_LABEL[s.get("status", "todo")]
-            out += [f"### {s['id']}: {s['title']}  ({s['points']} pts, Sprint {s['sprint']}, {status})", "",
+            jira = f", Jira {s['jira']}" if s.get("jira") else ""
+            out += [f"### {s['id']}: {s['title']}  ({s['points']} pts, Sprint {s['sprint']}, {status}{jira})", "",
                     f"*{s['story']}*", "", f"Traces to: {fr}", "", "Acceptance criteria:"]
             out += [f"- {ac}" for ac in s["ac"]]
             out.append("")

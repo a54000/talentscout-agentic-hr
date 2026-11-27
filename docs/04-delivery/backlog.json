@@ -62,42 +62,50 @@
     {
       "id": "E0",
       "name": "Inception and platform",
-      "summary": "Documents, repo, CI/CD, security scanning, local stack, free-tier accounts."
+      "summary": "Documents, repo, CI/CD, security scanning, local stack, free-tier accounts.",
+      "jira": "TS-1"
     },
     {
       "id": "EA",
       "name": "HR Guru ATS restore and integration",
-      "summary": "Bring the live ATS back (local Docker + Cloudflare Tunnel), protect it (backups, security), and connect TalentScout to it read-only."
+      "summary": "Bring the live ATS back (local Docker + Cloudflare Tunnel), protect it (backups, security), and connect TalentScout to it read-only.",
+      "jira": "TS-2"
     },
     {
       "id": "E1",
       "name": "Requirement agent",
-      "summary": "Auth, requirements, existing JD parser reuse, LLM router v0 and a bounded single agent with structured output."
+      "summary": "Auth, requirements, existing JD parser reuse, LLM router v0 and a bounded single agent with structured output.",
+      "jira": "TS-3"
     },
     {
       "id": "E2",
       "name": "Intelligent retrieval",
-      "summary": "Synthetic data (incl. UC-001), resume parsing, embeddings, hybrid search, funnel analysis and the Sourcing agent."
+      "summary": "Synthetic data (incl. UC-001), resume parsing, embeddings, hybrid search, funnel analysis and the Sourcing agent.",
+      "jira": "TS-4"
     },
     {
       "id": "E3",
       "name": "Multi-agent orchestration",
-      "summary": "LangGraph supervisor, bottleneck diagnosis, replanning with frozen constraints, escalation, evidence-based matching, approval gate."
+      "summary": "LangGraph supervisor, bottleneck diagnosis, replanning with frozen constraints, escalation, evidence-based matching, approval gate.",
+      "jira": "TS-5"
     },
     {
       "id": "E4",
       "name": "MCP and memory",
-      "summary": "MCP tool server, scopes, durable execution, long-term memory, live run view."
+      "summary": "MCP tool server, scopes, durable execution, long-term memory, live run view.",
+      "jira": "TS-6"
     },
     {
       "id": "E5",
       "name": "Responsible AI and LLMOps",
-      "summary": "Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP."
+      "summary": "Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP.",
+      "jira": "TS-7"
     },
     {
       "id": "E6",
       "name": "Interoperability, delivery and pilot",
-      "summary": "LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch)."
+      "summary": "LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch).",
+      "jira": "TS-8"
     }
   ],
   "stories": [
@@ -115,7 +123,8 @@
       "story": "As a tech lead I want the ATS code in this repository so that one pipeline builds, tests and scans everything.",
       "ac": [
         "Given hireflow@990f832, then it is in apps/ats without git history and without real candidate data or backup files"
-      ]
+      ],
+      "jira": "TS-9"
     },
     {
       "id": "TS-EA-02",
@@ -133,7 +142,8 @@
         "Given Docker on the Mac, when docker compose up ats-db ats runs, then /healthz is ok and admin login works",
         "Given macOS/Linux, then the single-instance lock works (Windows-only msvcrt replaced)",
         "Given an empty PostgreSQL, then bootstrap_empty_postgres.sh creates the schema and refuses to touch a database that has data"
-      ]
+      ],
+      "jira": "TS-10"
     },
     {
       "id": "TS-EA-03",
@@ -150,7 +160,8 @@
       "ac": [
         "Given pip-audit and Trivy, then apps/ats/requirements.txt has 0 known vulnerabilities (was 61, 7 critical)",
         "Given the upgrade, then SQLite and PostgreSQL smoke tests pass"
-      ]
+      ],
+      "jira": "TS-11"
     },
     {
       "id": "TS-EA-04",
@@ -167,7 +178,8 @@
       "ac": [
         "Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)",
         "Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)"
-      ]
+      ],
+      "jira": "TS-12"
     },
     {
       "id": "TS-EA-05",
@@ -184,7 +196,8 @@
       "ac": [
         "Given a Cloudflare Tunnel, then https://ats.hrgp.in serves the local ATS over HTTPS with no open router ports",
         "Given Google login, then the OAuth redirect URI works on the new host"
-      ]
+      ],
+      "jira": "TS-13"
     },
     {
       "id": "TS-EA-06",
@@ -201,7 +214,8 @@
       "ac": [
         "Given launchd at 21:00, then a pg_dump and an uploads archive are written and 14 copies kept, with an off-machine copy",
         "Given a backup, when restored into a scratch database, then counts match (drill recorded)"
-      ]
+      ],
+      "jira": "TS-14"
     },
     {
       "id": "TS-EA-07",
@@ -220,7 +234,8 @@
         "Given an API error, then clients receive a generic message and details go only to logs",
         "Given CodeQL and Semgrep findings for apps/ats, then all high and critical are fixed or risk-accepted in a tracked list",
         "Given AI screening, then the owner's decision on Gemini and PII (R-11) is implemented"
-      ]
+      ],
+      "jira": "TS-15"
     },
     {
       "id": "TS-EA-08",
@@ -240,7 +255,8 @@
         "Given a SELECT-only DB role, when the connector syncs, then new or changed candidates appear in TalentScout within 10 minutes",
         "Given a candidate deleted in the ATS, then its profile, chunks and embeddings are removed at the next sync",
         "Given a write attempt through the connector role, then the database refuses it"
-      ]
+      ],
+      "jira": "TS-16"
     },
     {
       "id": "TS-EA-09",
@@ -256,7 +272,8 @@
       "story": "As a delivery lead I want to know within minutes if the ATS is down so that recruiters are not blocked.",
       "ac": [
         "Given the ATS stops responding, then an alert is sent within 5 minutes (existing monitor_health script or a free uptime monitor)"
-      ]
+      ],
+      "jira": "TS-17"
     },
     {
       "id": "TS-E0-01",
@@ -273,7 +290,8 @@
         "Given an unformatted file, when lint runs, then it fails with a clear message"
       ],
       "status": "done",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-18"
     },
     {
       "id": "TS-E0-02",
@@ -290,7 +308,8 @@
         "Given a failing test, when CI runs, then the PR check is red and merge is blocked"
       ],
       "status": "in_progress",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-19"
     },
     {
       "id": "TS-E0-03",
@@ -309,7 +328,8 @@
         "Given a high-severity dependency vulnerability, when audit runs, then the job fails"
       ],
       "status": "in_progress",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-20"
     },
     {
       "id": "TS-E0-04",
@@ -327,7 +347,8 @@
         "Given demo secrets are absent, when CD runs, then deploy is skipped with a notice instead of failing"
       ],
       "status": "in_progress",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-21"
     },
     {
       "id": "TS-E0-05",
@@ -344,7 +365,8 @@
         "Given Ollama runs natively, when the agents service starts, then it reaches Ollama via host.docker.internal"
       ],
       "status": "in_progress",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-22"
     },
     {
       "id": "TS-E0-06",
@@ -361,7 +383,8 @@
         "Given the results, when the spike ends, then ADR-0004 records the chosen model"
       ],
       "status": "todo",
-      "owner": "You"
+      "owner": "You",
+      "jira": "TS-23"
     },
     {
       "id": "TS-E0-07",
@@ -378,7 +401,8 @@
         "Given .env.example, when compared with code, then every required variable is documented"
       ],
       "status": "todo",
-      "owner": "You"
+      "owner": "You",
+      "jira": "TS-24"
     },
     {
       "id": "TS-E0-08",
@@ -395,7 +419,8 @@
         "Given the baseline, when published, then it states sample size and limitations"
       ],
       "status": "todo",
-      "owner": "You"
+      "owner": "You",
+      "jira": "TS-25"
     },
     {
       "id": "TS-E0-09",
@@ -409,8 +434,9 @@
         "Given backlog.json, when imported, then every epic and story exists in Jira with points and sprint",
         "Given the board, when Sprint 0 starts, then its committed stories are in the sprint"
       ],
-      "status": "blocked",
-      "owner": "Claude"
+      "status": "done",
+      "owner": "Claude",
+      "jira": "TS-26"
     },
     {
       "id": "TS-E1-01",
@@ -429,7 +455,8 @@
         "Given a budget below 0 or a missing title, when I submit, then I get a 400 problem+json response naming the field"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-27"
     },
     {
       "id": "TS-E1-02",
@@ -449,7 +476,8 @@
         "Given a reused refresh token, when I refresh, then all sessions for that user are revoked"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-28"
     },
     {
       "id": "TS-E1-03",
@@ -467,7 +495,8 @@
         "Given a 429 from the free tier, when pii=false, then the router falls back to Ollama"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-29"
     },
     {
       "id": "TS-E1-04",
@@ -485,7 +514,8 @@
         "Given a JD containing an injection instruction, when analysed, then behaviour and schema are unchanged"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-30"
     },
     {
       "id": "TS-E1-05",
@@ -502,7 +532,8 @@
         "Given I dismiss a question, then it is hidden and recorded as dismissed"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-31"
     },
     {
       "id": "TS-E1-06",
@@ -519,7 +550,8 @@
         "Given the app database user, when it tries to update an audit event, then it is denied"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-32"
     },
     {
       "id": "TS-E1-07",
@@ -536,7 +568,8 @@
         "Given recall drops more than 10 points versus baseline, then the eval exits non-zero"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-33"
     },
     {
       "id": "TS-E1-08",
@@ -554,7 +587,8 @@
         "Given the decision, then jd.parse and resume.parse tool contracts are defined in the LLD"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-34"
     },
     {
       "id": "TS-E2-01",
@@ -573,7 +607,8 @@
         "Given generated data, when checked, then no protected attributes are present in searchable fields"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-35"
     },
     {
       "id": "TS-E2-07",
@@ -590,7 +625,8 @@
         "Given a resume the parser cannot handle, then it is flagged for review and not silently dropped"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-36"
     },
     {
       "id": "TS-E2-02",
@@ -607,7 +643,8 @@
         "Given a chunk containing an email or phone number, when masked, then neither appears in the stored text"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-37"
     },
     {
       "id": "TS-E2-03",
@@ -624,7 +661,8 @@
         "Given the script runs twice, then it is idempotent"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-38"
     },
     {
       "id": "TS-E2-04",
@@ -642,7 +680,8 @@
         "Given 50k profiles, when searched, then p95 latency is under 1 s locally"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-39"
     },
     {
       "id": "TS-E2-05",
@@ -660,7 +699,8 @@
         "Given the UC-001 dataset, when the agent searches, then it reports funnel counts per stage (experience, skills, budget, notice)"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-40"
     },
     {
       "id": "TS-E2-06",
@@ -677,7 +717,8 @@
         "Given results, then they are recorded in the sprint review notes"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-41"
     },
     {
       "id": "TS-E3-01",
@@ -695,7 +736,8 @@
         "Given the graph, when visualised, then nodes and conditional edges match the LLD"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-42"
     },
     {
       "id": "TS-E3-02",
@@ -717,7 +759,8 @@
         "Given fewer than 5 qualify after 3 replans, then the run ends escalated with the funnel, strategies tried and decision options, not failed"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-43"
     },
     {
       "id": "TS-E3-03",
@@ -734,7 +777,8 @@
         "Given a resume without the skill, then the verdict is not_met or unknown, never met"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-44"
     },
     {
       "id": "TS-E3-04",
@@ -751,7 +795,8 @@
         "Given a clean screening, then no flags are raised"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-45"
     },
     {
       "id": "TS-E3-05",
@@ -769,7 +814,8 @@
         "Given the connection drops, when it reconnects, then missed events are replayed"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-46"
     },
     {
       "id": "TS-E3-06",
@@ -788,7 +834,8 @@
         "Given a delivery_lead token, when submitting decisions, then 403"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-47"
     },
     {
       "id": "TS-E4-01",
@@ -803,7 +850,8 @@
         "Given invalid tool arguments, then a structured error is returned and nothing is written"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-48"
     },
     {
       "id": "TS-E4-02",
@@ -818,7 +866,8 @@
         "Given the MCP server is down, then the run pauses with a clear error instead of crashing"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-49"
     },
     {
       "id": "TS-E4-03",
@@ -834,7 +883,8 @@
         "Given the Sourcing agent session, when it calls shortlist.finalise, then the call is denied and a guardrail_block audit event is written"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-50"
     },
     {
       "id": "TS-E4-04",
@@ -852,7 +902,8 @@
         "Given a resumed run, then no tool call with the same idempotency key is executed twice"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-51"
     },
     {
       "id": "TS-E4-05",
@@ -870,7 +921,8 @@
         "Given a new similar requirement, when the Sourcing agent plans, then relevant feedback is retrieved and shown in the trace"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-52"
     },
     {
       "id": "TS-E5-01",
@@ -887,7 +939,8 @@
         "Given a detected injection, then a guardrail_block event is recorded"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-53"
     },
     {
       "id": "TS-E5-02",
@@ -905,7 +958,8 @@
         "Given pii=true, then only the local route is ever used"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-54"
     },
     {
       "id": "TS-E5-03",
@@ -922,7 +976,8 @@
         "Given a prompt change, then the new version id is recorded on each call"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-55"
     },
     {
       "id": "TS-E5-04",
@@ -938,7 +993,8 @@
         "Given a graph that never satisfies its goal, when run, then it stops at 12 iterations with status stopped_limit and a partial result"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-56"
     },
     {
       "id": "TS-E5-05",
@@ -955,7 +1011,8 @@
         "Given an approval for a different run or candidate, then it is refused"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-57"
     },
     {
       "id": "TS-E5-06",
@@ -971,7 +1028,8 @@
         "Given a session older than 10 minutes, when approving a shortlist or a constraint relaxation, then password re-entry is required"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-58"
     },
     {
       "id": "TS-E5-07",
@@ -989,7 +1047,8 @@
         "Given a completed run, when the completeness check runs, then every graph step has a matching audit event (traceability 100%)"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-59"
     },
     {
       "id": "TS-E5-08",
@@ -1006,7 +1065,8 @@
         "Given a regression beyond threshold, then the check fails"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-60"
     },
     {
       "id": "TS-E5-10",
@@ -1023,7 +1083,8 @@
         "Given retentionUntil has passed, when the job runs, then records are purged"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-61"
     },
     {
       "id": "TS-E6-01",
@@ -1041,7 +1102,8 @@
         "Given routing policy tests, then pii=true never reaches a cloud provider"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-62"
     },
     {
       "id": "TS-E6-02",
@@ -1057,7 +1119,8 @@
         "Given 20 candidates, when screened, then concurrency is bounded and total time drops versus sequential, recorded in the review"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-63"
     },
     {
       "id": "TS-E6-03",
@@ -1077,7 +1140,8 @@
         "Given any run, then it links to its full timeline and trace"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-64"
     },
     {
       "id": "TS-E6-04",
@@ -1092,7 +1156,8 @@
         "Given the A2A agent is unavailable, then the run continues without it and logs a warning"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-65"
     },
     {
       "id": "TS-E6-05",
@@ -1106,7 +1171,8 @@
         "Given a merge to main with demo secrets, when CD runs, then the demo host serves the latest images and health checks pass"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-66"
     },
     {
       "id": "TS-E6-07",
@@ -1124,7 +1190,8 @@
         "Given the agent process is killed or a provider is down during a UC-001 run, then the run recovers and the drill result is recorded"
       ],
       "status": "todo",
-      "owner": "Claude"
+      "owner": "Claude",
+      "jira": "TS-67"
     },
     {
       "id": "TS-E6-06",
@@ -1141,7 +1208,8 @@
         "Given 2 weeks of pilot use, then the report compares effort, acceptance, evidence accuracy and incidents against the baseline, with limitations stated"
       ],
       "status": "todo",
-      "owner": "You + recruiters"
+      "owner": "You + recruiters",
+      "jira": "TS-68"
     }
   ],
   "owner_actions": [
@@ -1158,7 +1226,7 @@
     {
       "task": "Create the Jira project (Scrum, key TS, name TalentScout)",
       "why": "The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.",
-      "status": "todo"
+      "status": "done"
     },
     {
       "task": "Decide on Gemini AI screening in the ATS (R-11)",
@@ -1190,5 +1258,20 @@
       "why": "Approval table in the BRD.",
       "status": "todo"
     }
-  ]
+  ],
+  "jira": {
+    "site": "https://a440564.atlassian.net",
+    "project": "TS",
+    "board": "https://a440564.atlassian.net/jira/software/projects/TS/boards/2",
+    "sprint_ids": {
+      "0": 4,
+      "1": 5,
+      "2": 6,
+      "3": 7,
+      "4": 8,
+      "5": 9,
+      "6": 10,
+      "7": 11
+    }
+  }
 }

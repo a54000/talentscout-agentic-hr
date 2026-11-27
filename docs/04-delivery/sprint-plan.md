@@ -33,7 +33,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E0-04 | CD pipeline to GHCR and demo host | 3 | In progress |
 | TS-E0-05 | Docker Compose local stack | 2 | In progress |
 | TS-E0-07 | Free-tier accounts and secrets handling | 2 | To do |
-| TS-E0-09 | Agile artefacts in Jira | 3 | Blocked |
+| TS-E0-09 | Agile artefacts in Jira | 3 | Done |
 
 ## Sprint 1 - ATS hardening and product foundation
 
