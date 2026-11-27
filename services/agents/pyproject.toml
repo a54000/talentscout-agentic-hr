@@ -1,0 +1,17 @@
+[project]
+name = "talentscout-agents"
+version = "0.1.0"
+description = "Agent service: FastAPI + LangGraph (LangGraph arrives in Sprint 1)"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "ASYNC"]
+ignore = ["S101"]  # assert is fine in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

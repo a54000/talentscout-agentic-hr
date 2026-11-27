@@ -1,0 +1,540 @@
+# Product Backlog
+
+_Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not this file._
+
+| Epic | Name | Stories | Points |
+|---|---|---|---|
+| E0 | Inception and platform | 9 | 24 |
+| E1 | Requirement agent | 7 | 26 |
+| E2 | Intelligent retrieval | 6 | 26 |
+| E3 | Multi-agent orchestration | 6 | 29 |
+| E4 | MCP and memory | 6 | 26 |
+| E5 | Responsible AI and LLMOps | 10 | 34 |
+| E6 | Interoperability, delivery and pilot | 6 | 24 |
+| **Total** | | **50** | **189** |
+
+## E0: Inception and platform
+
+Documents, repo, CI/CD, security scanning, local stack, free-tier accounts.
+
+### TS-E0-01: Monorepo structure and tooling  (2 pts, Sprint 0)
+
+*As a developer I want a monorepo with web, api and agents projects so that all tiers build and test the same way.*
+
+Traces to: NFR-10
+
+Acceptance criteria:
+- Given a fresh clone, when I run the documented setup, then web, api and agents install and their tests pass
+- Given an unformatted file, when lint runs, then it fails with a clear message
+
+### TS-E0-02: CI pipeline: lint, test, build  (3 pts, Sprint 0)
+
+*As a tech lead I want every PR linted, tested and built so that broken code never reaches main.*
+
+Traces to: NFR-7
+
+Acceptance criteria:
+- Given a PR, when CI runs, then Node and Python lint, unit tests and builds run and report status
+- Given a failing test, when CI runs, then the PR check is red and merge is blocked
+
+### TS-E0-03: Security scanning pipeline  (3 pts, Sprint 0)
+
+*As a security owner I want SAST, SCA, secret and container scans on every PR so that vulnerabilities are caught early.*
+
+Traces to: NFR-1, NFR-8
+
+Acceptance criteria:
+- Given a PR, when security CI runs, then CodeQL, Semgrep, gitleaks, npm audit, pip-audit and Trivy run
+- Given a committed fake secret, when gitleaks runs, then the job fails
+- Given a high-severity dependency vulnerability, when audit runs, then the job fails
+
+### TS-E0-04: CD pipeline to GHCR and demo host  (3 pts, Sprint 0)
+
+*As a tech lead I want images built, scanned and published on merge so that every main commit is deployable.*
+
+Traces to: NFR-8
+
+Acceptance criteria:
+- Given a merge to main, when CD runs, then images for web, api and agents are pushed to GHCR tagged with the commit SHA
+- Given a critical vulnerability in an image, when Trivy scans it, then the image is not pushed
+- Given demo secrets are absent, when CD runs, then deploy is skipped with a notice instead of failing
+
+### TS-E0-05: Docker Compose local stack  (2 pts, Sprint 0)
+
+*As a developer I want one command to start the stack so that I can work offline on my Mac.*
+
+Traces to: NFR-10
+
+Acceptance criteria:
+- Given Docker is running, when I run docker compose up, then web, api, agents, mongo and redis start and health checks pass
+- Given Ollama runs natively, when the agents service starts, then it reaches Ollama via host.docker.internal
+
+### TS-E0-06: Spike: local model selection on M2 16 GB  (3 pts, Sprint 0)
+
+*As an architect I want to measure candidate local models so that the PII-safe route is good enough and fast enough.*
+
+Traces to: NFR-3
+
+Acceptance criteria:
+- Given 3 candidate 8B-class models, when each analyses 5 sample JDs, then quality notes, tokens/sec and RAM use are recorded
+- Given the results, when the spike ends, then ADR-0004 records the chosen model
+
+### TS-E0-07: Free-tier accounts and secrets handling  (2 pts, Sprint 0)
+
+*As a developer I want free-tier accounts set up and secrets kept out of git so that we spend $0 and leak nothing.*
+
+Traces to: NFR-6
+
+Acceptance criteria:
+- Given the setup guide, when followed, then Atlas, Langfuse and one free LLM key are configured in a local .env that git ignores
+- Given .env.example, when compared with code, then every required variable is documented
+
+### TS-E0-08: Baseline measurement plan  (3 pts, Sprint 0)
+
+*As a product owner I want a baseline of recruiter effort so that pilot results can be compared honestly.*
+
+Traces to: BO-1
+
+Acceptance criteria:
+- Given 3 recruiters, when they log 5 requirements each, then minutes per sourcing phase and acceptance rate are recorded
+- Given the baseline, when published, then it states sample size and limitations
+
+### TS-E0-09: Agile artefacts in Jira  (3 pts, Sprint 0)
+
+*As an engineering manager I want epics, stories and sprints in Jira so that delivery is tracked transparently.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given backlog.json, when imported, then every epic and story exists in Jira with points and sprint
+- Given the board, when Sprint 0 starts, then its committed stories are in the sprint
+
+## E1: Requirement agent
+
+Auth, requirements, LLM router v0 and a bounded single agent with structured output.
+
+### TS-E1-01: Requirement CRUD API and UI  (5 pts, Sprint 1)
+
+*As a recruiter I want to create and view requirements with constraints so that the agents know the hiring goal.*
+
+Traces to: FR-REQ-1, FR-REQ-4
+
+Acceptance criteria:
+- Given valid input, when I create a requirement, then it is saved with status draft and returned
+- Given a budget below 0 or a missing title, when I submit, then I get a 400 problem+json response naming the field
+
+### TS-E1-02: Authentication and RBAC  (5 pts, Sprint 1)
+
+*As an admin I want role-based access so that each user sees only what they should.*
+
+Traces to: FR-AUTH-1, FR-AUTH-2, FR-AUTH-3
+
+Acceptance criteria:
+- Given valid credentials, when I log in, then I receive a 15-minute access token and a refresh cookie
+- Given a recruiter token, when I call an admin route, then I get 403
+- Given a reused refresh token, when I refresh, then all sessions for that user are revoked
+
+### TS-E1-03: LLM router v0 with PII flag  (3 pts, Sprint 1)
+
+*As an architect I want every model call to go through a router that knows data sensitivity so that PII never reaches a cloud tier.*
+
+Traces to: NFR-3, NFR-4
+
+Acceptance criteria:
+- Given pii=true, when a cloud route is configured, then the router raises PolicyViolation
+- Given a 429 from the free tier, when pii=false, then the router falls back to Ollama
+
+### TS-E1-04: Requirement agent with structured output and repair loop  (5 pts, Sprint 1)
+
+*As a recruiter I want the JD analysed into must-haves, constraints and ambiguities so that sourcing starts from a clear brief.*
+
+Traces to: FR-REQ-2
+
+Acceptance criteria:
+- Given a golden JD, when analysed, then output validates against RequirementAnalysis
+- Given a malformed model reply, when parsing fails, then the agent repairs at most 2 times and otherwise marks needs_human
+- Given a JD containing an injection instruction, when analysed, then behaviour and schema are unchanged
+
+### TS-E1-05: Clarification questions UI  (3 pts, Sprint 1)
+
+*As a recruiter I want to answer or dismiss clarification questions so that the brief improves before sourcing.*
+
+Traces to: FR-REQ-3
+
+Acceptance criteria:
+- Given analysis questions, when I answer one, then the requirement version increments and the answer is stored
+- Given I dismiss a question, then it is hidden and recorded as dismissed
+
+### TS-E1-06: Audit events v0  (2 pts, Sprint 1)
+
+*As an admin I want every agent call recorded so that decisions are traceable.*
+
+Traces to: FR-OBS-1
+
+Acceptance criteria:
+- Given an analysis run, when it completes, then model_call and observation events exist with model, tokens and latency
+- Given the app database user, when it tries to update an audit event, then it is denied
+
+### TS-E1-07: Golden JD dataset and test  (3 pts, Sprint 1)
+
+*As QA I want 10 golden JDs with expected must-haves so that prompt changes are measurable.*
+
+Traces to: NFR-7
+
+Acceptance criteria:
+- Given the golden set, when the eval runs, then must-have recall and precision are reported
+- Given recall drops more than 10 points versus baseline, then the eval exits non-zero
+
+## E2: Intelligent retrieval
+
+Synthetic data, embeddings, hybrid search and the Sourcing agent.
+
+### TS-E2-01: Synthetic candidate generator  (5 pts, Sprint 2)
+
+*As a developer I want 2,000 realistic fictional candidates so that we can build and demo without real PII.*
+
+Traces to: FR-CAND-4, FR-CAND-3
+
+Acceptance criteria:
+- Given a seed, when the generator runs, then the output is deterministic
+- Given generated data, when checked, then no protected attributes are present in searchable fields
+- Given the distribution report, then notice periods, CTC and skills follow configured ranges
+
+### TS-E2-02: Chunking, masking and embedding pipeline  (5 pts, Sprint 2)
+
+*As a developer I want resumes chunked, masked and embedded locally so that semantic search is possible safely.*
+
+Traces to: FR-CAND-1
+
+Acceptance criteria:
+- Given a resume, when processed, then chunks by section exist with 768-dim local embeddings
+- Given a chunk containing an email or phone number, when masked, then neither appears in the stored text
+
+### TS-E2-03: Atlas vector and text indexes  (2 pts, Sprint 2)
+
+*As a developer I want vector and text indexes defined as code so that environments are reproducible.*
+
+Traces to: FR-CAND-2
+
+Acceptance criteria:
+- Given atlas-local, when the setup script runs, then vector_index and text_index exist
+- Given the script runs twice, then it is idempotent
+
+### TS-E2-04: Hybrid search with RRF and filters  (5 pts, Sprint 2)
+
+*As a recruiter I want meaning-based and keyword search combined so that I find relevant people who use different words.*
+
+Traces to: FR-CAND-2, NFR-5
+
+Acceptance criteria:
+- Given a query and filters, when searched, then results honour notice and CTC filters
+- Given 50k profiles, when searched, then p95 latency is under 1 s locally
+
+### TS-E2-05: Sourcing agent with tool calling  (5 pts, Sprint 2)
+
+*As a recruiter I want an agent to formulate searches from the requirement so that I do not write boolean strings.*
+
+Traces to: FR-AGT-6
+
+Acceptance criteria:
+- Given an analysed requirement, when the agent runs, then it issues at most 5 tool calls and returns candidates with retrieved evidence
+- Given zero results, when observed, then the agent tries an alternative query before giving up
+
+### TS-E2-06: Retrieval evaluation: hybrid vs keyword  (4 pts, Sprint 2)
+
+*As an architect I want recall@10 and nDCG@10 measured so that the hybrid design is justified with data.*
+
+Traces to: NFR-7
+
+Acceptance criteria:
+- Given 20 golden queries, when the eval runs, then hybrid and keyword scores are reported side by side
+- Given results, then they are recorded in the sprint review notes
+
+## E3: Multi-agent orchestration
+
+LangGraph supervisor, replanning, Screening and Quality agents, approval gate.
+
+### TS-E3-01: LangGraph supervisor graph and state  (5 pts, Sprint 3)
+
+*As a recruiter I want one goal to trigger a coordinated team of agents so that I do not orchestrate steps myself.*
+
+Traces to: FR-AGT-1, FR-AGT-2
+
+Acceptance criteria:
+- Given a requirement, when a run starts, then a plan with steps and success criteria is stored
+- Given the graph, when visualised, then nodes and conditional edges match the LLD
+
+### TS-E3-02: Replanning with constraint protection  (5 pts, Sprint 3)
+
+*As a recruiter I want the system to change strategy when results are weak without breaking my must-haves.*
+
+Traces to: FR-AGT-3, FR-AGT-4
+
+Acceptance criteria:
+- Given most candidates exceed the notice limit, when observed, then the supervisor replans with alternative strategies
+- Given any replan, then mandatory constraints are unchanged and each relaxation is logged with a reason
+
+### TS-E3-03: Screening agent with evidence  (5 pts, Sprint 3)
+
+*As a recruiter I want each requirement judged with quotes from the resume so that I can trust the score.*
+
+Traces to: FR-AGT-6
+
+Acceptance criteria:
+- Given a candidate, when screened, then each must-have has a verdict and at least one evidence quote or the verdict unknown
+- Given a resume without the skill, then the verdict is not_met or unknown, never met
+
+### TS-E3-04: Quality agent evidence verification  (5 pts, Sprint 3)
+
+*As a delivery lead I want unsupported claims caught before recruiters see them so that clients get accurate submissions.*
+
+Traces to: FR-AGT-7
+
+Acceptance criteria:
+- Given a screening with a fabricated quote, when verified, then it is flagged unsupported and removed from facts
+- Given a clean screening, then no flags are raised
+
+### TS-E3-05: Live run view over SSE  (3 pts, Sprint 3)
+
+*As a recruiter I want to watch the agents plan, act and replan so that I understand what they are doing.*
+
+Traces to: FR-AGT-10
+
+Acceptance criteria:
+- Given a running workflow, when I open the run page, then plan, tool_call, observation and replan events appear in order
+- Given the connection drops, when it reconnects, then missed events are replayed
+
+### TS-E3-06: Shortlist approval gate  (6 pts, Sprint 3)
+
+*As a recruiter I want to approve or reject each shortlisted candidate with a reason so that I remain accountable.*
+
+Traces to: FR-AGT-8, FR-OUT-2
+
+Acceptance criteria:
+- Given a shortlist, when the run reaches the gate, then status is awaiting_approval and the graph is interrupted
+- Given my decisions, when submitted, then the run resumes and an approval record with user and time is stored
+- Given a delivery_lead token, when submitting decisions, then 403
+
+## E4: MCP and memory
+
+MCP tool server, scopes, durable execution, long-term memory, outreach drafts.
+
+### TS-E4-01: MCP server with recruitment tools  (5 pts, Sprint 4)
+
+*As an architect I want recruitment capabilities exposed as MCP tools so that any compliant agent can use them through one contract.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given the MCP server, when a client lists tools, then the catalogue in the LLD is returned with JSON Schemas
+- Given invalid tool arguments, then a structured error is returned and nothing is written
+
+### TS-E4-02: Agents consume tools via MCP client  (3 pts, Sprint 4)
+
+*As a developer I want agents to discover tools at runtime so that adding a tool needs no agent code change.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given the agent service, when it starts, then it discovers tools from the MCP server
+- Given the MCP server is down, then the run pauses with a clear error instead of crashing
+
+### TS-E4-03: Per-agent tool scopes  (3 pts, Sprint 4)
+
+*As a security owner I want each agent limited to its tools so that a compromised agent cannot act beyond its role.*
+
+Traces to: NFR-1
+
+Acceptance criteria:
+- Given the Sourcing agent session, when it calls outreach.send, then the call is denied and a guardrail_block audit event is written
+
+### TS-E4-04: Durable execution with MongoDB checkpointer  (5 pts, Sprint 4)
+
+*As a recruiter I want an interrupted run to continue where it stopped so that work and quota are not wasted.*
+
+Traces to: FR-AGT-9, NFR-4
+
+Acceptance criteria:
+- Given the agent process is killed mid-run, when restarted, then the run resumes from the last checkpoint
+- Given a resumed run, then no tool call with the same idempotency key is executed twice
+
+### TS-E4-05: Long-term feedback memory  (5 pts, Sprint 4)
+
+*As a recruiter I want my rejection reasons remembered so that future searches avoid the same mistakes.*
+
+Traces to: FR-MEM-2, FR-MEM-3
+
+Acceptance criteria:
+- Given approved feedback, when saved, then it is embedded and tagged by role family
+- Given a new similar requirement, when the Sourcing agent plans, then relevant feedback is retrieved and shown in the trace
+
+### TS-E4-06: Outreach agent drafts  (5 pts, Sprint 4)
+
+*As a recruiter I want personalised draft messages so that outreach is fast but still mine.*
+
+Traces to: FR-OUT-1
+
+Acceptance criteria:
+- Given approved candidates, when drafts are generated, then each references real evidence and uses placeholders for PII
+- Given a draft, then it contains no protected attributes
+
+## E5: Responsible AI and LLMOps
+
+Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP.
+
+### TS-E5-01: Prompt-injection defence for untrusted content  (5 pts, Sprint 5)
+
+*As a security owner I want resumes and JDs treated as data so that embedded instructions cannot steer agents.*
+
+Traces to: NFR-1
+
+Acceptance criteria:
+- Given the injection corpus (20 cases), when evaluated, then no case changes scores or triggers tools
+- Given a detected injection, then a guardrail_block event is recorded
+
+### TS-E5-02: PII masking and local-only routing enforcement  (3 pts, Sprint 5)
+
+*As a data protection contact I want PII masked and kept local so that we comply with DPDP and provider terms.*
+
+Traces to: NFR-2, NFR-3
+
+Acceptance criteria:
+- Given any cloud-bound prompt, when inspected in tests, then no email, phone or name from the candidate store appears
+- Given pii=true, then only the local route is ever used
+
+### TS-E5-03: Langfuse tracing and prompt versioning  (3 pts, Sprint 5)
+
+*As a tech lead I want traces and prompt versions so that I can debug and compare agent behaviour.*
+
+Traces to: FR-OBS-2
+
+Acceptance criteria:
+- Given a run, then a Langfuse trace exists with spans per node and tool, with PII masked
+- Given a prompt change, then the new version id is recorded on each call
+
+### TS-E5-04: Loop, time and token limits  (3 pts, Sprint 5)
+
+*As an engineering manager I want hard limits so that runaway agents cannot burn quota or time.*
+
+Traces to: FR-AGT-5
+
+Acceptance criteria:
+- Given a graph that never satisfies its goal, when run, then it stops at 12 iterations with status stopped_limit and a partial result
+
+### TS-E5-05: Approval-token gate on outreach.send  (3 pts, Sprint 5)
+
+*As a director I want sending to be impossible without approval so that there are zero unauthorised actions.*
+
+Traces to: FR-OUT-3
+
+Acceptance criteria:
+- Given no approval id, when outreach.send is called, then it is refused
+- Given an approval for a different candidate, then it is refused
+
+### TS-E5-06: Step-up re-authentication for approvals  (3 pts, Sprint 5)
+
+*As a security owner I want recent authentication before approvals so that a stolen session cannot approve outreach.*
+
+Traces to: FR-AUTH-1
+
+Acceptance criteria:
+- Given a session older than 10 minutes, when approving outreach, then password re-entry is required
+
+### TS-E5-07: Tamper-evident audit trail  (3 pts, Sprint 5)
+
+*As an auditor I want to detect altered audit events so that the trail can be trusted.*
+
+Traces to: FR-OBS-1
+
+Acceptance criteria:
+- Given a run's events, when one is modified directly in the DB, then the verification endpoint reports the broken hash chain
+
+### TS-E5-08: Evaluation gate in CI  (5 pts, Sprint 5)
+
+*As QA I want evals to run on agent changes so that quality regressions block merges.*
+
+Traces to: NFR-7
+
+Acceptance criteria:
+- Given a PR touching prompts or agents, when CI runs, then golden, hallucination and fairness (name-swap) evals run on synthetic data
+- Given a regression beyond threshold, then the check fails
+
+### TS-E5-09: Notional cost dashboard  (3 pts, Sprint 6)
+
+*As a director I want to see what each run would cost on paid APIs so that I can plan a commercial rollout.*
+
+Traces to: NFR-6
+
+Acceptance criteria:
+- Given completed runs, then the dashboard shows tokens, route mix and notional cost per run and per month
+
+### TS-E5-10: DPDP compliance pack  (3 pts, Sprint 6)
+
+*As a data protection contact I want consent, retention and erasure implemented so that the pilot can use real data lawfully.*
+
+Traces to: NFR-2
+
+Acceptance criteria:
+- Given an erasure request, when executed, then the candidate, chunks, embeddings and memory references are deleted and logged
+- Given retentionUntil has passed, when the job runs, then records are purged
+
+## E6: Interoperability, delivery and pilot
+
+LiteLLM routing, parallelism, Delivery agent, A2A, deployment, pilot.
+
+### TS-E6-01: LiteLLM gateway with multi-provider fallback  (5 pts, Sprint 6)
+
+*As an architect I want routing across free providers with fallback so that rate limits do not stop work.*
+
+Traces to: NFR-3, NFR-4
+
+Acceptance criteria:
+- Given provider A returns 429, when called, then provider B is used, then Ollama
+- Given routing policy tests, then pii=true never reaches a cloud provider
+
+### TS-E6-02: Parallel screening fan-out  (3 pts, Sprint 6)
+
+*As a recruiter I want candidates screened in parallel so that shortlists arrive faster.*
+
+Traces to: NFR-5
+
+Acceptance criteria:
+- Given 20 candidates, when screened, then concurrency is bounded and total time drops versus sequential, recorded in the review
+
+### TS-E6-03: Delivery agent and dashboard  (5 pts, Sprint 6)
+
+*As a delivery lead I want at-risk requirements flagged with recommended actions so that I act before SLAs breach.*
+
+Traces to: FR-DEL-1, FR-DEL-2
+
+Acceptance criteria:
+- Given requirement ageing data, then at-risk items are flagged with reasons and suggested actions
+- Given a recommendation, then it is advisory and requires no automatic action
+
+### TS-E6-04: A2A Talent Intelligence agent  (5 pts, Sprint 6)
+
+*As an architect I want an independently deployed agent reachable over A2A so that we prove interoperability.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given the agent card, when the supervisor discovers it, then it can delegate a salary-benchmark task and receive a result
+- Given the A2A agent is unavailable, then the run continues without it and logs a warning
+
+### TS-E6-05: Demo deployment  (3 pts, Sprint 6)
+
+*As a candidate in interviews I want a running demo on synthetic data so that I can show the system live.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given a merge to main with demo secrets, when CD runs, then the demo host serves the latest images and health checks pass
+
+### TS-E6-06: Recruiter pilot and results report  (3 pts, Sprint 6)
+
+*As a director I want a pilot report against the baseline so that the decision to scale is evidence-based.*
+
+Traces to: BO-1, BO-2
+
+Acceptance criteria:
+- Given 2 weeks of pilot use, then the report compares effort, acceptance, evidence accuracy and incidents against the baseline, with limitations stated

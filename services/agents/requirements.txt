@@ -1,0 +1,4 @@
+# Runtime dependencies (pinned). Dependabot keeps these current.
+fastapi==0.165.0
+uvicorn==0.54.0
+pydantic-settings==2.16.3

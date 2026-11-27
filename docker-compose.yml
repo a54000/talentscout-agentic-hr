@@ -1,0 +1,49 @@
+# Local stack. Ollama runs NATIVELY on macOS (Metal GPU) - not in Docker.
+#   brew install ollama && ollama serve
+#   ollama pull qwen3:8b && ollama pull nomic-embed-text
+name: talentscout
+services:
+  mongo:
+    image: mongodb/mongodb-atlas-local:8.0   # $vectorSearch + $search locally, no cost
+    ports: ["27017:27017"]
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  agents:
+    build: ./services/agents
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AGENTS_OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["8000:8000"]
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      AGENTS_URL: http://agents:8000
+      CORS_ORIGINS: http://localhost:8080,http://localhost:5173
+    ports: ["4000:4000"]
+    depends_on: [agents]
+
+  web:
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    ports: ["8080:8080"]
+    depends_on: [api]
+
+volumes:
+  mongo-data:
