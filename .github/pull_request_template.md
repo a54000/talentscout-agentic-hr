@@ -11,4 +11,4 @@
 - [ ] No secrets, and **no real candidate data**, in code, fixtures, logs or traces
 - [ ] No new external side effect without an approval gate
 - [ ] LLD / ADR / README updated if behaviour or a decision changed
-- [ ] Learning note added under `docs/learning/` (if a new concept)
+- [ ] Acceptance criteria demonstrated (on UC-001 where applicable)

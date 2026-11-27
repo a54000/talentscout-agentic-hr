@@ -1,113 +1,126 @@
-# Requirements Gathering — TalentScout Agentic Recruitment Command Centre
+# Requirements Gathering: HR Guru Agentic AI Recruitment Command Centre
 
 | Item | Value |
 |---|---|
+| Codename / repo | TalentScout (`talentscout-agentic-hr`) |
 | Document owner | Product Owner (PO) |
-| Status | Draft v0.1, Sprint 0 |
-| Last updated | 2026-11-27 |
+| Status | v0.2: updated with the business brief of 2026-11-27 |
 | Approvers | HR Guru Director (sponsor), Delivery Lead |
 
-## 1. Why we are doing this
+## 1. Business background
 
-HR Guru is a recruitment business. Its recruiters spend most of their day on repetitive work:
-- reading job descriptions (JDs) and chasing clients for missing details;
-- searching the candidate database with keyword guesses;
-- reading resumes to check whether a candidate really matches;
-- writing outreach messages one at a time;
-- chasing ageing requirements.
+HR Guru provides **recruitment and resource augmentation services** to multiple enterprise clients, with about **40 recruitment professionals**.
 
-Resume parsing, JD parsing and a recruitment platform frontend already exist. This project is **not another ATS (applicant tracking system)**. It adds an **agentic layer**: a supervised team of AI agents that plans and carries out the sourcing-to-shortlist workflow. Recruiters stay in control of every decision that leaves the building.
+The current process depends heavily on:
+- manual activities;
+- individual recruiter experience;
+- repetitive decision-making.
+
+There is an opportunity to improve recruiter productivity, candidate quality and delivery efficiency with agentic AI.
+
+This is a **separate repository and platform**. The existing recruitment platform is not modified. Its JD and resume parsing components may be reused after a code review (TS-E1-08).
 
 ## 2. Stakeholders
 
 | Stakeholder | Role in project | Interest | Influence | Engagement |
 |---|---|---|---|---|
-| HR Guru Director | Sponsor, budget owner | Faster delivery, more placements per recruiter | High | Monthly steering, sprint review |
-| Delivery Lead | Key user and SME | SLA adherence, submission quality | High | Every sprint review, backlog refinement |
-| Recruiters (pilot group) | Primary users | Less manual sourcing, better shortlists | Medium | Interviews, UAT (user acceptance testing), feedback capture |
-| Client hiring managers | Indirect beneficiaries | Quality and speed of submissions | Medium | Not directly involved in MVP |
-| Candidates | Data subjects | Privacy, fair treatment, relevant outreach | Low (high ethically) | Consent notice, opt-out |
-| Data Protection contact | Compliance | DPDP Act 2023 compliance | High (veto) | Sign-off before pilot with real data |
-| Product Owner / Architect / Tech Lead | Delivery team (you plus AI-assisted dev) | Working MVP, learning, interview story | — | Daily |
+| HR Guru Director | Sponsor, budget owner | Productivity, quality, delivery efficiency | High | Phase gates, sprint review |
+| Delivery Lead(s) | Key users and SMEs | Submission quality, conversion, SLAs | High | Sprint reviews, backlog refinement |
+| Recruiters (~40 professionals; pilot group of 3–5) | Primary users | Less manual sourcing, better shortlists | Medium | Interviews, UAT, feedback |
+| Enterprise clients | Indirect beneficiaries | Relevant submissions, faster closure | Medium | Not involved in MVP |
+| Candidates | Data subjects | Privacy, fair treatment | Low (high ethically) | Consent notice, erasure |
+| Data protection contact | Compliance | DPDP Act 2023 | High (veto) | Sign-off before real data is used |
+| Delivery team (PO / architect / tech lead / developer, AI-assisted) | Builds the MVP | Working, governed MVP | — | Daily |
 
 ## 3. Personas
 
-**P1 — Riya, Recruiter (3 years' experience)**
-- Handles about 6 open requirements at once.
-- Spends about 2–3 hours a day on database searches and resume reading.
-- Pain: "I search 'AWS architect' and get 400 results, half of them developers."
+**P1 — Riya, Recruiter.** Works several open requirements at once. Builds search strings by hand and reads dozens of resumes per requirement.
+> "Half the profiles I find fail on notice period or budget after I've read them."
 
-**P2 — Arjun, Delivery Lead**
-- Owns SLAs for 4 clients.
-- Pain: "I find out a requirement is stuck only when the client complains."
+**P2 — Arjun, Delivery Lead.** Accountable for submission quality and conversion.
+> "Quality depends on who worked the requirement, and the same mistakes repeat because client feedback arrives late."
 
-**P3 — Meera, Director**
-- Wants to grow revenue without growing headcount.
-- Needs proof that AI is safe to use with candidate data.
+**P3 — Meera, Director.** Wants measurable productivity gains and proof that AI is used safely with candidate data.
 
-## 4. Discovery questions and current answers
+## 4. Current workflow (AS-IS)
 
-These questions were sent to the business on 2026-11-27. Until we get answers, the values below are **working assumptions**. Each is logged in the RAID log (A-xx) and must be validated before Sprint 2 planning.
+```mermaid
+flowchart LR
+  A[1. Client shares JD] --> B[2. Recruiter understands requirements]
+  B --> C[3. Recruiter prepares search strings]
+  C --> D[4. Searches candidate databases and job portals]
+  D --> E[5. Reviews resumes]
+  E --> F[6. Contacts and screens candidates]
+  F --> G[7. Submits shortlisted profiles]
+  G --> H[8. Waits for client feedback]
+  H --> I[9. Refines search based on feedback]
+  I --> C
+```
 
-| # | Question | Working assumption | Status |
+## 5. Business problems
+
+| # | Problem | Business impact | Addressed in MVP by |
 |---|---|---|---|
-| Q1 | How many recruiters and delivery leads? | 10 recruiters, 2 delivery leads | **Assumption A-01** |
-| Q2 | Open requirements per month, number of clients? | ~60 per month, ~15 active clients | **Assumption A-02** |
-| Q3 | Candidate sources and database size? | Own DB of ~50,000 profiles plus licensed portal exports | **Assumption A-03** |
-| Q4 | Existing parsers: language and database? | Python parsers that output JSON; to be wrapped as tools | **Assumption A-04** |
-| Q5 | Top 3 pain points? | Time to first submission, rejected submissions, ageing requirements | **Assumption A-05** |
-| Q6 | KPIs tracked today? | Time to first submission, submission-to-interview ratio, SLA breaches | **Assumption A-06** |
-| Q7 | LLM providers allowed and AI budget? | **$0 cash**: free tiers plus a local model (decided) | **Decision D-01** |
-| Q8 | Deployment target? | Local Docker Compose (primary), OCI Always Free (optional) | **Decision D-02** |
+| BP-1 | Incorrect understanding of JD | Irrelevant submissions | Requirement agent: structured analysis, ambiguities, clarification questions |
+| BP-2 | Manual candidate sourcing | High recruiter effort | Sourcing agent: hybrid search with replanning |
+| BP-3 | Dependency on recruiter experience | Inconsistent quality | Standardised evidence-based matching; long-term memory of approved feedback |
+| BP-4 | Repetitive resume screening | Reduced productivity | Resume parsing plus evidence-based matching (Screening and Quality agents) |
+| BP-5 | Delayed client feedback | Repeated mistakes | Feedback captured into agent memory and reused in later searches |
+| BP-6 | Limited intelligence on talent availability | Longer closure timelines | Funnel analysis and bottleneck diagnosis per search (UC-001); deeper talent intelligence is future (A2A, Sprint 6 stretch) |
+| BP-7 | Quantity-driven submissions | Lower conversion ratios | Quality-over-quantity objective ("5 evidenced candidates"); Quality agent |
+| BP-8 | Manual delivery monitoring | Reactive management | Partly: agent execution dashboard. A Delivery agent is a **future phase** |
 
-## 5. Interview guide (use with 3 recruiters and 1 delivery lead)
+## 6. Proposed solution (TO-BE)
 
-1. Walk me through the last requirement you worked on, from receiving the JD to the first submission.
-2. Where did you lose the most time? What did you do to work around it?
-3. How do you decide that a candidate is a "real" match? What evidence do you look for?
-4. What makes you reject a profile that looked good on paper?
+A goal-driven AI platform that plans and executes recruitment tasks **independently, within approved boundaries**. Recruiters remain responsible for hiring decisions.
+
+```mermaid
+flowchart LR
+  A[Recruiter creates requirement] --> B[Requirement agent: parse and analyse JD, clarifications]
+  B --> C[Supervisor: goal and plan]
+  C --> D[Sourcing agent: search]
+  D --> E{Objective met?}
+  E -- No --> F[Supervisor: diagnose bottleneck and replan]
+  F --> D
+  E -- Yes / replans exhausted --> G[Screening and Quality: evidence per mandatory skill]
+  G --> H{Recruiter approval / escalation}
+  H -- Approve --> I[Shortlist ready for submission]
+  H -- Feedback --> J[Memory] --> C
+```
+
+The reference scenario is [UC-001: Intelligent Candidate Sourcing](UC-001-intelligent-candidate-sourcing.md).
+
+## 7. Discovery questions
+
+| # | Question | Current answer | Status |
+|---|---|---|---|
+| Q1 | Team size and split | ~40 recruitment professionals (confirmed). Split between recruiters and delivery leads TBC | **Partly confirmed (A-01)** |
+| Q2 | Open requirements per month, number of clients | Planning figure 200 per month (≈ 5 per recruiter); multiple enterprise clients | **Assumption A-02** |
+| Q3 | Candidate sources and database size | Internal candidate database and job portals; Naukri only with authorised API access | **Partly confirmed (A-03)** |
+| Q4 | Existing JD and resume parsers: language, quality, reusability | Exist; reuse subject to code review | **Confirmed exists; review TS-E1-08** |
+| Q5 | Top pain points | BP-1 … BP-8 (§5) | **Confirmed** |
+| Q6 | KPIs tracked today | Baseline to be established before measuring (TS-E0-08) | **Open** |
+| Q7 | AI budget | $0 cash: free tiers plus local model | **Decision D-01** |
+| Q8 | Deployment target | Local Docker Compose first; OCI Always Free optional | **Decision D-02** |
+
+## 8. Interview guide (3–5 recruiters, 1–2 delivery leads)
+
+1. Walk me through your last requirement, from JD to first submission.
+2. Where did you lose the most time? What workaround did you use?
+3. How do you decide that a candidate is a real match? What evidence do you look for?
+4. What usually makes a client reject a submitted profile?
 5. What information is usually missing from client JDs?
-6. How do you write outreach messages today? What is your response rate?
-7. Which tasks would you **never** let an AI do without you checking?
-8. If this tool saved you 2 hours a day, what would you do with that time?
+6. When a search returns too few candidates, what do you try next? (This informs the replanning strategies.)
+7. Which tasks would you **never** let an AI do without checking?
 
-Record the answers in `docs/00-discovery/interview-notes/` (one file per interview, **no candidate names**).
+Record the answers in `docs/00-discovery/interview-notes/`, one file per interview, with **no candidate names**.
 
-## 6. Current-state process (as-is)
+## 9. Constraints
 
-```mermaid
-flowchart LR
-  A[Client sends JD] --> B[Recruiter reads JD]
-  B --> C{JD clear?}
-  C -- No --> D[Email or call client] --> B
-  C -- Yes --> E[Keyword search in DB / portals]
-  E --> F[Open and read resumes one by one]
-  F --> G[Call candidate to check notice, CTC]
-  G --> H[Write submission note]
-  H --> I[Submit to client]
-```
-
-**Measured pain (to validate):** steps E–G take about 70% of recruiter time per requirement.
-
-## 7. Future-state process (to-be)
-
-```mermaid
-flowchart LR
-  A[Recruiter creates requirement] --> B[Requirement Agent: analyse JD, raise clarifications]
-  B --> C[Supervisor: build sourcing plan]
-  C --> D[Sourcing Agent: hybrid search]
-  D --> E[Screening Agent: evidence-based evaluation]
-  E --> F[Quality Agent: verify evidence and policy]
-  F --> G{Recruiter approval}
-  G -- Approve --> H[Outreach Agent drafts messages]
-  G -- Reject / feedback --> C
-  H --> I{Recruiter approves send}
-```
-
-## 8. Constraints captured
-
-- **C1 — Zero cash budget.** Only free tiers, open-source software and the local machine (MacBook M2, 16 GB).
-- **C2 — Candidate PII must never reach a free cloud LLM tier.** Free tiers may use data to improve the provider's products. Real PII is processed only by a local model.
-- **C3 — No autonomous external actions.** Sending messages and rejecting candidates always need a human.
-- **C4 — Authorised sources only.** HR Guru's database, licensed exports and direct applicants. No scraping.
-- **C5 — Public repository.** Only synthetic data is committed. Real data stays outside git.
+- **C1 — Zero cash budget.** Free tiers, open source and the local MacBook M2 16 GB only.
+- **C2 — Candidate PII never goes to a free cloud LLM tier.** Real PII is processed by local models only.
+- **C3 — Bounded autonomy.** No autonomous hiring decisions, no autonomous relaxing of constraints, no candidate contact in the MVP.
+- **C4 — Authorised sources only.** Internal database, licensed exports, direct applicants. Naukri only via authorised API.
+- **C5 — Synthetic or properly authorised data** during development. Only synthetic data is committed (public repository).
+- **C6 — No unnecessary frameworks** just to demonstrate newer technology.
+- **C7 — Separate repository.** The existing recruitment platform is not modified.

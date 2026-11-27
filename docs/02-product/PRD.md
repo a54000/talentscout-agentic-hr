@@ -2,103 +2,109 @@
 
 | Item | Value |
 |---|---|
-| Product | TalentScout: Agentic Recruitment Command Centre |
-| Version | 0.1 |
+| Product | HR Guru: Agentic AI Recruitment Command Centre (codename TalentScout) |
+| Version | 0.2 |
 | Owner | Product Owner |
-| Related | [BRD](../01-business/BRD.md), [FRD](FRD.md), [HLD](../03-architecture/HLD.md) |
+| Related | [BRD](../01-business/BRD.md), [FRD](FRD.md), [UC-001](../00-discovery/UC-001-intelligent-candidate-sourcing.md), [HLD](../03-architecture/HLD.md) |
 
 ## 1. Vision
 
-> A virtual recruitment team of supervised AI agents. It turns a job requirement into an evidence-backed, recruiter-approved shortlist and outreach plan, and gets better with every piece of feedback.
+> A goal-driven team of supervised AI agents. It turns a job requirement into an evidence-backed, recruiter-approved shortlist, adapts its strategy when results fall short, and escalates instead of lowering the bar.
 
 ## 2. Problem statement
 
-Recruiters lose hours to keyword searches and resume reading, and nothing records *why* a profile was proposed. Simple LLM matching tools rank resumes, but they don't plan, they don't adapt when results are weak, and they can't be governed.
+Recruiters lose time to manual search strings, repetitive resume screening and late feedback. Quality depends on individual experience. Simple LLM matching tools rank resumes, but they don't plan, they don't adapt when the objective isn't met, and they can't be governed.
 
 ## 3. Target users
 
-Recruiter (primary), Delivery Lead (secondary), Admin (configuration and audit). See the personas in [requirements-gathering](../00-discovery/requirements-gathering.md).
+Recruiter (primary), Delivery Lead (secondary), Admin (configuration and audit).
 
 ## 4. What makes it agentic (product principles)
 
-1. **Goal-driven.** The user states the goal: "Fill AWS Cloud Architect, ₹45 LPA, notice ≤ 30 days". The supervisor builds the plan.
-2. **Plan → act → observe → replan.** If results violate constraints, for example most candidates have 60–90 day notice periods, the supervisor changes strategy (alternative titles, immediate joiners). It never relaxes mandatory constraints.
-3. **Evidence over opinion.** Every claim cites the resume excerpt it is based on.
-4. **Human in control.** Approval gates exist before anything leaves the system.
-5. **Bounded.** Iteration limits, token budgets, tool permissions and timeouts apply.
-6. **Observable.** Every step is traced and replayable.
+1. **Goal-driven.** For example: "Find 5 AWS Cloud Architects with evidence for each mandatory skill". The supervisor builds the plan.
+2. **Plan → act → observe → replan.** When the objective isn't met, the agent diagnoses the bottleneck (the UC-001 notice-period funnel) and changes strategy.
+3. **Bounded.** It never relaxes hiring constraints (BR-2). It escalates with options instead (BR-8). Iteration, time, token and tool-scope limits apply.
+4. **Evidence over opinion.** Each skill claim cites resume evidence (BR-7).
+5. **Human in control.** Approval gates; no autonomous hiring decisions or candidate contact.
+6. **Observable.** 100% of steps are traced (KPI-6).
 
-## 5. Agents
+## 5. Agents (MVP)
 
-| Agent | Responsibility | Tools (via MCP) | Can act externally? |
+| Agent | Responsibility | Tools (via MCP) | Side effects |
 |---|---|---|---|
-| Supervisor | Understand goal, plan, delegate, replan, stop | none directly; routes to agents | No |
-| Requirement | Parse JD, extract constraints, find ambiguities, write clarification questions | `jd.parse`, `requirement.get`, `requirement.update` | No |
-| Sourcing | Formulate search strategies, hybrid search, broaden optional criteria | `candidates.search_hybrid`, `candidates.get`, `memory.search_feedback` | No |
-| Screening | Validate experience against the JD, with evidence | `candidates.get_resume_chunks`, `resume.parse` | No |
-| Quality | Check evidence, find unsupported claims, check bias and policy | `policy.check`, `evidence.verify` | No |
-| Outreach | Draft personalised messages | `templates.get`, `outreach.create_draft` | **Only after approval** (`outreach.send`, gated) |
-| Delivery | Monitor ageing and bottlenecks, recommend actions | `pipeline.metrics`, `requirements.list` | No |
+| Supervisor | Understand objective, plan, delegate, observe, diagnose bottleneck, replan, escalate | routes to agents | None |
+| Requirement | Parse JD (reused parser), extract skills and constraints, find ambiguities, write clarification questions | `jd.parse`, `requirement.get`, `requirement.update` | None |
+| Sourcing | Formulate search strategies (including serving-notice and alternative titles), hybrid search, funnel counts | `candidates.search_hybrid`, `candidates.funnel`, `memory.search_feedback` | None |
+| Screening | Validate each mandatory skill against parsed resume evidence | `candidates.get_resume_chunks`, `resume.parse` | None |
+| Quality | Verify evidence, detect unsupported claims, check policy and bias | `evidence.verify`, `policy.check` | None |
+
+**Future phase:** Outreach agent (automated candidate outreach), Delivery agent (delivery monitoring), voice screening, ATS and Naukri integrations.
 
 ## 6. MVP features and priority (MoSCoW)
 
 | ID | Feature | Priority | Sprint |
 |---|---|---|---|
-| F-01 | Authentication and role-based access control (Recruiter, Delivery Lead, Admin) | Must | 1 |
-| F-02 | Requirement intake and JD analysis with clarification questions | Must | 1 |
-| F-03 | Candidate store with synthetic dataset, embeddings, hybrid search | Must | 2 |
-| F-04 | Sourcing agent with evidence retrieval | Must | 2 |
-| F-05 | Multi-agent workflow (supervisor, replanning) | Must | 3 |
-| F-06 | Screening report with evidence citations | Must | 3 |
+| F-01 | Authentication and RBAC (Recruiter, Delivery Lead, Admin) | Must | 1 |
+| F-02 | Requirement intake, JD parsing and analysis with clarification questions | Must | 1 |
+| F-03 | Resume parsing and candidate store (synthetic data, embeddings, hybrid search) | Must | 2 |
+| F-04 | Sourcing agent with funnel analysis | Must | 2 |
+| F-05 | Multi-agent workflow: supervisor, replanning, escalation | Must | 3 |
+| F-06 | Evidence-based candidate matching (Screening and Quality) | Must | 3 |
 | F-07 | MCP server exposing recruitment tools | Must | 4 |
-| F-08 | Durable execution (checkpointing, resume after failure) | Must | 4 |
-| F-09 | Long-term memory from recruiter feedback | Should | 4 |
-| F-10 | Human approval gates (shortlist, outreach) | Must | 3 (basic), 5 (hardened) |
-| F-11 | Guardrails: PII masking, injection defence, tool permissions, loop limits | Must | 5 |
-| F-12 | Observability (Langfuse traces) and cost dashboard | Must | 5 |
-| F-13 | Evaluation suite (golden dataset, Ragas or DeepEval) | Must | 5 |
-| F-14 | Model routing (local / free cloud / fallback) through LiteLLM | Should | 6 |
-| F-15 | Delivery agent and dashboard | Should | 6 |
-| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 6 |
-| F-17 | Real email or WhatsApp sending | Won't (MVP) | — |
+| F-08 | Durable execution (checkpointing, resume) | Must | 4 |
+| F-09 | Agent memory: short-term state and long-term feedback | Must | 4 |
+| F-10 | Human approval workflow | Must | 3 (basic), 5 (hardened) |
+| F-11 | AI guardrails: PII masking, injection defence, tool scopes, limits | Must | 5 |
+| F-12 | Observability (tracing) and audit trail | Must | 1 (audit), 5 (tracing) |
+| F-13 | Evaluation suite and CI evaluation gate | Must | 5 |
+| F-14 | Agent execution dashboard: live run view, run history, KPIs, cost | Must | 4 (live view), 6 (dashboard) |
+| F-15 | Model routing (local / free cloud / fallback) | Should | 1 (v0), 6 (multi-provider) |
+| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 6 (stretch) |
+| F-17 | Automated candidate outreach | Won't (future) | — |
+| F-18 | Delivery monitoring agent | Won't (future) | — |
+| F-19 | Voice screening; ATS integration; Naukri API | Won't (future / subject to access) | — |
 
 ## 7. Key user journeys
 
-**J1 — Create requirement → plan.** The recruiter pastes a JD and sets constraints. The Requirement agent returns structured requirements and clarification questions. The recruiter answers or skips them. The supervisor shows its plan.
+**J1 — Create requirement → analysis.** The recruiter enters the UC-001 requirement. The Requirement agent returns structured skills and constraints with clarification questions. The recruiter answers them.
 
-**J2 — Run sourcing → review shortlist.** The workflow runs, and the UI shows live steps (plan, search, observation, replan). It finishes with a ranked shortlist, an evidence table for each candidate and the Quality agent's flags. The recruiter approves or rejects each candidate and gives a reason.
+**J2 — Run sourcing → replan → shortlist or escalation.** The recruiter starts a run. The live view shows the plan, searches, the funnel, the diagnosed bottleneck and the replans. It ends with either a shortlist with evidence for each mandatory skill, or an escalation that explains the shortfall and offers options.
 
-**J3 — Outreach.** For approved candidates, the Outreach agent drafts messages. The recruiter edits and approves. In the MVP, "send" marks the message as sent and copies it to the clipboard.
+**J3 — Approve.** The recruiter approves or rejects each candidate with a reason. Reasons are stored as long-term memory.
 
-**J4 — Delivery view.** The Delivery Lead sees ageing requirements, bottleneck stages and recommended actions.
-
-**J5 — Audit.** The Admin opens a run and sees every step, tool call, model used, tokens, cost and approval.
+**J4 — Agent execution dashboard.** The Delivery Lead or Admin sees:
+- runs and their status;
+- completion rate, acceptance rate and evidence accuracy;
+- latency, tokens and notional cost;
+- a link from every run to its full trace.
 
 ## 8. Success metrics
 
 | Metric | Definition | Target |
 |---|---|---|
-| Agent task completion | Runs that reach a shortlist without unrecoverable error | ≥ 90% |
-| Evidence accuracy | Screening claims verified against the source text (evaluation suite) | ≥ 95% |
-| Recruiter acceptance | Shortlisted candidates approved | ≥ 70% |
-| Unauthorised actions | External actions without an approval record | 0 |
-| Hallucination rate | Claims not supported by the resume (Quality agent and evaluations) | ≤ 3% |
-| Cost per requirement | Notional $ at list price (actual $0) | Tracked |
-| p95 workflow latency | Requirement → shortlist on the local setup | ≤ 5 min |
-| Recovery success | Interrupted runs that resume correctly | 100% in tests |
+| Manual sourcing effort reduction (KPI-1) | Recruiter minutes per requirement vs baseline | 40% |
+| Evidence accuracy (KPI-2) | Skill claims verified against source text | 95%+ |
+| Recruiter acceptance (KPI-3) | Suggested profiles approved by the recruiter | 80%+ |
+| Workflow completion (KPI-4) | Runs ending `completed` or `escalated` (with explanation) rather than `failed` | 90%+ |
+| Unauthorised external actions (KPI-5) | Side-effecting tool calls without an approval record | 0 |
+| Traceability (KPI-6) | Runs whose every step, tool call and decision is in the audit trail | 100% |
+| Supporting: hallucination rate | Unsupported claims reaching the recruiter | ≤ 3% |
+| Supporting: p95 run latency | Requirement → shortlist on the local setup | ≤ 5 min |
+| Supporting: cost per requirement | Notional $ at list price (actual $0) | Tracked |
 
-## 9. Release plan
+## 9. Delivery phases and releases
 
-| Release | Sprints | Outcome |
-|---|---|---|
-| R0 Walking skeleton | 0 | Repo, CI/CD, security scans, docs, backlog |
-| R1 Single agent | 1 | Working Requirement agent |
-| R2 Intelligent retrieval | 2 | Sourcing agent over hybrid search |
-| R3 Multi-agent MVP | 3 | End-to-end shortlist with approval |
-| R4 Stateful and tool-enabled | 4 | MCP, memory, checkpointing |
-| R5 Governed | 5 | Guardrails, evaluations, observability → **pilot-ready on synthetic data** |
-| R6 Enterprise-style | 6 | Routing, A2A, delivery agent, deployment → **pilot with recruiters** |
+| Phase | Content | Sprint(s) | Gate |
+|---|---|---|---|
+| 1 Discovery and requirements | Business problem, BRD, FRD, PRD, success criteria, UC-001 | 0 | BRD/PRD sign-off |
+| 2 Solution and architecture | HLD, LLD (Sprint 1 scope), technology selection, data flow, ADRs | 0 | Architecture sign-off |
+| 3 Engineering planning | Epics, stories, acceptance criteria, estimates, sprint backlog | 0 | Backlog ready (DoR) |
+| 4 Incremental development | Agent fundamentals → RAG → LangGraph → MCP, memory → A2A | 1–4, 6 | Sprint reviews |
+| 5 AI engineering and governance | Guardrails, evaluations, observability, security, failure handling | 5 (and every sprint) | Governance review |
+| 6 Deployment and pilot | CI/CD (from Sprint 0), infrastructure, performance testing, recruiter feedback | 6 | Pilot report |
+
+Sprint 0 contains **no feature code**. It sets up the repository, CI/CD and security scanning so that every later sprint is built, tested and scanned from its first commit.
 
 ## 10. Open questions
 
-See [requirements-gathering §4](../00-discovery/requirements-gathering.md#4-discovery-questions-and-current-answers).
+See [requirements gathering §7](../00-discovery/requirements-gathering.md#7-discovery-questions).

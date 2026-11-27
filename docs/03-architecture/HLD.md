@@ -21,10 +21,10 @@ flowchart TB
     SRC[Sourcing]
     SCR[Screening]
     QA[Quality]
-    OUT[Outreach]
-    DLV[Delivery]
+    FUT[Future phase:<br/>Outreach, Delivery agents]
     AGS --- SUP
-    SUP --> REQ & SRC & SCR & QA & OUT & DLV
+    SUP --> REQ & SRC & SCR & QA
+    SUP -.-> FUT
   end
 
   subgraph Tools["Tool tier"]
@@ -66,9 +66,10 @@ flowchart TB
 
 | Component | Tech | Responsibility | Owns data |
 |---|---|---|---|
-| Web | React 19, Vite, TypeScript, TanStack Query | UI for requirements, live run view, shortlist review, approvals, dashboards | — |
+| Web | React 19, Vite, TypeScript, TanStack Query | UI for requirements, agent execution dashboard (live run view, run history, KPIs), shortlist review, approvals | — |
 | API / BFF | Node 22, Express 5, Zod, Mongoose | Auth (JWT plus refresh), RBAC, CRUD, approval endpoints, proxying run events to the UI over Server-Sent Events (SSE), audit writes | users, requirements, approvals |
 | Agent Service | Python 3.12, FastAPI, LangGraph, Pydantic | Run orchestration, agents, guardrails, model calls, checkpointing | runs, checkpoints |
+| Existing HR Guru parsers | Reused (language TBC) | JD and resume parsing, wrapped as `jd.parse` / `resume.parse` MCP tools. The existing platform itself is not modified | — |
 | MCP Server | Node 22, `@modelcontextprotocol/sdk` | Typed, permissioned tools over recruitment data; enforces tool scopes per agent | — (reads/writes via the data layer) |
 | LiteLLM | Python (OSS) | Single model interface, routing rules, fallbacks, retries, budgets | — |
 | Ollama | Native on macOS | Local LLM (8B class) and embedding model; the PII-safe path | — |
@@ -94,19 +95,20 @@ sequenceDiagram
   A->>S: POST /runs {requirementId, userCtx}
   S->>L: plan(goal, constraints)
   S->>M: candidates.search_hybrid(plan.query, filters)
-  M-->>S: 38 results, 31 with notice > 30 days
-  Note over S: Observation fails success criterion<br/>(≥ 10 candidates within mandatory constraints)
-  S->>L: replan (alternative titles, "serving notice")
-  S->>M: candidates.search_hybrid(new query)
-  M-->>S: 14 qualifying candidates
+  M-->>S: funnel 500 → 80 → 25 → 12 → 2
+  Note over S: Objective (5 candidates) not met.<br/>Bottleneck = notice period (12 → 2)
+  S->>L: replan (serving notice, alternative titles)<br/>mandatory constraints unchanged
+  S->>M: candidates.search_hybrid(new strategies)
+  M-->>S: 6 qualifying candidates
   S->>S: Screening → Quality (evidence check)
   S-->>A: event: approval_required (shortlist)
   A-->>W: SSE: shortlist ready
   R->>W: Approve 6, reject 3 with reasons
   W->>A: POST /runs/:id/decisions
   A->>S: resume(thread_id, decisions)
-  S->>M: memory.save_feedback(reasons)
-  S-->>A: event: outreach_drafts_ready
+  S->>M: memory.save_feedback(reasons, approvalId)
+  S-->>A: event: shortlist_approved
+  Note over S,A: If < 5 after 3 replans: event escalation_required<br/>with funnel, strategies tried, options
 ```
 
 ### 3.2 Failure and resume
@@ -121,7 +123,6 @@ sequenceDiagram
 | Embeddings | Any | Ollama `nomic-embed-text` (local) | — |
 | JD / resume extraction, screening | **Real PII** | Ollama 8B local only | Pause and retry (never cloud) |
 | Planning, reflection, Quality | Synthetic or masked | Free cloud tier (Gemini Flash / Groq) | Next free provider → Ollama |
-| Outreach drafting | Masked (placeholders like `{{first_name}}`) | Free cloud tier | Ollama |
 | Evaluation judge | Synthetic only | Free cloud tier | Ollama |
 
 The **data classification tag** travels with every request (`pii: true|false`). The router **refuses** to send `pii: true` to a cloud route. Unit tests cover this; it is a release-blocking control.

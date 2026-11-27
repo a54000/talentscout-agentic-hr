@@ -1,8 +1,10 @@
-# TalentScout: Agentic Recruitment Command Centre
+# HR Guru: Agentic AI Recruitment Command Centre
 
-A supervised team of AI agents that turns a job requirement into an evidence-backed, recruiter-approved shortlist and outreach plan. It replans when results are weak and learns from recruiter feedback.
+_Codename: TalentScout_
 
-Built for HR Guru as an MVP and a learning project in **agentic AI engineering**: multi-agent orchestration, ReAct, planning and replanning, MCP, A2A, agentic RAG, memory, durable execution, guardrails, evaluations and LLMOps. All of it runs on a **$0 cash budget**.
+A goal-driven platform of supervised AI agents for HR Guru's ~40 recruitment professionals. It turns a job requirement into an evidence-backed, recruiter-approved shortlist. When the objective isn't met, it diagnoses the bottleneck and replans. It escalates instead of relaxing hiring constraints, and it learns from recruiter feedback. Recruiters stay responsible for every hiring decision.
+
+The reference scenario is [UC-001: Intelligent Candidate Sourcing](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md). The whole MVP runs on a **$0 cash budget**.
 
 > **Status:** Sprint 0 (inception, walking skeleton). See the [sprint plan](docs/04-delivery/sprint-plan.md).
 
@@ -23,7 +25,7 @@ Read the [HLD](docs/03-architecture/HLD.md) for diagrams and flows.
 
 | Discovery and business | Product | Architecture | Delivery | Quality |
 |---|---|---|---|---|
-| [Requirements gathering](docs/00-discovery/requirements-gathering.md) | [PRD](docs/02-product/PRD.md) | [HLD](docs/03-architecture/HLD.md) | [Ways of working](docs/04-delivery/ways-of-working.md) | [Test and security strategy](docs/05-quality/test-and-security-strategy.md) |
+| [Requirements gathering](docs/00-discovery/requirements-gathering.md), [UC-001](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md) | [PRD](docs/02-product/PRD.md) | [HLD](docs/03-architecture/HLD.md) | [Ways of working](docs/04-delivery/ways-of-working.md) | [Test and security strategy](docs/05-quality/test-and-security-strategy.md) |
 | [BRD](docs/01-business/BRD.md) | [FRD](docs/02-product/FRD.md) | [LLD](docs/03-architecture/LLD.md) | [Backlog](docs/04-delivery/backlog.md) | [Threat model](docs/03-architecture/threat-model.md) |
 | [Technical scope and budget](docs/01-business/technical-scope-and-budget.md) | | [ADRs](docs/03-architecture/adr/) | [Sprint plan](docs/04-delivery/sprint-plan.md), [RAID log](docs/04-delivery/RAID-log.md) | |
 

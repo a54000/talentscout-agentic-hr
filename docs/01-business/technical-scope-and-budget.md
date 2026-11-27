@@ -4,15 +4,17 @@
 
 | BRD scope item | Technical work packages | Epic |
 |---|---|---|
-| Requirement intake and JD analysis | Requirements API and UI, structured-output agent, prompt versioning, LLM router v0 | E1 |
-| Agentic sourcing (hybrid search) | Synthetic data generator, chunking, masking, embeddings, Atlas indexes, RRF fusion, Sourcing agent | E2 |
-| Evidence-based screening and quality | LangGraph supervisor, Screening and Quality agents, evidence verification | E3 |
+| JD parsing and requirement analysis | Review and wrap existing JD parser, requirements API and UI, structured-output agent, prompt versioning, LLM router v0 | E1 |
+| Resume parsing | Wrap existing resume parser in the ingestion pipeline | E2 |
+| Agentic sourcing (hybrid search) | Synthetic data generator (incl. UC-001 set), chunking, masking, embeddings, Atlas indexes, RRF fusion, funnel tool, Sourcing agent | E2 |
+| Intelligent search and replanning | LangGraph supervisor, bottleneck diagnosis, replanning, frozen constraints, escalation | E3 |
+| Evidence-based matching | Screening and Quality agents, evidence verification | E3 |
 | Human approval gates | LangGraph interrupt/resume, approval API, audit records, re-authentication | E3, E5 |
 | Tools and memory | MCP server, tool scopes, MongoDB checkpointer, feedback memory | E4 |
 | Safety and governance | Guardrails, PII routing, limits, threat model, DPDP pack, tamper-evident audit | E5 |
 | Observability and evaluation | Langfuse, evaluation datasets, CI evaluation gate, cost dashboard | E5 |
-| Delivery monitoring | Metrics aggregation, Delivery agent, dashboard | E6 |
-| Interoperability | LiteLLM gateway, A2A agent | E6 |
+| Agent execution dashboard | Live run view (SSE), run history, KPI aggregation, notional cost | E4, E6 |
+| Interoperability and pilot | LiteLLM gateway, A2A agent (stretch), performance testing, demo deployment, pilot | E6 |
 | Platform | Monorepo, Docker Compose, CI, security scans, CD, environments | E0 |
 
 ## 2. Sizing
@@ -20,15 +22,15 @@
 | Epic | Stories | Story points | Sprint |
 |---|---|---|---|
 | E0 Inception and platform | 9 | 24 | 0 |
-| E1 Requirement agent | 7 | 26 | 1 |
-| E2 Intelligent retrieval | 6 | 26 | 2 |
-| E3 Multi-agent orchestration | 6 | 29 | 3 |
-| E4 MCP and memory | 6 | 26 | 4 |
-| E5 Responsible AI and LLMOps | 10 | 34 | 5 (overflow → 6) |
-| E6 Interop, delivery and pilot | 6 | 24 | 6 |
-| **Total** | **50** | **189** | 7 sprints × 2 weeks |
+| E1 Requirement agent | 8 | 28 | 1 |
+| E2 Intelligent retrieval | 7 | 29 | 2 (retrieval eval in 4) |
+| E3 Multi-agent orchestration | 6 | 32 | 3 (live view in 4) |
+| E4 MCP and memory | 5 | 21 | 4 |
+| E5 Responsible AI and LLMOps | 9 | 31 | 5 (DPDP pack in 6) |
+| E6 Interop, dashboard and pilot | 7 | 27 | 6 |
+| **Total** | **51** | **192** | 7 sprints × 2 weeks |
 
-**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. E5 is deliberately heavy: two stories (TS-E5-09 and TS-E5-10) are planned as overflow into Sprint 6.
+**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. TS-E5-10 (DPDP pack) is planned into Sprint 6. The A2A agent (TS-E6-04) is a stretch item and is the first to drop if capacity is short.
 
 ## 3. Budget
 
@@ -63,17 +65,17 @@ This is used for interview discussions and for any future commercial proposal. R
 | **Total** | **77** | | **≈ ₹22.5 lakh** |
 
 **Run cost at production scale** (if moved from free tiers to paid APIs). Assumptions:
-- 60 requirements/month (A-02).
+- 200 requirements/month (A-02 planning figure for ~40 recruitment professionals).
 - About 150k input and 20k output tokens per end-to-end run, including replans and evaluations.
 - Example pricing: Anthropic list prices as of Nov 2026 (Sonnet 5.5 at $2 / $10 per million tokens; Haiku 5.5 at $0.10 / $0.50). Re-verify before quoting.
 
-| Routing strategy | Cost per run | Cost per month (60 runs) |
+| Routing strategy | Cost per run | Cost per month (200 runs) |
 |---|---|---|
-| Everything on a mid-tier model (Sonnet 5.5) | 0.15 × $2 + 0.02 × $10 = **$0.50** | **$30** |
-| Routed: 70% of tokens on Haiku 5.5, 30% on Sonnet 5.5 | ≈ **$0.17** | **≈ $10** |
+| Everything on a mid-tier model (Sonnet 5.5) | 0.15 × $2 + 0.02 × $10 = **$0.50** | **$100** |
+| Routed: 70% of tokens on Haiku 5.5, 30% on Sonnet 5.5 | ≈ **$0.17** | **≈ $34** |
 | Managed DB (Atlas M10) + small VM | — | ≈ $60–80 |
 
-The routing saving (≈ 65%) is the "token optimisation" story to tell in interviews. It is measured with the notional cost tracker (TS-E5-09).
+The routing saving (≈ 65%) is the "token optimisation" story to tell in interviews. It is measured on the agent execution dashboard (TS-E6-03).
 
 ## 4. Out-of-scope cost drivers (deliberately excluded)
 

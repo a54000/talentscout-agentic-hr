@@ -5,13 +5,13 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | Epic | Name | Stories | Points |
 |---|---|---|---|
 | E0 | Inception and platform | 9 | 24 |
-| E1 | Requirement agent | 7 | 26 |
-| E2 | Intelligent retrieval | 6 | 26 |
-| E3 | Multi-agent orchestration | 6 | 29 |
-| E4 | MCP and memory | 6 | 26 |
-| E5 | Responsible AI and LLMOps | 10 | 34 |
-| E6 | Interoperability, delivery and pilot | 6 | 24 |
-| **Total** | | **50** | **189** |
+| E1 | Requirement agent | 8 | 28 |
+| E2 | Intelligent retrieval | 7 | 29 |
+| E3 | Multi-agent orchestration | 6 | 32 |
+| E4 | MCP and memory | 5 | 21 |
+| E5 | Responsible AI and LLMOps | 9 | 31 |
+| E6 | Interoperability, delivery and pilot | 7 | 27 |
+| **Total** | | **51** | **192** |
 
 ## E0: Inception and platform
 
@@ -111,7 +111,7 @@ Acceptance criteria:
 
 ## E1: Requirement agent
 
-Auth, requirements, LLM router v0 and a bounded single agent with structured output.
+Auth, requirements, existing JD parser reuse, LLM router v0 and a bounded single agent with structured output.
 
 ### TS-E1-01: Requirement CRUD API and UI  (5 pts, Sprint 1)
 
@@ -120,6 +120,7 @@ Auth, requirements, LLM router v0 and a bounded single agent with structured out
 Traces to: FR-REQ-1, FR-REQ-4
 
 Acceptance criteria:
+- Given the UC-001 values (12-18 yrs, Gurgaon, 45 LPA, notice <= 30 days, 7 mandatory skills), when I create the requirement, then all constraints are stored as mandatory
 - Given valid input, when I create a requirement, then it is saved with status draft and returned
 - Given a budget below 0 or a missing title, when I submit, then I get a 400 problem+json response naming the field
 
@@ -151,7 +152,7 @@ Acceptance criteria:
 Traces to: FR-REQ-2
 
 Acceptance criteria:
-- Given a golden JD, when analysed, then output validates against RequirementAnalysis
+- Given the UC-001 JD and 9 other golden JDs, when analysed, then output validates against RequirementAnalysis and lists all 7 UC-001 mandatory skills
 - Given a malformed model reply, when parsing fails, then the agent repairs at most 2 times and otherwise marks needs_human
 - Given a JD containing an injection instruction, when analysed, then behaviour and schema are unchanged
 
@@ -185,11 +186,21 @@ Acceptance criteria:
 - Given the golden set, when the eval runs, then must-have recall and precision are reported
 - Given recall drops more than 10 points versus baseline, then the eval exits non-zero
 
+### TS-E1-08: Review existing JD and resume parsers and decide reuse  (2 pts, Sprint 1)
+
+*As an architect I want the existing HR Guru parsers reviewed so that we reuse them safely instead of rebuilding them, without modifying the existing platform.*
+
+Traces to: FR-REQ-0, FR-CAND-0
+
+Acceptance criteria:
+- Given the parser code, when reviewed, then an ADR records reuse approach (library, service or rewrite), interfaces, quality on 10 sample documents and security findings
+- Given the decision, then jd.parse and resume.parse tool contracts are defined in the LLD
+
 ## E2: Intelligent retrieval
 
-Synthetic data, embeddings, hybrid search and the Sourcing agent.
+Synthetic data (incl. UC-001), resume parsing, embeddings, hybrid search, funnel analysis and the Sourcing agent.
 
-### TS-E2-01: Synthetic candidate generator  (5 pts, Sprint 2)
+### TS-E2-01: Synthetic candidate generator incl. UC-001 scenario set  (5 pts, Sprint 2)
 
 *As a developer I want 2,000 realistic fictional candidates so that we can build and demo without real PII.*
 
@@ -197,8 +208,18 @@ Traces to: FR-CAND-4, FR-CAND-3
 
 Acceptance criteria:
 - Given a seed, when the generator runs, then the output is deterministic
+- Given the UC-001 profile, when generated, then 500 resumes reproduce the funnel 500 -> 80 -> 25 -> 12 -> 2 and include serving-notice and alternative-title candidates that qualify
 - Given generated data, when checked, then no protected attributes are present in searchable fields
-- Given the distribution report, then notice periods, CTC and skills follow configured ranges
+
+### TS-E2-07: Resume parsing in the ingestion pipeline  (3 pts, Sprint 2)
+
+*As a recruiter I want resumes parsed into structured fields so that matching uses reliable experience, notice and skills data.*
+
+Traces to: FR-CAND-0
+
+Acceptance criteria:
+- Given a resume, when ingested, then the existing parser (via resume.parse) produces structured fields and sections before chunking
+- Given a resume the parser cannot handle, then it is flagged for review and not silently dropped
 
 ### TS-E2-02: Chunking, masking and embedding pipeline  (5 pts, Sprint 2)
 
@@ -234,13 +255,13 @@ Acceptance criteria:
 
 *As a recruiter I want an agent to formulate searches from the requirement so that I do not write boolean strings.*
 
-Traces to: FR-AGT-6
+Traces to: FR-AGT-6, FR-CAND-5
 
 Acceptance criteria:
 - Given an analysed requirement, when the agent runs, then it issues at most 5 tool calls and returns candidates with retrieved evidence
-- Given zero results, when observed, then the agent tries an alternative query before giving up
+- Given the UC-001 dataset, when the agent searches, then it reports funnel counts per stage (experience, skills, budget, notice)
 
-### TS-E2-06: Retrieval evaluation: hybrid vs keyword  (4 pts, Sprint 2)
+### TS-E2-06: Retrieval evaluation: hybrid vs keyword  (4 pts, Sprint 4)
 
 *As an architect I want recall@10 and nDCG@10 measured so that the hybrid design is justified with data.*
 
@@ -252,7 +273,7 @@ Acceptance criteria:
 
 ## E3: Multi-agent orchestration
 
-LangGraph supervisor, replanning, Screening and Quality agents, approval gate.
+LangGraph supervisor, bottleneck diagnosis, replanning with frozen constraints, escalation, evidence-based matching, approval gate.
 
 ### TS-E3-01: LangGraph supervisor graph and state  (5 pts, Sprint 3)
 
@@ -264,24 +285,26 @@ Acceptance criteria:
 - Given a requirement, when a run starts, then a plan with steps and success criteria is stored
 - Given the graph, when visualised, then nodes and conditional edges match the LLD
 
-### TS-E3-02: Replanning with constraint protection  (5 pts, Sprint 3)
+### TS-E3-02: Bottleneck diagnosis, replanning and escalation (UC-001)  (8 pts, Sprint 3)
 
-*As a recruiter I want the system to change strategy when results are weak without breaking my must-haves.*
+*As a recruiter I want the system to recognise why the objective was not met and change strategy, without breaking my hiring constraints, and to tell me when it cannot succeed.*
 
-Traces to: FR-AGT-3, FR-AGT-4
+Traces to: FR-AGT-3, FR-AGT-4, FR-AGT-4a, FR-AGT-4b
 
 Acceptance criteria:
-- Given most candidates exceed the notice limit, when observed, then the supervisor replans with alternative strategies
-- Given any replan, then mandatory constraints are unchanged and each relaxation is logged with a reason
+- Given the UC-001 dataset, when only 2 candidates qualify, then the supervisor names notice period as the primary bottleneck
+- Given the bottleneck, then it replans with at least serving-notice and alternative-title strategies
+- Given any replan, then the mandatory constraints in run state equal the original requirement (budget, skills, experience, location, notice)
+- Given fewer than 5 qualify after 3 replans, then the run ends escalated with the funnel, strategies tried and decision options, not failed
 
-### TS-E3-03: Screening agent with evidence  (5 pts, Sprint 3)
+### TS-E3-03: Evidence-based matching per mandatory skill  (5 pts, Sprint 3)
 
 *As a recruiter I want each requirement judged with quotes from the resume so that I can trust the score.*
 
 Traces to: FR-AGT-6
 
 Acceptance criteria:
-- Given a candidate, when screened, then each must-have has a verdict and at least one evidence quote or the verdict unknown
+- Given a candidate, when screened, then each of the 7 UC-001 mandatory skills has a verdict with an evidence quote, or the verdict unknown
 - Given a resume without the skill, then the verdict is not_met or unknown, never met
 
 ### TS-E3-04: Quality agent evidence verification  (5 pts, Sprint 3)
@@ -294,30 +317,30 @@ Acceptance criteria:
 - Given a screening with a fabricated quote, when verified, then it is flagged unsupported and removed from facts
 - Given a clean screening, then no flags are raised
 
-### TS-E3-05: Live run view over SSE  (3 pts, Sprint 3)
+### TS-E3-05: Live run view over SSE (dashboard part 1)  (3 pts, Sprint 4)
 
 *As a recruiter I want to watch the agents plan, act and replan so that I understand what they are doing.*
 
-Traces to: FR-AGT-10
+Traces to: FR-AGT-10, FR-DASH-3
 
 Acceptance criteria:
 - Given a running workflow, when I open the run page, then plan, tool_call, observation and replan events appear in order
 - Given the connection drops, when it reconnects, then missed events are replayed
 
-### TS-E3-06: Shortlist approval gate  (6 pts, Sprint 3)
+### TS-E3-06: Human approval gate for shortlist and escalation  (6 pts, Sprint 3)
 
 *As a recruiter I want to approve or reject each shortlisted candidate with a reason so that I remain accountable.*
 
 Traces to: FR-AGT-8, FR-OUT-2
 
 Acceptance criteria:
-- Given a shortlist, when the run reaches the gate, then status is awaiting_approval and the graph is interrupted
+- Given a shortlist or an escalation, when the run reaches the gate, then status is awaiting_approval and the graph is interrupted
 - Given my decisions, when submitted, then the run resumes and an approval record with user and time is stored
 - Given a delivery_lead token, when submitting decisions, then 403
 
 ## E4: MCP and memory
 
-MCP tool server, scopes, durable execution, long-term memory, outreach drafts.
+MCP tool server, scopes, durable execution, long-term memory, live run view.
 
 ### TS-E4-01: MCP server with recruitment tools  (5 pts, Sprint 4)
 
@@ -346,7 +369,7 @@ Acceptance criteria:
 Traces to: NFR-1
 
 Acceptance criteria:
-- Given the Sourcing agent session, when it calls outreach.send, then the call is denied and a guardrail_block audit event is written
+- Given the Sourcing agent session, when it calls shortlist.finalise, then the call is denied and a guardrail_block audit event is written
 
 ### TS-E4-04: Durable execution with MongoDB checkpointer  (5 pts, Sprint 4)
 
@@ -365,18 +388,8 @@ Acceptance criteria:
 Traces to: FR-MEM-2, FR-MEM-3
 
 Acceptance criteria:
-- Given approved feedback, when saved, then it is embedded and tagged by role family
+- Given recruiter feedback approved at the gate, when saved via memory.save_feedback with an approvalId, then it is embedded and tagged by role family
 - Given a new similar requirement, when the Sourcing agent plans, then relevant feedback is retrieved and shown in the trace
-
-### TS-E4-06: Outreach agent drafts  (5 pts, Sprint 4)
-
-*As a recruiter I want personalised draft messages so that outreach is fast but still mine.*
-
-Traces to: FR-OUT-1
-
-Acceptance criteria:
-- Given approved candidates, when drafts are generated, then each references real evidence and uses placeholders for PII
-- Given a draft, then it contains no protected attributes
 
 ## E5: Responsible AI and LLMOps
 
@@ -421,33 +434,34 @@ Traces to: FR-AGT-5
 Acceptance criteria:
 - Given a graph that never satisfies its goal, when run, then it stops at 12 iterations with status stopped_limit and a partial result
 
-### TS-E5-05: Approval-token gate on outreach.send  (3 pts, Sprint 5)
+### TS-E5-05: Approval-token gate on side-effecting tools  (3 pts, Sprint 5)
 
-*As a director I want sending to be impossible without approval so that there are zero unauthorised actions.*
+*As a director I want side-effecting tools to be impossible to run without approval so that there are zero unauthorised actions.*
 
-Traces to: FR-OUT-3
+Traces to: BR-5
 
 Acceptance criteria:
-- Given no approval id, when outreach.send is called, then it is refused
-- Given an approval for a different candidate, then it is refused
+- Given no approvalId, when shortlist.finalise or memory.save_feedback is called, then it is refused and audited
+- Given an approval for a different run or candidate, then it is refused
 
 ### TS-E5-06: Step-up re-authentication for approvals  (3 pts, Sprint 5)
 
-*As a security owner I want recent authentication before approvals so that a stolen session cannot approve outreach.*
+*As a security owner I want recent authentication before approvals so that a stolen session cannot approve a shortlist or constraint relaxation.*
 
 Traces to: FR-AUTH-1
 
 Acceptance criteria:
-- Given a session older than 10 minutes, when approving outreach, then password re-entry is required
+- Given a session older than 10 minutes, when approving a shortlist or a constraint relaxation, then password re-entry is required
 
 ### TS-E5-07: Tamper-evident audit trail  (3 pts, Sprint 5)
 
 *As an auditor I want to detect altered audit events so that the trail can be trusted.*
 
-Traces to: FR-OBS-1
+Traces to: FR-OBS-1, KPI-6
 
 Acceptance criteria:
 - Given a run's events, when one is modified directly in the DB, then the verification endpoint reports the broken hash chain
+- Given a completed run, when the completeness check runs, then every graph step has a matching audit event (traceability 100%)
 
 ### TS-E5-08: Evaluation gate in CI  (5 pts, Sprint 5)
 
@@ -458,15 +472,6 @@ Traces to: NFR-7
 Acceptance criteria:
 - Given a PR touching prompts or agents, when CI runs, then golden, hallucination and fairness (name-swap) evals run on synthetic data
 - Given a regression beyond threshold, then the check fails
-
-### TS-E5-09: Notional cost dashboard  (3 pts, Sprint 6)
-
-*As a director I want to see what each run would cost on paid APIs so that I can plan a commercial rollout.*
-
-Traces to: NFR-6
-
-Acceptance criteria:
-- Given completed runs, then the dashboard shows tokens, route mix and notional cost per run and per month
 
 ### TS-E5-10: DPDP compliance pack  (3 pts, Sprint 6)
 
@@ -480,7 +485,7 @@ Acceptance criteria:
 
 ## E6: Interoperability, delivery and pilot
 
-LiteLLM routing, parallelism, Delivery agent, A2A, deployment, pilot.
+LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch).
 
 ### TS-E6-01: LiteLLM gateway with multi-provider fallback  (5 pts, Sprint 6)
 
@@ -501,17 +506,18 @@ Traces to: NFR-5
 Acceptance criteria:
 - Given 20 candidates, when screened, then concurrency is bounded and total time drops versus sequential, recorded in the review
 
-### TS-E6-03: Delivery agent and dashboard  (5 pts, Sprint 6)
+### TS-E6-03: Agent execution dashboard (dashboard part 2)  (5 pts, Sprint 6)
 
-*As a delivery lead I want at-risk requirements flagged with recommended actions so that I act before SLAs breach.*
+*As a delivery lead I want run history and KPIs in one place so that I can see whether the agents are working and what they cost.*
 
-Traces to: FR-DEL-1, FR-DEL-2
+Traces to: FR-DASH-1, FR-DASH-2, FR-DASH-3
 
 Acceptance criteria:
-- Given requirement ageing data, then at-risk items are flagged with reasons and suggested actions
-- Given a recommendation, then it is advisory and requires no automatic action
+- Given completed runs, then the dashboard shows status, replans, duration, tokens, model routes and notional cost per run
+- Given a period, then completion rate, acceptance rate, evidence accuracy, escalations and guardrail blocks are shown
+- Given any run, then it links to its full timeline and trace
 
-### TS-E6-04: A2A Talent Intelligence agent  (5 pts, Sprint 6)
+### TS-E6-04: A2A Talent Intelligence agent (stretch)  (5 pts, Sprint 6)
 
 *As an architect I want an independently deployed agent reachable over A2A so that we prove interoperability.*
 
@@ -529,6 +535,16 @@ Traces to: n/a
 
 Acceptance criteria:
 - Given a merge to main with demo secrets, when CD runs, then the demo host serves the latest images and health checks pass
+
+### TS-E6-07: Performance and resilience testing  (3 pts, Sprint 6)
+
+*As a tech lead I want load and failure drills so that the pilot runs on a system with known limits.*
+
+Traces to: NFR-5, NFR-4
+
+Acceptance criteria:
+- Given k6 load on API and search, then p95 targets in NFR-5 are met or the gap is reported
+- Given the agent process is killed or a provider is down during a UC-001 run, then the run recovers and the drill result is recorded
 
 ### TS-E6-06: Recruiter pilot and results report  (3 pts, Sprint 6)
 

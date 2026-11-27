@@ -12,5 +12,5 @@ LangGraph (MIT, self-hosted, no paid platform). Use one framework only. Interope
 ## Consequences
 - (+) Explicit graphs are easy to explain, test and draw in interviews.
 - (+) The MongoDB checkpointer keeps state in our single database.
-- (−) There is a learning curve, which is intended (learning objective).
-- The OpenAI Agents SDK and Microsoft Agent Framework are covered as interview comparison notes in `docs/learning/`.
+- (−) There is a learning curve.
+- Not chosen: OpenAI Agents SDK, Microsoft Agent Framework, CrewAI. They are revisited only if a concrete need appears (principle: no unnecessary frameworks).

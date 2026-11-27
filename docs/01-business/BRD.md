@@ -2,78 +2,106 @@
 
 | Item | Value |
 |---|---|
-| Product | TalentScout: Agentic Recruitment Command Centre |
-| Version | 0.1 (Sprint 0 draft) |
+| Product | HR Guru: Agentic AI Recruitment Command Centre (codename TalentScout) |
+| Version | 0.2 |
 | Sponsor | HR Guru Director |
 | Author | Product Owner |
 | Date | 2026-11-27 |
 
-## 1. Business problem
+## 1. Business background
 
-Recruiters at HR Guru spend most of their time on low-value search and verification work. As a result:
-- time to first submission is slow;
-- client rejection rates are high when profiles don't actually meet mandatory constraints (notice period, budget, core skills);
-- ageing requirements are spotted late.
+HR Guru provides recruitment and resource augmentation services to multiple enterprise clients, with about 40 recruitment professionals. The process relies heavily on manual work, individual recruiter experience and repetitive decisions.
 
-Keyword search over the candidate database returns noisy results. There is also no record of *why* a candidate was proposed.
+Agentic AI can improve recruiter productivity, candidate quality and delivery efficiency. Details are in [requirements gathering](../00-discovery/requirements-gathering.md).
 
-## 2. Business objectives
+## 2. Business problems
 
-| ID | Objective | Measure | Target (pilot hypothesis, to validate) |
-|---|---|---|---|
-| BO-1 | Reduce manual sourcing effort | Recruiter minutes per requirement, sourcing phase | −40% |
-| BO-2 | Improve submission quality | Share of shortlisted candidates the recruiter accepts | ≥ 70% |
-| BO-3 | Make every recommendation explainable | Share of screening claims backed by evidence from the resume | ≥ 95% |
-| BO-4 | Operate safely | Unauthorised external actions | **0** (control objective) |
-| BO-5 | Run at zero cash cost | Monthly cash spend during the MVP | $0 |
-| BO-6 | Detect delivery risk early | Ageing requirements flagged before SLA breach | ≥ 80% |
+| Problem | Business impact |
+|---|---|
+| Incorrect understanding of JD | Irrelevant submissions |
+| Manual candidate sourcing | High recruiter effort |
+| Dependency on recruiter experience | Inconsistent quality |
+| Repetitive resume screening | Reduced productivity |
+| Delayed client feedback | Repeated mistakes |
+| Limited intelligence on talent availability | Longer closure timelines |
+| Quantity-driven submissions | Lower conversion ratios |
+| Manual delivery monitoring | Reactive management |
 
-These are **targets for a controlled pilot, not claimed results.** The baseline is measured in Sprint 1 (story TS-E0-08).
+## 3. Proposed solution
 
-## 3. Scope
+A goal-driven AI platform that plans and executes recruitment tasks independently, **within approved boundaries**. Recruiters remain responsible for hiring decisions. The first business use case is [UC-001: Intelligent Candidate Sourcing](../00-discovery/UC-001-intelligent-candidate-sourcing.md).
 
-### In scope (MVP)
-1. Requirement intake with AI analysis of the JD: mandatory and optional skills, constraints, ambiguities, clarification questions.
-2. Agentic sourcing over HR Guru's own candidate store using hybrid search (semantic plus keyword), with replanning when results are weak.
-3. Evidence-based screening reports, where each claim links to a resume excerpt.
-4. A Quality agent that checks evidence, flags unsupported claims and checks policy.
-5. Human approval gates for shortlists and outreach.
-6. Draft outreach messages. Sending is simulated or manual in the MVP.
-7. Recruiter feedback captured into long-term memory to improve later search plans.
-8. A delivery dashboard covering requirement ageing and bottlenecks, with recommended actions.
-9. An audit trail of every agent decision and tool call.
-10. Synthetic dataset, evaluation suite, CI/CD, security scanning.
+## 4. Business success criteria (KPIs)
 
-### Out of scope (MVP)
-- Replacing the existing ATS, payroll or onboarding systems.
-- Scraping LinkedIn or any unlicensed source.
-- Autonomous rejection of candidates, or autonomous sending of emails or WhatsApp messages.
-- Fine-tuning models.
-- Mobile apps, and multi-tenant SaaS billing.
+These are initial proposed targets. **Actual baselines are established before improvements are measured** (TS-E0-08).
 
-## 4. Business rules
+| ID | KPI | Target |
+|---|---|---|
+| KPI-1 | Manual sourcing effort reduction | 40% |
+| KPI-2 | Evidence accuracy | 95%+ |
+| KPI-3 | Recruiter acceptance of suggested profiles | 80%+ |
+| KPI-4 | Successful agent workflow completion | 90%+ |
+| KPI-5 | Unauthorised external actions | Zero |
+| KPI-6 | Agent execution traceability | 100% |
+
+Operational constraint (not a KPI): monthly cash spend during the MVP is $0.
+
+## 5. MVP scope
+
+The first release is kept small but architecturally extensible.
+
+| Capability | MVP scope |
+|---|---|
+| JD parsing | Included (reuse existing component, subject to code review) |
+| Resume parsing | Included (reuse existing component, subject to code review) |
+| Requirement analysis agent | Included |
+| Supervisor agent | Included |
+| Sourcing agent | Included |
+| Evidence-based candidate matching | Included |
+| Intelligent search and replanning | Included |
+| Agent execution dashboard | Included |
+| Human approval workflow | Included |
+| Agent memory | Included |
+| AI guardrails | Included |
+| Observability and evaluation | Included |
+| Automated candidate outreach | Future phase |
+| Voice-based candidate screening | Future phase |
+| Naukri API integration | Subject to authorised API access |
+| ATS integration | Future phase |
+| Delivery monitoring agent | Future phase |
+| Autonomous hiring decisions | **Excluded** |
+
+Also out of scope: modifying the existing recruitment platform, scraping unlicensed sources, fine-tuning models, and multi-tenant SaaS.
+
+## 6. Business rules
 
 | ID | Rule |
 |---|---|
-| BR-1 | A candidate may be **recommended** by an agent but only **rejected** by a human. |
-| BR-2 | Mandatory constraints (for example notice ≤ 30 days, budget ≤ ₹45 LPA) are never relaxed by an agent. Only optional criteria can be relaxed during replanning, and every relaxation is logged. |
-| BR-3 | Protected attributes (gender, age, religion, caste, marital status, photo) are never used as screening criteria and are masked before LLM calls. |
-| BR-4 | Real candidate PII is processed only by models running on HR Guru-controlled hardware. |
-| BR-5 | Every external action (message send, client submission) needs an explicit approval from a named user. |
-| BR-6 | Candidate data is kept only as long as the retention policy allows. Candidates can ask to be deleted. |
+| BR-1 | Agents may **recommend** candidates. Only a human can **reject** a candidate or make a hiring decision. |
+| BR-2 | Agents cannot relax budget, mandatory skills, experience, location or notice period. They may **propose** a relaxation, and a recruiter decides. |
+| BR-3 | Protected attributes (gender, age, religion, caste, marital status, photo) are never screening criteria and are masked before LLM calls. |
+| BR-4 | Real candidate PII is processed only by models on HR Guru-controlled hardware. |
+| BR-5 | Every action with an external or irreversible effect needs explicit approval from a named user. The MVP has no candidate or client contact. |
+| BR-6 | Candidate data is retained only per the retention policy. Candidates can ask for erasure. |
+| BR-7 | Every claim that a candidate meets a requirement must cite resume evidence. |
+| BR-8 | When the objective cannot be met within the rules, the agent **escalates** to the recruiter with an explanation instead of lowering the bar. |
 
-## 5. Assumptions, dependencies and constraints
+## 7. Engineering principles (agreed)
 
-See `docs/04-delivery/RAID-log.md`. The key constraints are a zero cash budget, a single developer working with AI coding assistants, and free-tier rate limits.
+1. Separate repository; the existing recruitment platform is not modified.
+2. Version-controlled engineering documentation.
+3. Major architecture decisions are understood and recorded (ADRs) before implementation.
+4. AI-generated code is reviewed before it is accepted.
+5. Acceptance criteria are defined before development.
+6. Security, testing and observability are in every sprint.
+7. Synthetic or properly authorised candidate data only during development.
+8. No unnecessary frameworks merely to demonstrate newer technology.
 
-## 6. Benefits (qualitative)
+## 8. Assumptions, dependencies and constraints
 
-- Recruiters spend their time talking to candidates and clients instead of searching.
-- Clients receive fewer, better submissions with clear evidence behind them.
-- The Director gets a governed, auditable way to adopt AI.
-- It becomes a reusable HR asset that HR Guru can offer to other clients.
+See the [RAID log](../04-delivery/RAID-log.md).
 
-## 7. Approval
+## 9. Approval (Phase 1 gate)
 
 | Role | Name | Decision | Date |
 |---|---|---|---|

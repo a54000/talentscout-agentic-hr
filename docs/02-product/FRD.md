@@ -1,6 +1,6 @@
 # Functional Requirements Document (FRD)
 
-Version 0.1. Requirements trace back to the [PRD](PRD.md) features (F-xx) and forward to the backlog stories (TS-Ex-yy).
+Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and forward to the backlog stories (TS-Ex-yy).
 
 ## 1. Functional requirements
 
@@ -15,31 +15,36 @@ Version 0.1. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | ID | Requirement | Feature |
 |---|---|---|
 | FR-REQ-1 | Create a requirement with: client, title, JD text, mandatory constraints (budget max, notice max, location, work mode, min experience) and optional preferences. | F-02 |
+| FR-REQ-0 | JD text is parsed by the **existing HR Guru JD parser**, wrapped as the `jd.parse` tool (reuse decision in TS-E1-08). If it is unavailable, an LLM extraction fallback is used. | F-02 |
 | FR-REQ-2 | The Requirement agent returns a **validated structured output**: must-have skills, nice-to-have skills, seniority, constraints, ambiguities[], clarification questions[]. Output failing schema validation is retried at most 2 times, then marked `needs_human`. | F-02 |
 | FR-REQ-3 | The recruiter can answer, edit or dismiss clarification questions. Answers update the requirement version. | F-02 |
-| FR-REQ-4 | Requirement status: `draft → analysed → sourcing → shortlist_ready → outreach → closed`. | F-02, F-15 |
+| FR-REQ-4 | Requirement status: `draft → analysed → sourcing → shortlist_ready | escalated → approved → closed`. | F-02 |
 
 ### FR-CAND: Candidate store and search
 | ID | Requirement | Feature |
 |---|---|---|
+| FR-CAND-0 | Resumes are parsed by the **existing HR Guru resume parser**, wrapped as `resume.parse`, into structured profile fields and sections before chunking. | F-03 |
 | FR-CAND-1 | Candidates hold: profile fields, parsed resume, resume chunks with embeddings, source, consent status, created/updated dates. | F-03 |
 | FR-CAND-2 | Hybrid search combines vector similarity and keyword (BM25) scores with reciprocal rank fusion, and supports filters (notice, CTC, location). | F-03 |
 | FR-CAND-3 | Protected attributes are never stored in searchable fields or sent to LLMs. | F-03, F-11 |
-| FR-CAND-4 | A synthetic data generator produces ≥ 2,000 realistic, fictional candidate profiles for development and testing. | F-03 |
+| FR-CAND-4 | A synthetic data generator produces realistic, fictional profiles: a general set (≥ 2,000) and the **UC-001 scenario set** (500 resumes reproducing the 500 → 80 → 25 → 12 → 2 funnel, plus serving-notice and alternative-title candidates). | F-03 |
+| FR-CAND-5 | A funnel tool returns counts per constraint stage (experience, mandatory skills, budget, notice, location) for a search. | F-04 |
 
 ### FR-AGT: Agent workflow
 | ID | Requirement | Feature |
 |---|---|---|
 | FR-AGT-1 | Starting a run creates a `run` with a unique id and a thread id for checkpointing. | F-05 |
 | FR-AGT-2 | The supervisor produces a plan (ordered steps with the target agent and success criterion) and records it. | F-05 |
-| FR-AGT-3 | After each step the supervisor evaluates the observation against the success criteria and either continues, replans, asks the human, or stops. | F-05 |
-| FR-AGT-4 | Replanning may relax only **optional** criteria. Each relaxation is logged with a reason. | F-05 |
+| FR-AGT-3 | After each step the supervisor evaluates the observation against the objective (for example "5 qualifying candidates") and either continues, replans, escalates or stops. | F-05 |
+| FR-AGT-4 | When the objective is not met, the supervisor identifies the **primary bottleneck** from the funnel and generates alternative strategies (for example serving-notice candidates, alternative job titles, adjacent skill phrasing). | F-05 |
+| FR-AGT-4a | Replanning never changes mandatory constraints (budget, mandatory skills, experience, location, notice). A test asserts that the constraints in the run state equal the original requirement after every replan. Only *search strategy* and *optional* preferences may change, and each change is logged with a reason. | F-05 |
+| FR-AGT-4b | If the objective is still unmet after the allowed replans (default 3), the run ends `escalated`. The escalation includes the funnel, the strategies tried, the candidates found, and decision options for the recruiter (for example "relax notice to 45 days?"). | F-05 |
 | FR-AGT-5 | Hard limits: max 12 supervisor iterations, max 5 tool calls per agent step, wall-clock timeout of 10 min per run, token budget per run (configurable). A breached limit ends the run as `stopped_limit` with a partial result. | F-11 |
 | FR-AGT-6 | The Screening agent outputs, for each candidate: a score from 0 to 100, and for each requirement a verdict (`met`, `partially_met`, `not_met`, `unknown`) with evidence quotes (chunk id plus text). | F-06 |
 | FR-AGT-7 | The Quality agent checks each evidence quote against the source chunk and flags `unsupported` claims. Unsupported claims cannot reach the recruiter as facts. | F-06 |
-| FR-AGT-8 | The workflow pauses at the approval gate (`interrupt`) and resumes when the recruiter submits decisions. | F-10 |
+| FR-AGT-8 | The workflow pauses at the approval gate (`interrupt`) for shortlists and escalations, and resumes when the recruiter submits decisions. | F-10 |
 | FR-AGT-9 | A run interrupted by a crash or rate limit resumes from the last checkpoint. | F-08 |
-| FR-AGT-10 | The UI streams step events: plan, tool call, observation, replan, approval needed, done. | F-05 |
+| FR-AGT-10 | The agent execution dashboard streams step events live: plan, tool call, observation, funnel, replan, escalation, approval needed, done. | F-14 |
 
 ### FR-MEM: Memory
 | ID | Requirement | Feature |
@@ -48,23 +53,20 @@ Version 0.1. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | FR-MEM-2 | Long-term memory: approved recruiter feedback ("rejected: no hands-on EKS") is stored with an embedding and tagged by role family. | F-09 |
 | FR-MEM-3 | The Sourcing agent retrieves relevant feedback when planning. Retrieved memories are shown in the trace. | F-09 |
 
-### FR-OUT: Outreach
+### FR-DASH: Agent execution dashboard
 | ID | Requirement | Feature |
 |---|---|---|
-| FR-OUT-1 | Generate a draft message per approved candidate, using the requirement and evidence. No protected attributes; no invented facts. | — |
-| FR-OUT-2 | Only a user with the `recruiter` role can approve a draft. Approval records user, time and the final text. | F-10 |
-| FR-OUT-3 | In the MVP, the `outreach.send` tool is a stub that records the event. It refuses to run without an approval id. | F-10 |
+| FR-DASH-1 | List runs with requirement, status, iterations, replans, duration, tokens, model routes and notional cost. | F-14 |
+| FR-DASH-2 | Show KPIs over a period: workflow completion, recruiter acceptance, evidence accuracy, escalations, guardrail blocks. | F-14 |
+| FR-DASH-3 | Every run links to its full timeline and its trace (KPI-6). | F-14 |
 
-### FR-DEL: Delivery monitoring
-| ID | Requirement | Feature |
-|---|---|---|
-| FR-DEL-1 | Compute per requirement: age, stage, days in stage, submissions, acceptance rate. | F-15 |
-| FR-DEL-2 | The Delivery agent flags at-risk requirements and recommends actions. Recommendations are advisory only. | F-15 |
+### Future phase (not in MVP)
+Automated candidate outreach (former FR-OUT), the delivery monitoring agent (former FR-DEL), voice screening, ATS integration and Naukri API integration (subject to authorised access).
 
 ### FR-OBS: Audit and observability
 | ID | Requirement | Feature |
 |---|---|---|
-| FR-OBS-1 | Each agent step, tool call, model call (model, tokens, latency, cost), and approval is stored in the `audit_events` collection, which is append-only. | F-12 |
+| FR-OBS-1 | Each agent step, tool call, model call (model, tokens, latency, cost), escalation and approval is stored in the `audit_events` collection, which is append-only. A completeness check verifies that every graph step of a run has a matching event (KPI-6). | F-12 |
 | FR-OBS-2 | Traces are exported to Langfuse with PII masked. | F-12 |
 | FR-OBS-3 | An Admin can view a run timeline and export it as JSON. | F-12 |
 
@@ -76,7 +78,7 @@ Version 0.1. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | NFR-2 | Privacy | DPDP Act 2023: consent captured, purpose limitation, retention (default 12 months, configurable), right to erasure endpoint. |
 | NFR-3 | Data locality | Real PII is processed only by local models (BR-4). Cloud LLMs receive only synthetic or masked data. |
 | NFR-4 | Reliability | Durable execution; idempotent tool calls (idempotency key); retries with backoff on 429/5xx. |
-| NFR-5 | Performance | API p95 < 300 ms (non-AI endpoints). Search p95 < 1 s on 50k profiles. |
+| NFR-5 | Performance | API p95 < 300 ms (non-AI endpoints). Search p95 < 1 s on 50k profiles. Run p95 ≤ 5 min on the local setup. Verified by performance tests in Sprint 6. |
 | NFR-6 | Cost | $0 cash. Per-run token budget. Notional cost shown per run. |
 | NFR-7 | Quality | Unit coverage ≥ 70% on business logic. Evaluation suite gates merges to `main` for prompt and agent changes. |
 | NFR-8 | Supply chain | Dependencies pinned via lockfiles; Dependabot; SCA (software composition analysis), SAST, secret and container scans in CI. |
