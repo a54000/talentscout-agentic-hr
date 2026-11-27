@@ -8,9 +8,11 @@
 #   4. print row counts and the newest candidate/requirement dates for verification
 # Refuses to run if the target already has ATS tables (protects data written after restore).
 #
-# Usage (from apps/ats, with the ats-db container running on host port 5433):
-#   DATABASE_URL=postgresql://hrguru:<password>@127.0.0.1:5433/hrguru_ats \
-#   PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /path/to/ats.db
+# Usage (recommended, inside the ats container, from the repo root):
+#   docker compose run --rm -v /path/to/ats.db:/restore/ats.db:ro ats \
+#     scripts/restore_from_sqlite.sh /restore/ats.db
+# Or directly, with DATABASE_URL pointing at an empty PostgreSQL:
+#   DATABASE_URL=postgresql://... PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /path/to/ats.db
 set -euo pipefail
 SRC="${1:?usage: restore_from_sqlite.sh /path/to/ats.db}"
 : "${DATABASE_URL:?DATABASE_URL must point at the empty PostgreSQL database}"

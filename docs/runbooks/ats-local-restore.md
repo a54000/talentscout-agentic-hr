@@ -36,7 +36,7 @@ docker compose up -d ats-db
 
 ## B. Load data (choose one)
 
-**B1. From a PostgreSQL dump**
+**B1. From a PostgreSQL dump** (start the database first: `docker compose up -d ats-db`)
 
 ```bash
 docker compose exec -T ats-db pg_restore -U hrguru -d hrguru_ats --no-owner < hrguru_ats.dump
@@ -50,7 +50,7 @@ docker compose exec -T ats-db pg_restore -U hrguru -d hrguru_ats --no-owner < hr
 - migrates every table into the empty PostgreSQL database;
 - prints row counts and the newest record dates.
 
-It refuses to run if the database already has ATS tables.
+It refuses to run if the database already has ATS tables. It runs **inside the ATS container**, so it needs no Python on the Mac and no host port.
 
 1. Back up the original file first:
 
@@ -58,16 +58,16 @@ It refuses to run if the database already has ATS tables.
 cp /Users/surindersingh/Coding/ats/ats.db ~/ats-backup-$(date +%Y%m%d).db
 ```
 
-2. One-time Python setup for the ATS tools (from the repo root):
+2. Build the ATS image:
 
 ```bash
-cd apps/ats && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+docker compose build ats
 ```
 
-3. Restore into the `ats-db` container. Use the `ATS_DB_PASSWORD` from your root `.env`:
+3. Run the restore. This also starts `ats-db`; the file is mounted read-only:
 
 ```bash
-DATABASE_URL="postgresql://hrguru:YOUR_ATS_DB_PASSWORD@127.0.0.1:5433/hrguru_ats" PYTHON=.venv/bin/python scripts/restore_from_sqlite.sh /Users/surindersingh/Coding/ats/ats.db
+docker compose run --rm -v /Users/surindersingh/Coding/ats/ats.db:/restore/ats.db:ro ats scripts/restore_from_sqlite.sh /restore/ats.db
 ```
 
 4. Check the printed counts against the last known production figures (about 3,600 candidates and 400 requirements). Also check the **newest created_at** dates: production moved from SQLite to PostgreSQL around May–June 2026, so anything entered after that move is not in `ats.db`. Record the result in TS-EA-04.
