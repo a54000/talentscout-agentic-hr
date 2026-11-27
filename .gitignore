@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+# Real candidate data never enters git (ADR-0005)
+data/real/
+*.real.json
