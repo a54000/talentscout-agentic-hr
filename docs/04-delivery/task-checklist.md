@@ -2,9 +2,9 @@
 
 _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `status` (`todo`, `in_progress`, `blocked`, `done`) in the JSON, then re-run the script._
 
-| Done | In progress | Blocked | To do | Total |
-|---|---|---|---|---|
-| 10 | 4 | 0 | 51 | 65 |
+| Done | In progress | Blocked | To do | Deferred | Total |
+|---|---|---|---|---|---|
+| 10 | 4 | 0 | 50 | 1 | 65 |
 
 ## Your actions (outside the backlog)
 
@@ -29,7 +29,6 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-05 Expose the local ATS to 25 recruiters securely**: To reach the ATS from my own laptop, so that I can work as before. _(3 pts, owner: You + Claude, Jira TS-13)_
 - [x] **TS-EA-06 ATS backups and restore drill**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
 - [x] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_
-- [ ] **TS-EA-10 Close the post-May 2026 data gap and the missing CV/JD files**: Candidates and requirements added after 26 May 2026 recovered or re-entered, so that recruiters work from complete data. _(2 pts, owner: You, Jira TS-69)_
 - [x] **TS-EA-11 ATS performance quick wins: PostgreSQL indexes and multi-process serving**: The ATS to stay responsive while colleagues upload candidates, so that my work is not blocked. _(3 pts, owner: Claude + You, Jira TS-70)_
 - [x] **TS-E0-01 Monorepo structure and tooling**: A monorepo with web, api and agents projects, so that all tiers build and test the same way. _(2 pts, owner: Claude, Jira TS-18)_
 - [ ] **TS-E0-02 CI pipeline: lint, test, build** **[In progress]**: Every PR linted, tested and built, so that broken code never reaches main. _(3 pts, owner: Claude, Jira TS-19)_
@@ -111,3 +110,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [ ] **TS-E6-05 Demo deployment**: A running demo on synthetic data, so that I can show the system live. _(3 pts, owner: Claude, Jira TS-66)_
 - [ ] **TS-E6-07 Performance and resilience testing**: Load and failure drills, so that the pilot runs on a system with known limits. _(3 pts, owner: Claude, Jira TS-67)_
 - [ ] **TS-E6-06 Recruiter pilot and results report**: A pilot report against the baseline, so that the decision to scale is evidence-based. _(3 pts, owner: You + recruiters, Jira TS-68)_
+
+## Unscheduled (deferred) (- → -)
+
+- [ ] **TS-EA-10 Close the post-May 2026 data gap and the missing CV/JD files** **[Deferred]**: Candidates and requirements added after 26 May 2026 recovered or re-entered, so that recruiters work from complete data. _(2 pts, owner: You, Jira TS-69)_

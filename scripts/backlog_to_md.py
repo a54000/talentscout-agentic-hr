@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DELIVERY = ROOT / "docs" / "04-delivery"
 VELOCITY = 26
-STATUS_LABEL = {"done": "Done", "in_progress": "In progress", "todo": "To do", "blocked": "Blocked"}
+STATUS_LABEL = {"done": "Done", "in_progress": "In progress", "todo": "To do", "blocked": "Blocked", "deferred": "Deferred"}
 
 
 def short_description(story: dict) -> str:
@@ -33,8 +33,8 @@ def write_checklist(data: dict, sprints: dict, by_sprint: dict) -> None:
     out = ["# Task Checklist", "",
            "_Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `status` "
            "(`todo`, `in_progress`, `blocked`, `done`) in the JSON, then re-run the script._", "",
-           "| Done | In progress | Blocked | To do | Total |", "|---|---|---|---|---|",
-           f"| {counts['done']} | {counts['in_progress']} | {counts['blocked']} | {counts['todo']} | {len(stories)} |", "",
+           "| Done | In progress | Blocked | To do | Deferred | Total |", "|---|---|---|---|---|---|",
+           f"| {counts['done']} | {counts['in_progress']} | {counts['blocked']} | {counts['todo']} | {counts['deferred']} | {len(stories)} |", "",
            "## Your actions (outside the backlog)", ""]
     for a in data.get("owner_actions", []):
         box = "x" if a.get("status") == "done" else " "
@@ -58,6 +58,9 @@ def main() -> None:
     data = json.loads((DELIVERY / "backlog.json").read_text())
     epics = {e["id"]: e for e in data["epics"]}
     sprints = {s["id"]: s for s in data["sprints"]}
+    if any(st.get("sprint") is None for st in data["stories"]):
+        sprints[None] = {"id": None, "name": "Unscheduled (deferred)", "start": "-", "end": "-",
+                         "goal": "Deferred items; re-planned when the PO brings them back."}
     by_epic: dict[str, list[dict]] = defaultdict(list)
     by_sprint: dict[int, list[dict]] = defaultdict(list)
     for story in data["stories"]:
@@ -78,7 +81,8 @@ def main() -> None:
             fr = ", ".join(s["fr"]) or "n/a"
             status = STATUS_LABEL[s.get("status", "todo")]
             jira = f", Jira {s['jira']}" if s.get("jira") else ""
-            out += [f"### {s['id']}: {s['title']}  ({s['points']} pts, Sprint {s['sprint']}, {status}{jira})", "",
+            sprint_label = s['sprint'] if s['sprint'] is not None else "unscheduled"
+            out += [f"### {s['id']}: {s['title']}  ({s['points']} pts, Sprint {sprint_label}, {status}{jira})", "",
                     f"*{s['story']}*", "", f"Traces to: {fr}", "", "Acceptance criteria:"]
             out += [f"- {ac}" for ac in s["ac"]]
             out.append("")
@@ -90,7 +94,7 @@ def main() -> None:
             "| Sprint | Dates | Goal | Points | Load |", "|---|---|---|---|---|"]
     for sid, sp in sprints.items():
         pts = sum(s["points"] for s in by_sprint[sid])
-        load = "OK" if pts <= VELOCITY else f"+{pts - VELOCITY} over (stretch items flagged in planning)"
+        load = "-" if sid is None else ("OK" if pts <= VELOCITY else f"+{pts - VELOCITY} over (stretch items flagged in planning)")
         plan.append(f"| {sid} | {sp['start']} → {sp['end']} | {sp['goal']} | {pts} | {load} |")
     plan.append("")
     for sid, sp in sprints.items():

@@ -4,7 +4,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Sprint | Dates | Goal | Points | Load |
 |---|---|---|---|---|
-| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts. | 41 | +15 over (stretch items flagged in planning) |
+| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts. | 39 | +13 over (stretch items flagged in planning) |
 | 1 | 2026-12-14 → 2026-12-24 | The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured. | 25 | OK |
 | 2 | 2027-01-04 → 2027-01-15 | TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS. | 25 | OK |
 | 3 | 2027-01-18 → 2027-01-29 | The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists. | 23 | OK |
@@ -13,6 +13,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | 6 | 2027-03-01 → 2027-03-12 | Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live. | 24 | OK |
 | 7 | 2027-03-15 → 2027-03-26 | Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI. | 28 | +2 over (stretch items flagged in planning) |
 | 8 | 2027-03-29 → 2027-04-09 | Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch). | 30 | +4 over (stretch items flagged in planning) |
+| None | - → - | Deferred items; re-planned when the PO brings them back. | 2 | - |
 
 ## Sprint 0 - Inception, walking skeleton and ATS restore
 
@@ -28,7 +29,6 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-05 | Expose the local ATS to 25 recruiters securely | 3 | Done |
 | TS-EA-06 | ATS backups and restore drill | 3 | Done |
 | TS-EA-09 | ATS health monitoring | 2 | Done |
-| TS-EA-10 | Close the post-May 2026 data gap and the missing CV/JD files | 2 | To do |
 | TS-EA-11 | ATS performance quick wins: PostgreSQL indexes and multi-process serving | 3 | Done |
 | TS-E0-01 | Monorepo structure and tooling | 2 | Done |
 | TS-E0-02 | CI pipeline: lint, test, build | 3 | In progress |
@@ -150,5 +150,14 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E6-05 | Demo deployment | 3 | To do |
 | TS-E6-07 | Performance and resilience testing | 3 | To do |
 | TS-E6-06 | Recruiter pilot and results report | 3 | To do |
+
+## Unscheduled (deferred)
+
+**Dates:** - → -  
+**Goal:** Deferred items; re-planned when the PO brings them back.
+
+| Story | Title | Points | Status |
+|---|---|---|---|
+| TS-EA-10 | Close the post-May 2026 data gap and the missing CV/JD files | 2 | Deferred |
 
 Holiday break: 2026-12-25 → 2027-01-01 (no sprint).
