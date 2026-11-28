@@ -5,7 +5,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | Epic | Name | Stories | Points |
 |---|---|---|---|
 | E0 | Inception and platform | 9 | 24 |
-| EA | HR Guru ATS restore and integration | 15 | 50 |
+| EA | HR Guru ATS restore and integration | 18 | 61 |
 | E1 | Requirement agent | 8 | 28 |
 | E2 | Intelligent retrieval | 7 | 29 |
 | E3 | Multi-agent orchestration | 6 | 32 |
@@ -15,7 +15,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | E7 | Submission quality audit | 6 | 22 |
 | E8 | Candidate verification | 8 | 34 |
 | E9 | Client pitches and drives | 4 | 13 |
-| **Total** | | **84** | **311** |
+| **Total** | | **87** | **322** |
 
 ## E0: Inception and platform
 
@@ -276,6 +276,40 @@ Acceptance criteria:
 - Given the ATS, then the retired routes, the AI screening queue, services/gemini_screening.py, the JD/CV match and resume-analysis tabs and their JavaScript are deleted
 - Given the ATS requirements, then google-genai and other unused AI packages are removed, and GEMINI_* settings are dropped from .env.example
 - Given the smoke test and unit tests, then they pass, and candidate, requirement, upload and email flows still work on the live ATS
+
+### TS-EA-16: Run the live ATS from the scanned GHCR images  (3 pts, Sprint 2, To do)
+
+*As a tech lead I want the Mac to run the exact images that CD built and scanned so that what is live is what passed the security gate.*
+
+Traces to: NFR-8, NFR-ATS-3
+
+Acceptance criteria:
+- Given a merge to main, then docker-compose can pull ghcr.io/a54000/talentscout-ats:<commit> and run ats and ats-worker from it without building locally
+- Given the live ATS, then the running image digest matches the GHCR image of the deployed commit and is shown in /healthz
+- Given GHCR is unreachable, then the runbook documents the fallback of building from source
+
+### TS-EA-17: One-command ATS deploy with backup, health check and rollback  (5 pts, Sprint 3, To do)
+
+*As the ATS owner I want one command that backs up, deploys and checks the ATS, and rolls back on failure, so that updates are safe and repeatable.*
+
+Traces to: NFR-ATS-3
+
+Acceptance criteria:
+- Given ops/deploy/deploy_ats.sh <commit>, then it takes a fresh backup, pulls that commit's images, restarts ats and ats-worker and waits for /healthz
+- Given /healthz or the smoke checks fail after deploy, then it automatically returns to the previous images and reports why
+- Given a database migration in the release, then the deploy stops before restarting if the backup failed
+- Given every deploy, then the commit, time, result and backup file are logged
+
+### TS-EA-18: Staging copy of the ATS for testing releases  (3 pts, Sprint 10, To do)
+
+*As a tech lead I want a staging ATS on the Mac with a masked copy of live data so that releases are tried on realistic data before recruiters see them.*
+
+Traces to: NFR-ATS-3
+
+Acceptance criteria:
+- Given docker compose --profile staging, then ats-staging, ats-worker-staging and ats-db-staging start on a different port with no tunnel
+- Given last night's backup, then a script restores it into staging with names, emails and phones masked
+- Given TS-EA-17, then the deploy script can target staging first and live only after staging passes
 
 ## E1: Requirement agent
 
