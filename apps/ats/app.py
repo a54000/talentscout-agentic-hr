@@ -3586,8 +3586,9 @@ def login_google():
             redirect_uri = "https://hireflow.hrgp.in/login/callback"
         else:
             redirect_uri = url_for("google_callback", _external=True).replace("/auth/google/callback", "/login/callback")
-    if redirect_uri.startswith("http://hireflow.hrgp.in"):
-        redirect_uri = redirect_uri.replace("http://hireflow.hrgp.in", "https://hireflow.hrgp.in", 1)
+    parsed_redirect = urlparse(redirect_uri)
+    if parsed_redirect.scheme == "http" and parsed_redirect.hostname == "hireflow.hrgp.in":
+        redirect_uri = parsed_redirect._replace(scheme="https").geturl()
     print("Google OAuth redirect_uri:", redirect_uri, flush=True)
     try:
         return google.authorize_redirect(
