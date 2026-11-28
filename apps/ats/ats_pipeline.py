@@ -591,9 +591,13 @@ def employment_status_from_ranges(ranges):
 
 def fallback_experience_months(text):
     text = str(text or "")
-    match = re.search(r"(?<![\d.])(\d+(?:\.\d+)?)\s*(?:\+\s*)?(?:years?|yrs?)", text, re.I)
-    if match:
-        return int(round(float(match.group(1)) * 12))
+    # Linear scan: find a number, then check that "years"/"yrs" follows (optionally after "+").
+    for number in re.finditer(r"(?<![\d.])\d+(?:\.\d+)?", text):
+        rest = text[number.end():number.end() + 40].lstrip()
+        if rest.startswith("+"):
+            rest = rest[1:].lstrip()
+        if rest.lower().startswith(("year", "yr")):
+            return int(round(float(number.group(0)) * 12))
     return 0
 
 

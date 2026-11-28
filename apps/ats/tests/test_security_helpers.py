@@ -11,16 +11,18 @@ from pathlib import Path
 import pytest
 
 SRC = Path(__file__).resolve().parents[1] / "app.py"
-NAMES = {"build_update_set", "path_under", "extract_google_sheet_id"}
+NAMES = {"build_update_set", "path_under", "extract_google_sheet_id", "UserInputError", "user_error_message", "report_error"}
 CONSTS = {"GOOGLE_SHEET_ID_RE", "GOOGLE_SHEET_URL_RE"}
 
 
 def _load():
     tree = ast.parse(SRC.read_text(encoding="utf-8-sig"))
     nodes = [n for n in tree.body
-             if (isinstance(n, ast.FunctionDef) and n.name in NAMES)
+             if (isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name in NAMES)
              or (isinstance(n, ast.Assign) and any(getattr(t, "id", "") in CONSTS for t in n.targets))]
-    ns = {"os": os, "re": re}
+    import logging
+    import secrets
+    ns = {"os": os, "re": re, "secrets": secrets, "_error_log": logging.getLogger("test")}
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SRC), "exec"), ns)
     return ns
 
@@ -74,3 +76,17 @@ SHEET = "1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-"
 ])
 def test_google_sheet_id(url, expected):
     assert H["extract_google_sheet_id"](url) == expected
+
+
+def test_user_error_message_shows_only_fixed_text():
+    err = H["UserInputError"]("unsupported_file")
+    assert H["user_error_message"](err) == "Upload PDF, DOC, DOCX, or TXT files only"
+    leaky = ValueError("could not convert '/srv/app/secret.txt' at line 3")
+    assert "secret" not in H["user_error_message"](leaky)
+
+
+def test_report_error_hides_exception_text(caplog):
+    msg = H["report_error"](RuntimeError("password=hunter2 in /etc/app.conf"), "Backup")
+    assert "hunter2" not in msg and "/etc" not in msg
+    assert msg.startswith("Backup failed.") and "reference" in msg
+    assert "hunter2" in caplog.text  # full detail stays in the server log

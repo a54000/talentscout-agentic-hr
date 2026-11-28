@@ -1,3 +1,5 @@
+import logging
+import secrets
 import json
 import os
 import re
@@ -144,6 +146,13 @@ SCORE_WEIGHT_PROMPT_LINES.extend(
     ]
 )
 SCORE_WEIGHT_PROMPT_TEXT = "\n".join(SCORE_WEIGHT_PROMPT_LINES)
+
+
+def _safe_error(exc, context):
+    """Log the full error and return a message without exception text (no stack-trace exposure)."""
+    ref = secrets.token_hex(4)
+    logging.getLogger("ats.gemini").error("[ref %s] %s failed", ref, context, exc_info=exc)
+    return f"{context} failed. Reference {ref}; details are in the server log."
 
 
 def score_to_verdict(score):
@@ -880,7 +889,7 @@ def build_screening_report(
                     }
                 return {
                     "ok": False,
-                    "error": f"Gemini screening request failed: {last_error}",
+                    "error": _safe_error(last_error, "Gemini screening request"),
                     "source": "gemini",
                     "error_type": error_type,
                     "retryable": False,
@@ -905,9 +914,9 @@ def build_screening_report(
             "usage_metadata": usage_metadata,
         }
     except ImportError as e:
-        return {"ok": False, "error": f"Gemini SDK dependencies are missing: {e}", "source": "gemini", "error_type": "import_error", "retryable": False}
+        return {"ok": False, "error": _safe_error(e, "Loading the Gemini SDK"), "source": "gemini", "error_type": "import_error", "retryable": False}
     except ValidationError as e:
-        return {"ok": False, "error": f"Gemini response did not match schema: {e}", "source": "gemini", "error_type": "bad_request", "retryable": False}
+        return {"ok": False, "error": _safe_error(e, "Reading the Gemini response"), "source": "gemini", "error_type": "bad_request", "retryable": False}
     except Exception as e:
         error_type = _classify_error(e)
         retryable = error_type in ("capacity_unavailable", "quota_rate_limit")
@@ -933,7 +942,7 @@ def build_screening_report(
                 "error_type": error_type,
                 "retryable": True,
             }
-        return {"ok": False, "error": f"Gemini screening request failed: {e}", "source": "gemini", "error_type": error_type, "retryable": retryable}
+        return {"ok": False, "error": _safe_error(e, "Gemini screening request"), "source": "gemini", "error_type": error_type, "retryable": retryable}
     finally:
         _release_screening_slot()
 
@@ -972,7 +981,7 @@ def build_screening_reports_batch(items, delay_seconds=0.0, api_key=None):
                 results[index] = {
                     "ok": False,
                     "source": "gemini",
-                    "error": f"Gemini batch screening failed: {type(exc).__name__}: {exc}",
+                    "error": _safe_error(exc, "Gemini batch screening"),
                     "index": index,
                 }
     return results
