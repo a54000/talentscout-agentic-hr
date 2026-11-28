@@ -301,7 +301,7 @@
       "epic": "EA",
       "sprint": 0,
       "points": 3,
-      "status": "in_progress",
+      "status": "done",
       "owner": "Claude + You",
       "fr": [
         "NFR-ATS-1"
@@ -311,7 +311,8 @@
       "ac": [
         "Given PostgreSQL mode, when the ATS starts, then the 24 query indexes exist (log: Performance indexes ensured: 24/24); duplicate-check lookups use an index (measured 12-26x faster on 10k candidates)",
         "Given 4 concurrent CV parses, then /healthz average latency stays under 50 ms (measured: 129 ms with 1 process, 24 ms with 3 workers)",
-        "Given SQLite mode, then the image falls back to 1 worker (file lock)"
+        "Given SQLite mode, then the image falls back to 1 worker (file lock)",
+        "Verified on the Mac 2026-11-28: 3 gunicorn workers booted; 24/24 indexes present in PostgreSQL. Concurrent worker startup serialized with an advisory lock (all workers report 24/24)"
       ],
       "jira": "TS-70"
     },

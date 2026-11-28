@@ -3132,23 +3132,39 @@ def init_db():
     finally:
         conn.close()
 
+PERFORMANCE_INDEX_LOCK_ID = 7262001  # PostgreSQL advisory lock: one worker builds indexes, others wait
+
+
 def ensure_performance_indexes(conn):
     """Create the query indexes in PostgreSQL too (the SQLite->PostgreSQL migration only copies
     unique indexes, which left candidates/requirements without them). Idempotent; one failing
-    index never blocks startup."""
-    created = 0
-    for index_sql in PERFORMANCE_INDEXES:
-        try:
-            conn.execute(index_sql)
-            conn.commit()
-            created += 1
-        except Exception as exc:
+    index never blocks startup. With several gunicorn workers starting together, an advisory
+    lock makes them take turns so they do not collide on the same CREATE INDEX."""
+    failed = []
+    try:
+        conn.execute(f"SELECT pg_advisory_lock({PERFORMANCE_INDEX_LOCK_ID})")
+    except Exception as exc:
+        print(f"Index lock unavailable ({type(exc).__name__}); continuing without it", flush=True)
+    try:
+        for index_sql in PERFORMANCE_INDEXES:
             try:
-                conn.rollback()
-            except Exception:
-                pass
-            print(f"Index skipped: {index_sql.split(' ON ')[0][-60:]}: {type(exc).__name__}", flush=True)
-    print(f"Performance indexes ensured: {created}/{len(PERFORMANCE_INDEXES)}", flush=True)
+                conn.execute(index_sql)
+                conn.commit()
+            except Exception as exc:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                failed.append(index_sql.split(" ON ")[0].rsplit(" ", 1)[-1])
+                print(f"Index skipped: {failed[-1]}: {type(exc).__name__}: {exc}", flush=True)
+    finally:
+        try:
+            conn.execute(f"SELECT pg_advisory_unlock({PERFORMANCE_INDEX_LOCK_ID})")
+            conn.commit()
+        except Exception:
+            pass
+    ok = len(PERFORMANCE_INDEXES) - len(failed)
+    print(f"Performance indexes ensured: {ok}/{len(PERFORMANCE_INDEXES)}", flush=True)
 
 
 def initialize_app_database():

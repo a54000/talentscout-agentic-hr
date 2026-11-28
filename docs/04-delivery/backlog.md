@@ -218,7 +218,7 @@ Acceptance criteria:
 - Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded
 - Findings 2026-11-28: CV/JD files were only on the EC2 disk; no ATS zip backups found in Google Drive. Remaining source: AWS detached EBS volumes / snapshots / AMIs / AWS Backup in the old region; otherwise recruiters re-upload CVs for active candidates
 
-### TS-EA-11: ATS performance quick wins: PostgreSQL indexes and multi-process serving  (3 pts, Sprint 0, In progress, Jira TS-70)
+### TS-EA-11: ATS performance quick wins: PostgreSQL indexes and multi-process serving  (3 pts, Sprint 0, Done, Jira TS-70)
 
 *As a recruiter I want the ATS to stay responsive while colleagues upload candidates so that my work is not blocked.*
 
@@ -228,6 +228,7 @@ Acceptance criteria:
 - Given PostgreSQL mode, when the ATS starts, then the 24 query indexes exist (log: Performance indexes ensured: 24/24); duplicate-check lookups use an index (measured 12-26x faster on 10k candidates)
 - Given 4 concurrent CV parses, then /healthz average latency stays under 50 ms (measured: 129 ms with 1 process, 24 ms with 3 workers)
 - Given SQLite mode, then the image falls back to 1 worker (file lock)
+- Verified on the Mac 2026-11-28: 3 gunicorn workers booted; 24/24 indexes present in PostgreSQL. Concurrent worker startup serialized with an advisory lock (all workers report 24/24)
 
 ### TS-EA-12: Asynchronous bulk upload with progress  (8 pts, Sprint 1, To do, Jira TS-71)
 
