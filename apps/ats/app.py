@@ -36,7 +36,7 @@ try:
 except ImportError:
     psycopg2 = None
 from ats_schema import ensure_ats_pipeline_schema
-from ats_pipeline import MATCH_PIPELINE_VERSION, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
+from ats_pipeline import MATCH_PIPELINE_VERSION, looks_like_email, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
 from embedding_engine import deserialize_embedding, serialize_embedding
 from services.match_analysis import build_match_dashboard
 from services.match_pdf import build_match_pdf
@@ -291,8 +291,44 @@ def handle_unexpected_error(error):
     print("Unhandled exception:", error, flush=True)
     traceback.print_exc()
     if request.path.startswith("/api/"):
-        return jsonify({"error": str(error) or "Server error while processing this request."}), 500
+        return jsonify({"error": report_error(error, "Server request")}), 500
     return "Server error while processing this request. Please check the ATS terminal/logs for details.", 500
+
+import logging as _logging
+_error_log = _logging.getLogger("ats.errors")
+
+
+class UserInputError(ValueError):
+    """A validation error whose fixed message is safe to show to the user."""
+
+    MESSAGES = {
+        "path_escape": "Invalid file location.",
+        "missing_file": "Missing file",
+        "unsupported_file": "Upload PDF, DOC, DOCX, or TXT files only",
+    }
+
+    def __init__(self, code):
+        super().__init__(self.MESSAGES.get(code, "Invalid input."))
+        self.code = code
+
+
+def user_error_message(exc, default="The request could not be processed. Please check the input and try again."):
+    """Fixed, user-safe text for a validation error; never the raw exception text."""
+    if isinstance(exc, UserInputError):
+        return UserInputError.MESSAGES.get(exc.code, default)
+    return default
+
+
+def report_error(exc, context="Request"):
+    """Log the full error server-side and return a safe message for the user.
+
+    The message never contains exception text or stack traces (CodeQL
+    py/stack-trace-exposure); the reference id links it to the server log.
+    """
+    ref = secrets.token_hex(4)
+    _error_log.error("[ref %s] %s failed", ref, context, exc_info=exc)
+    return f"{context} failed. Please try again or contact the admin with reference {ref}."
+
 
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
 DB_PATH        = os.path.join(BASE_DIR, "ats.db")
@@ -2241,7 +2277,7 @@ def current_reply_to_email():
         or session.get("username")
         or ""
     ).strip().lower()
-    if re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+    if is_valid_email(email):
         return email
     return ""
 
@@ -2255,7 +2291,7 @@ def system_email(to_addr, subject, body, reply_to=None):
     msg["From"] = GMAIL_USER
     msg["To"] = to_addr
     reply_to = (reply_to or "").strip().lower()
-    if reply_to and re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", reply_to):
+    if reply_to and is_valid_email(reply_to):
         msg["Reply-To"] = reply_to
     msg.attach(MIMEText(body, "plain"))
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
@@ -3392,7 +3428,7 @@ def forgot_password():
                 email_results.append({"recipient": recipient, **result})
             except Exception as e:
                 print("Password reset email error:", e)
-                email_results.append({"recipient": recipient, "error": str(e)})
+                email_results.append({"recipient": recipient, "error": report_error(e, "Password reset email")})
     conn.close()
     if user and user["is_active"] and not email_results:
         return render_template("login.html", message="Reset link was created, but no admin/user email is configured. Please set ADMIN_EMAIL or link the user to a team email.")
@@ -3546,12 +3582,13 @@ def login_google():
     if not redirect_uri:
         if public_base_url:
             redirect_uri = f"{public_base_url}/login/callback"
-        elif request.host.lower().startswith("hireflow.hrgp.in"):
+        elif request.host.lower().split(":", 1)[0] == "hireflow.hrgp.in":
             redirect_uri = "https://hireflow.hrgp.in/login/callback"
         else:
             redirect_uri = url_for("google_callback", _external=True).replace("/auth/google/callback", "/login/callback")
-    if redirect_uri.startswith("http://hireflow.hrgp.in"):
-        redirect_uri = redirect_uri.replace("http://hireflow.hrgp.in", "https://hireflow.hrgp.in", 1)
+    parsed_redirect = urlparse(redirect_uri)
+    if parsed_redirect.scheme == "http" and parsed_redirect.hostname == "hireflow.hrgp.in":
+        redirect_uri = parsed_redirect._replace(scheme="https").geturl()
     print("Google OAuth redirect_uri:", redirect_uri, flush=True)
     try:
         return google.authorize_redirect(
@@ -4048,7 +4085,7 @@ def download_google_sheet_xlsx(sheet_url):
     try:
         resp = requests.get(url, timeout=90)
     except Exception as e:
-        return None, f"Unable to download Google Sheet: {e}"
+        return None, report_error(e, "Google Sheet download")
     if _is_xlsx_response(resp):
         return resp.content, None
 
@@ -4061,7 +4098,7 @@ def download_google_sheet_xlsx(sheet_url):
             if _is_xlsx_response(authed):
                 return authed.content, None
         except Exception as e:
-            auth_error = str(e)
+            auth_error = report_error(e, "Google user access")
 
         try:
             creds, error = google_oauth_credentials([
@@ -4079,7 +4116,7 @@ def download_google_sheet_xlsx(sheet_url):
             elif error:
                 auth_error = error
         except Exception as e:
-            auth_error = str(e)
+            auth_error = report_error(e, "Google user access")
 
     service_error = ""
     try:
@@ -4091,7 +4128,7 @@ def download_google_sheet_xlsx(sheet_url):
         if exported:
             return exported, None
     except Exception as e:
-        service_error = str(e)
+        service_error = report_error(e, "Service account access")
 
     detail = ""
     if auth_error:
@@ -4209,7 +4246,7 @@ def read_google_sheet_rows_api(sheet_url, selected_tabs=None, role_override="", 
             rows.extend(rows_from_sheet_values(values, name, role_override, column_mapping, first_data_row_num))
         return rows, sheet_names, mappings, None
     except Exception as e:
-        return None, [], [], f"Google Sheets API read failed: {e}"
+        return None, [], [], report_error(e, "Google Sheets read")
 
 def parse_xlsx_sheets(file_bytes, selected_tabs=None, role_override="", column_mapping=None):
     if not XLSX_OK:
@@ -5083,7 +5120,7 @@ def call_resume_analysis_llm(cv_text, deterministic_candidate, sections, custom_
                 parsed["_source_model"] = model
                 return parsed, ""
         except Exception as e:
-            errors.append(f"{provider_name}: {e}")
+            errors.append(report_error(e, f"{provider_name} screening call"))
     return {}, "; ".join(errors)
 
 def maybe_generate_gemini_screening_report(
@@ -5105,7 +5142,7 @@ def maybe_generate_gemini_screening_report(
     try:
         from services.gemini_screening import build_screening_report
     except Exception as e:
-        return {"ok": False, "source": "gemini", "error": f"Gemini screening helper is unavailable: {e}"}
+        return {"ok": False, "source": "gemini", "error": report_error(e, "Gemini screening setup")}
     try:
         report = build_screening_report(
             jd_text,
@@ -5120,7 +5157,7 @@ def maybe_generate_gemini_screening_report(
             time.sleep(float(batch_delay_seconds))
         return report
     except Exception as e:
-        return {"ok": False, "source": "gemini", "error": f"Gemini screening report failed: {e}"}
+        return {"ok": False, "source": "gemini", "error": report_error(e, "Gemini screening report")}
 
 def apply_gemini_match_report(result, screening_report):
     report = screening_report.get("report") or {}
@@ -5209,6 +5246,14 @@ def _safe_path_part(value):
     value = secure_filename(str(value or "").strip())
     return value or "default"
 
+def path_under(root, *parts):
+    """Join parts onto root and refuse any result that escapes root (e.g. via '..')."""
+    base = os.path.realpath(root)
+    full = os.path.realpath(os.path.join(base, *parts))
+    if full != base and not full.startswith(base + os.sep):
+        raise UserInputError("path_escape")
+    return full
+
 def current_upload_owner_key():
     return _safe_path_part(
         session.get("recruiter_email")
@@ -5219,10 +5264,10 @@ def current_upload_owner_key():
 
 def save_uploaded_file_to_bucket(file_storage, prefix, *bucket_parts):
     if not file_storage or not file_storage.filename:
-        raise ValueError("Missing file")
+        raise UserInputError("missing_file")
     ext = os.path.splitext(file_storage.filename)[1].lower()
     if ext not in [".pdf", ".doc", ".docx", ".txt"]:
-        raise ValueError("Upload PDF, DOC, DOCX, or TXT files only")
+        raise UserInputError("unsupported_file")
     upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key())
     rel_parts = [_safe_path_part(part) for part in bucket_parts if str(part or "").strip()]
     if rel_parts:
@@ -5519,15 +5564,22 @@ EMAIL_DOMAIN_WORDS = {
     "live", "msn", "aol", "mail", "com", "co", "in", "net", "org", "edu"
 }
 
+def is_valid_email(value):
+    """Cheap structural email check without a backtracking regex."""
+    value = str(value or "")
+    if len(value) > 254 or any(ch.isspace() for ch in value) or value.count("@") != 1:
+        return False
+    local, domain = value.split("@")
+    return bool(local) and "." in domain and not domain.startswith(".") and not domain.endswith(".")
+
 def sanitize_candidate_name(value):
     raw = str(value or "").strip()
     if not raw:
         return ""
-    email_match = re.search(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", raw)
-    if email_match and raw.strip() == email_match.group(0):
-        raw = email_match.group(0).split("@", 1)[0]
+    if looks_like_email(raw):
+        raw = raw.split("@", 1)[0]
     raw = re.sub(r"^\s*(?:name|candidate\s+name|full\s+name)\s*[:\-]\s*", "", raw, flags=re.I)
-    raw = re.sub(r"\b(?:gmail|yahoo|hotmail|outlook|icloud|proton|zoho|rediffmail|live|msn|aol|mail)\s*(?:\.|\s+)?(?:com|co\.in|in|net|org|edu)\b.*$", "", raw, flags=re.I)
+    raw = re.sub(r"\b(?:gmail|yahoo|hotmail|outlook|icloud|proton|zoho|rediffmail|live|msn|aol|mail)[\s.]*(?:com|co\.in|in|net|org|edu)\b.*$", "", raw, flags=re.I)
     raw = re.sub(r"[@_]+", " ", raw)
     raw = re.sub(r"\.+", " ", raw)
     raw = re.sub(r"\b(?:email|e-mail|mail|phone|mobile|contact)\b.*$", "", raw, flags=re.I)
@@ -6347,7 +6399,7 @@ def parse_cv(cv_path, use_ai=False, ai_provider="", ai_api_key=""):
         
         return result
     except Exception as e:
-        return {"error": f"CV parsing failed: {str(e)}"}
+        return {"error": report_error(e, "CV parsing")}
 def norm_phone(p): return re.sub(r'[^\d]', '', p or "")[-10:]
 
 def check_dup(conn, row):
@@ -7291,7 +7343,7 @@ def send_weekly_email():
             s.sendmail(GMAIL_USER, ADMIN_EMAIL, msg.as_string())
         return {"ok": True, "sent_to": ADMIN_EMAIL}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": report_error(e, "Sending email")}
 
 # â”€â”€ Template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 TEMPLATE_CACHE = {"created_at": 0.0, "bytes": None}
@@ -7575,7 +7627,7 @@ def normalize_requisition_id(value):
 
 def normalize_requirement_title_text(value):
     text = re.sub(r"\s+", " ", str(value or "").strip())
-    text = re.sub(r"\s*[-/|]\s*", " - ", text)
+    text = re.sub(r" ?[-/|] ?", " - ", text)  # whitespace is already collapsed above
     return text
 
 def normalize_requirement_title_key(value):
@@ -7984,7 +8036,7 @@ def api_update_me():
     notes = clean_value(data.get("notes") or "", 1000)
     if not name:
         return jsonify({"error": "Name is required."}), 400
-    if email and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+    if email and not is_valid_email(email):
         return jsonify({"error": "Please enter a valid email address."}), 400
 
     conn = get_db()
@@ -8165,7 +8217,7 @@ def api_upload():
     except Exception as exc:
         print("Bulk upload failed:", exc, flush=True)
         traceback.print_exc()
-        return jsonify({"error": f"Bulk upload failed: {exc}"}), 500
+        return jsonify({"error": report_error(exc, "Bulk upload")}), 500
 
 @app.route("/api/template")
 def api_template():
@@ -9693,7 +9745,7 @@ def run_local_command(args, timeout=8):
             "stderr": (completed.stderr or "").strip(),
         }
     except FileNotFoundError as exc:
-        return {"ok": False, "returncode": None, "stdout": "", "stderr": str(exc)}
+        return {"ok": False, "returncode": None, "stdout": "", "stderr": report_error(exc, "Local command")}
     except subprocess.TimeoutExpired as exc:
         return {
             "ok": False,
@@ -9744,7 +9796,7 @@ def api_admin_whatsapp_status():
         relay["http_status"] = response.status_code
         relay["ok"] = bool(response.ok and relay.get("ok"))
     except Exception as exc:
-        relay = {"ok": False, "ready": False, "error": f"{type(exc).__name__}: {exc}"}
+        relay = {"ok": False, "ready": False, "error": report_error(exc, "WhatsApp relay status")}
 
     timers = [timer_status(unit) for unit in WHATSAPP_AUTOMATION_TIMERS]
     relay_state = systemctl_field("hrguru-whatsapp-relay.service", "ActiveState")
@@ -9786,7 +9838,7 @@ def api_admin_whatsapp_qr():
             return jsonify(payload or {"error": response.text[:300] or "QR unavailable"}), response.status_code
         return jsonify(payload)
     except Exception as exc:
-        return jsonify({"ok": False, "error": f"{type(exc).__name__}: {exc}"}), 503
+        return jsonify({"ok": False, "error": report_error(exc, "WhatsApp relay check")}), 503
 
 
 @app.route("/api/admin/whatsapp/send/<action>", methods=["POST"])
@@ -10618,7 +10670,7 @@ def upload_cv_file():
 
     except Exception as e:
         print("Upload Error:", str(e))
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Upload cv file")}), 500
 
 @app.route("/api/candidate/<int:cid>/upload_cv", methods=["POST"])
 @login_required
@@ -10641,10 +10693,11 @@ def upload_candidate_cv(cid):
     ext = os.path.splitext(f.filename)[1].lower()
     if ext not in [".pdf", ".doc", ".docx"]:
         return jsonify({"error": "Invalid file type"}), 400
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "candidates", "single", f"candidate_{cid}")
+    uploads_root = os.path.join(app.root_path, "uploads")
+    upload_folder = path_under(uploads_root, "recruiters", current_upload_owner_key(), "candidates", "single", f"candidate_{cid}")
     os.makedirs(upload_folder, exist_ok=True)
     saved_name = hrguru_cv_filename(f.filename, upload_folder)
-    file_path = os.path.join(upload_folder, saved_name)
+    file_path = path_under(upload_folder, saved_name)
     f.save(file_path)
     data = {
         "ok": True,
@@ -10948,10 +11001,10 @@ def api_jd_match():
             "results": results,
         })
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": user_error_message(e)}), 400
     except Exception as e:
         print("JD match error:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "JD match")}), 500
 
 @app.route("/api/jd_match/cache/reset", methods=["POST"])
 @login_required
@@ -10984,7 +11037,7 @@ def api_reset_jd_match_cache():
     except Exception as e:
         print("Match cache reset error:", e, flush=True)
         traceback.print_exc()
-        return jsonify({"error": str(e) or "Unable to reset match cache."}), 500
+        return jsonify({"error": report_error(e, "Match cache reset")}), 500
 
 @app.route("/api/parse_jd", methods=["POST"])
 @login_required
@@ -10998,7 +11051,7 @@ def api_parse_jd_structured():
     try:
         return _api_parse_jd_structured_locked(started, jd_hash_for_log)
     except ValueError as exc:
-        return jsonify({"error": str(exc) or "Upload PDF, DOC, DOCX, or TXT files only"}), 400
+        return jsonify({"error": user_error_message(exc, "Upload PDF, DOC, DOCX, or TXT files only")}), 400
     finally:
         JD_PARSE_SEMAPHORE.release()
 
@@ -11130,10 +11183,10 @@ def api_candidate_resume_analyze():
             "llm_error": llm_error,
         })
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": user_error_message(e)}), 400
     except Exception as e:
         print("Candidate resume analysis error:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Candidate resume analyze")}), 500
 
 @app.route("/api/candidate_resume/default_prompt")
 @login_required
@@ -11261,7 +11314,7 @@ def export_match_pdf():
         )
     except Exception as e:
         print("Match PDF export error:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Export match pdf")}), 500
 
 @app.route("/api/match/screening_questions", methods=["POST"])
 @login_required
@@ -11455,7 +11508,7 @@ def export_screening_questions_pdf():
         )
     except Exception as e:
         print("Screening PDF export error:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Export screening questions pdf")}), 500
 
 @app.route("/api/admin/switch-profile", methods=["POST"])
 @login_required
@@ -11542,6 +11595,17 @@ def get_team():
     rows=conn.execute("SELECT * FROM team_members ORDER BY name").fetchall()
     conn.close(); return jsonify([dict(r) for r in rows])
 
+def build_update_set(data, allowed, transform=None):
+    """Return (set_clause, values) for an UPDATE.
+
+    Column names come only from the fixed ``allowed`` list, never from the
+    request, so a crafted JSON key cannot change the SQL. Values stay bound
+    parameters.
+    """
+    cols = [col for col in dict.fromkeys(allowed) if col in data]
+    vals = [transform(col, data[col]) if transform else data[col] for col in cols]
+    return ", ".join(f"{col}=?" for col in cols), vals
+
 @app.route("/api/team",methods=["POST"])
 @login_required
 def add_team():
@@ -11558,16 +11622,13 @@ def update_team_member(tid):
         return jsonify({"error":"Admin only"}),403
     d=request.json or {}
     allowed=["name","email","phone","role","can_bulk_upload"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[]
-    for k,v in d.items():
-        if k not in allowed:
-            continue
+    def _clean(k, v):
         if k == "email":
-            v = (v or "").lower()
+            return (v or "").lower()
         if k == "can_bulk_upload":
-            v = 1 if v else 0
-        vals.append(v)
+            return 1 if v else 0
+        return v
+    sets, vals = build_update_set(d, allowed, _clean)
     if not sets:
         return jsonify({"error":"nothing to update"}),400
     vals.append(tid)
@@ -11809,7 +11870,7 @@ def create_users_from_team():
                 "password": temp_password
             })
         except Exception as e:
-            skipped.append({"name": name, "error": str(e)})
+            skipped.append({"name": name, "error": report_error(e, "Creating user")})
     
     conn.commit()
     conn.close()
@@ -11867,8 +11928,8 @@ def update_candidate(cid):
             data["recruiter_email"] = (member["email"] or "").lower()
             allowed.extend(["recruiter_name", "recruiter_email"])
     
-    sets=", ".join(f"{k}=?" for k in data if k in allowed)
-    vals=[v for k,v in data.items() if k in allowed]+[cid]
+    sets, vals = build_update_set(data, allowed)
+    vals.append(cid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE candidates SET {sets}, updated_at=datetime('now','localtime') WHERE id=?",vals)
@@ -12177,7 +12238,7 @@ def get_candidate_ai_screening_report(cid):
         )
     except Exception as e:
         print("AI screening PDF export error:", e, flush=True)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Get candidate ai screening report")}), 500
 
 @app.route("/api/candidate/<int:cid>/ai_screening", methods=["POST"])
 @login_required
@@ -12802,11 +12863,12 @@ def upload_requirement_jd(rid):
     if not exists:
         conn.close()
         return jsonify({"error": "Requirement not found"}), 404
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "requirements", "single", f"requirement_{rid}")
+    uploads_root = os.path.join(app.root_path, "uploads")
+    upload_folder = path_under(uploads_root, "recruiters", current_upload_owner_key(), "requirements", "single", f"requirement_{rid}")
     os.makedirs(upload_folder, exist_ok=True)
     safe_name = secure_filename(f.filename)
     saved_name = f"requirement_jd_{rid}_{int(datetime.now().timestamp())}_{safe_name}"
-    file_path = os.path.join(upload_folder, saved_name)
+    file_path = path_under(upload_folder, saved_name)
     try:
         f.save(file_path)
         file_url = f"/uploads/{os.path.relpath(file_path, os.path.join(app.root_path, 'uploads')).replace(os.sep, '/')}"
@@ -12820,7 +12882,7 @@ def upload_requirement_jd(rid):
         return jsonify({"ok": True, "filename": safe_name, "url": file_url, "public_id": saved_name})
     except Exception as e:
         conn.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Upload requirement jd")}), 500
     finally:
         conn.close()
 
@@ -13015,8 +13077,8 @@ def add_interview():
 def update_interview(iid):
     d=request.json
     allowed=["interviewer_name","interviewer_email","scheduled_at","duration_mins","location","meeting_link","status","notes"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[v for k,v in d.items() if k in allowed]+[iid]
+    sets, vals = build_update_set(d, allowed)
+    vals.append(iid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE interviews SET {sets} WHERE id=?",vals)
@@ -13092,8 +13154,8 @@ def add_email_template():
 def update_email_template(tid):
     d=request.json
     allowed=["name","subject","body","trigger_event"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[v for k,v in d.items() if k in allowed]+[tid]
+    sets, vals = build_update_set(d, allowed)
+    vals.append(tid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE email_templates SET {sets} WHERE id=?",vals)
@@ -13136,7 +13198,7 @@ def clean_email_list(value):
     emails = []
     for item in items:
         email = str(item or "").strip().lower()
-        if email and re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) and email not in emails:
+        if email and is_valid_email(email) and email not in emails:
             emails.append(email)
     return emails
 
@@ -13227,7 +13289,7 @@ def central_drive_credentials(scopes):
         if service_account_json:
             return service_account.Credentials.from_service_account_info(json.loads(service_account_json), scopes=scopes), None
     except Exception as e:
-        return None, f"Central Google Drive credential could not be loaded: {e}"
+        return None, report_error(e, "Loading the central Google Drive credential")
     return None, "Central Google Drive is not configured. Set GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE and share the central Drive folder with that service account."
 
 def central_drive_service():
@@ -13391,14 +13453,14 @@ def backup_ats_to_google_drive():
             "size": uploaded.get("size")
         })
     except HttpError as e:
-        message = str(e)
-        if "insufficient" in message.lower() or "scope" in message.lower():
-            message = "Google Drive permission is missing. Please sign out and log in with Google again, then retry backup."
-        return jsonify({"ok": False, "error": message}), 400
+        detail = str(e).lower()
+        if "insufficient" in detail or "scope" in detail:
+            return jsonify({"ok": False, "error": "Google Drive permission is missing. Please sign out and log in with Google again, then retry backup."}), 400
+        return jsonify({"ok": False, "error": report_error(e, "Google Drive backup")}), 400
     except Exception as e:
         print("ATS backup failed:", e, flush=True)
         traceback.print_exc()
-        return jsonify({"ok": False, "error": str(e) or "Backup failed."}), 500
+        return jsonify({"ok": False, "error": report_error(e, "Backup")}), 500
     finally:
         if zip_path and os.path.exists(zip_path):
             try:
@@ -13470,7 +13532,7 @@ def send_candidate_email(candidate_id, template_name, extra_vars={}):
         conn.execute("INSERT INTO email_log (candidate_id,template_name,recipient,subject,body,status,error_msg) VALUES (?,?,?,?,?,'Failed',?)",
                      (candidate_id,template_name,recipient,subject,body,str(e)))
         conn.commit(); conn.close()
-        return {"error":str(e)}
+        return {"error": report_error(e, "Sending email")}
 
 def send_custom_email(to_addr, subject, body, candidate_id=None, template_name="custom", attachments=None, html_body=None, cc_addrs=None):
     use_google = bool(session.get("google_token"))
@@ -13525,17 +13587,20 @@ def send_custom_email(to_addr, subject, body, candidate_id=None, template_name="
         conn.commit(); conn.close()
         return {"ok": True, "sent_to": to_addr, "sender": session.get("email") or GMAIL_USER}
     except Exception as e:
-        raw_error = str(e)
+        raw_error = str(e)  # kept in the internal email_log only
         error_text = raw_error.lower()
         if "invalid_scope" in error_text or "bad request" in error_text:
             raw_error = "Google email permission needs to be refreshed. Please sign out of ATS, sign in with Google again, then retry sending the email."
+            public_error = raw_error
+        else:
+            public_error = report_error(e, "Sending email")
         conn = get_db()
         conn.execute(
             "INSERT INTO email_log (candidate_id,template_name,recipient,subject,body,status,error_msg) VALUES (?,?,?,?,?,'Failed',?)",
             (candidate_id, template_name, to_addr, subject, body, raw_error)
         )
         conn.commit(); conn.close()
-        return {"error": raw_error}
+        return {"error": public_error}
 
 def daily_report_query_args_from_payload(data):
     query_args = dict(data.get("filters") or {})
@@ -13550,7 +13615,7 @@ def daily_report_query_args_from_payload(data):
 def api_daily_work_report_email():
     data = request.get_json(silent=True) or {}
     to_addr = (data.get("to") or "").strip().lower()
-    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", to_addr):
+    if not is_valid_email(to_addr):
         return jsonify({"error": "Please enter a valid email address."}), 400
     cc_addrs = clean_email_list(data.get("cc") or [])
     if not email_list_is_valid(data.get("cc"), cc_addrs):
@@ -13635,7 +13700,7 @@ def api_daily_work_report_preview():
 def api_feedback_request_email():
     data = request.get_json(silent=True) or {}
     to_addr = (data.get("to") or "").strip().lower()
-    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", to_addr):
+    if not is_valid_email(to_addr):
         return jsonify({"error": "Please enter a valid email address."}), 400
     ids = [str(x) for x in data.get("ids") or [] if str(x).isdigit()]
     if not ids:
@@ -13766,7 +13831,7 @@ def api_send_email():
         return jsonify({"error": "Invalid payload"}), 400
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": report_error(e, "Send email")}), 500
 
 LINKEDIN_CAMPAIGN_TYPE = "linkedin_page_follow"
 
@@ -13962,7 +14027,7 @@ def linkedin_campaign_candidates(conn, segment, rules, filters=None):
     for row in rows:
         row = dict(row)
         email = (row.get("email_addr") or "").strip().lower()
-        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        if not is_valid_email(email):
             excluded["invalid email"] = excluded.get("invalid email", 0) + 1
             continue
         if email in seen_emails:
@@ -14111,7 +14176,7 @@ def send_due_linkedin_campaign(campaign_id):
                 template_name=f"LinkedIn Follow Campaign - Email {step}"
             )
         except Exception as e:
-            result = {"error": str(e)}
+            result = {"error": report_error(e, "Campaign email")}
         update_conn = get_db()
         if result.get("ok"):
             sent += 1

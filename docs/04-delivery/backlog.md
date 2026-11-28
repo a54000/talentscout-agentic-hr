@@ -52,7 +52,7 @@ Acceptance criteria:
 - Given a committed fake secret, when gitleaks runs, then the job fails
 - Given a high-severity dependency vulnerability, when audit runs, then the job fails
 
-### TS-E0-04: CD pipeline to GHCR and demo host  (3 pts, Sprint 0, In progress, Jira TS-21)
+### TS-E0-04: CD pipeline to GHCR and demo host  (3 pts, Sprint 0, Done, Jira TS-21)
 
 *As a tech lead I want images built, scanned and published on merge so that every main commit is deployable.*
 
@@ -179,7 +179,7 @@ Acceptance criteria:
 - Given launchd at 21:00, then a pg_dump and an uploads archive are written and 14 copies kept, with an off-machine copy
 - Given a backup, when restored into a scratch database, then counts match (drill recorded)
 
-### TS-EA-07: ATS security hardening baseline  (5 pts, Sprint 1, To do, Jira TS-15)
+### TS-EA-07: ATS security hardening baseline  (5 pts, Sprint 1, In progress, Jira TS-15)
 
 *As a security owner I want the most serious ATS weaknesses fixed so that a live system with candidate PII is safe enough to run.*
 

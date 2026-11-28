@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 12 | 2 | 0 | 68 | 1 | 83 |
+| 13 | 2 | 0 | 67 | 1 | 83 |
 
 ## Your actions (outside the backlog)
 
@@ -33,14 +33,14 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-E0-01 Monorepo structure and tooling**: A monorepo with web, api and agents projects, so that all tiers build and test the same way. _(2 pts, owner: Claude, Jira TS-18)_
 - [x] **TS-E0-02 CI pipeline: lint, test, build**: Every PR linted, tested and built, so that broken code never reaches main. _(3 pts, owner: Claude, Jira TS-19)_
 - [x] **TS-E0-03 Security scanning pipeline**: SAST, SCA, secret and container scans on every PR, so that vulnerabilities are caught early. _(3 pts, owner: Claude, Jira TS-20)_
-- [ ] **TS-E0-04 CD pipeline to GHCR and demo host** **[In progress]**: Images built, scanned and published on merge, so that every main commit is deployable. _(3 pts, owner: Claude, Jira TS-21)_
+- [x] **TS-E0-04 CD pipeline to GHCR and demo host**: Images built, scanned and published on merge, so that every main commit is deployable. _(3 pts, owner: Claude, Jira TS-21)_
 - [ ] **TS-E0-05 Docker Compose local stack** **[In progress]**: One command to start the stack, so that I can work offline on my Mac. _(2 pts, owner: Claude, Jira TS-22)_
 - [ ] **TS-E0-07 Free-tier accounts and secrets handling**: Free-tier accounts set up and secrets kept out of git, so that we spend $0 and leak nothing. _(2 pts, owner: You, Jira TS-24)_
 - [x] **TS-E0-09 Agile artefacts in Jira**: Epics, stories and sprints in Jira, so that delivery is tracked transparently. _(3 pts, owner: Claude, Jira TS-26)_
 
 ## Sprint 1 - ATS stabilisation (2026-12-14 → 2026-12-24)
 
-- [ ] **TS-EA-07 ATS security hardening baseline**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
+- [ ] **TS-EA-07 ATS security hardening baseline** **[In progress]**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
 - [ ] **TS-EA-12 Asynchronous bulk upload with progress**: My bulk upload accepted immediately and processed in the background, so that I can keep working and see progress. _(8 pts, owner: Claude, Jira TS-71)_
 - [ ] **TS-EA-13 ATS performance baseline and load test**: Measured response times under realistic load, so that performance targets are verified, not assumed. _(3 pts, owner: Claude, Jira TS-72)_
 - [ ] **TS-EA-14 Restore scheduled WhatsApp/email reports on the Mac**: The daily and weekly submission reports and recruiter reminders running again, so that the team keeps its routine. _(3 pts, owner: Claude + You, Jira TS-73)_

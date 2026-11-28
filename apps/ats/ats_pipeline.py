@@ -53,24 +53,24 @@ def extract_year_range(text):
     text_l = (text or "").lower()
     collapsed = re.sub(r"\s+", " ", text_l)
     ranges = re.findall(
-        r"(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:-|to)\s*(\d{1,2}(?:\.\d)?)\s*\+?\s*(?:years?|yrs?)\b.{0,45}\bexp(?:erience)?\b",
+        r"(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:-|to)\s*(\d{1,2}(?:\.\d)?)\s*(?:\+\s*)?(?:years?|yrs?)\b.{0,45}\bexp(?:erience)?\b",
         collapsed
     )
     if not ranges:
         ranges = re.findall(
-            r"\bexp(?:erience)?\b.{0,45}(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:-|to)\s*(\d{1,2}(?:\.\d)?)\s*\+?\s*(?:years?|yrs?)\b",
+            r"\bexp(?:erience)?\b.{0,45}(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:-|to)\s*(\d{1,2}(?:\.\d)?)\s*(?:\+\s*)?(?:years?|yrs?)\b",
             collapsed
         )
     if ranges:
         a, b = ranges[0]
         return {"min_years": float(a), "max_years": float(b)}
     singles = re.findall(
-        r"(?<!\d)(\d{1,2}(?:\.\d)?)\s*\+?\s*(?:years?|yrs?)\b.{0,45}\bexp(?:erience)?\b",
+        r"(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:\+\s*)?(?:years?|yrs?)\b.{0,45}\bexp(?:erience)?\b",
         collapsed
     )
     if not singles:
         singles = re.findall(
-            r"\bexp(?:erience)?\b.{0,45}(?<!\d)(\d{1,2}(?:\.\d)?)\s*\+?\s*(?:years?|yrs?)\b",
+            r"\bexp(?:erience)?\b.{0,45}(?<!\d)(\d{1,2}(?:\.\d)?)\s*(?:\+\s*)?(?:years?|yrs?)\b",
             collapsed
         )
     if singles:
@@ -120,7 +120,7 @@ def extract_role_title(text):
 def normalize_jd_role_title(value):
     text = clean_value(value, 120)
     text = re.sub(r"^role\s*\d+\s*[:\-]\s*", "", text, flags=re.I).strip()
-    text = re.sub(r"\(.*?\)", "", text).strip()
+    text = strip_parenthesized(text).strip()
     skills = []
     text_l = text.lower()
     if re.search(r"software\s*architect", text_l):
@@ -248,7 +248,7 @@ def architect_requirement_buckets(text):
 
 def important_jd_section_lines(text, lines_per_section=4):
     lines = [clean_value(line, 220) for line in (text or "").splitlines()]
-    headings = re.compile(r"^(jd|job description|experience|requirements?|mandatory|must have|knowledge and skills|technical skills|what you need to bring|responsibilities)\s*:?\s*$", re.I)
+    headings = re.compile(r"^(jd|job description|experience|requirements?|mandatory|must have|knowledge and skills|technical skills|what you need to bring|responsibilities)\s*(?::\s*)?$", re.I)
     important = []
     for i, line in enumerate(lines):
         if headings.match(line):
@@ -591,9 +591,13 @@ def employment_status_from_ranges(ranges):
 
 def fallback_experience_months(text):
     text = str(text or "")
-    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", text, re.I)
-    if match:
-        return int(round(float(match.group(1)) * 12))
+    # Linear scan: find a number, then check that "years"/"yrs" follows (optionally after "+").
+    for number in re.finditer(r"(?<![\d.])\d+(?:\.\d+)?", text):
+        rest = text[number.end():number.end() + 40].lstrip()
+        if rest.startswith("+"):
+            rest = rest[1:].lstrip()
+        if rest.lower().startswith(("year", "yr")):
+            return int(round(float(number.group(0)) * 12))
     return 0
 
 
@@ -625,11 +629,55 @@ def capped_chronology_months(text):
     return chronology, ranges, False
 
 
+_EMAIL_LOCAL_EXTRA = set("._+-")
+_EMAIL_LABEL_EXTRA = set("_-")
+
+
+def looks_like_email(token):
+    """True when the whole token is an email address. Linear time, no regex backtracking."""
+    token = str(token or "")
+    if len(token) > 254 or token.count("@") != 1:
+        return False
+    local, domain = token.split("@")
+    if not local or not all(ch.isalnum() or ch in _EMAIL_LOCAL_EXTRA for ch in local):
+        return False
+    labels = domain.split(".")
+    if len(labels) < 2 or not all(label and all(ch.isalnum() or ch in _EMAIL_LABEL_EXTRA for ch in label) for label in labels):
+        return False
+    tld = labels[-1]
+    return len(tld) >= 2 and tld.isascii() and tld.isalpha()
+
+
+def find_email(text):
+    """Return the first email address in free text, or ''."""
+    for token in re.split(r"[^\w.+@-]+", str(text or "")):
+        token = token.strip(".-")
+        if "@" in token and looks_like_email(token):
+            return token
+    return ""
+
+
+def strip_parenthesized(text):
+    """Remove (...) spans: first ")" closes, never across a line break. Linear time."""
+    text = str(text or "")
+    out, i = [], 0
+    while i < len(text):
+        if text[i] == "(":
+            end = text.find(")", i + 1)
+            newline = text.find("\n", i + 1)
+            if end != -1 and (newline == -1 or end < newline):
+                i = end + 1
+                continue
+        out.append(text[i])
+        i += 1
+    return "".join(out)
+
+
 def extract_contact(text):
     email = ""
-    match = re.search(r"(?<![\w.-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}(?![\w.-])", text or "")
-    if match:
-        email = match.group(0).lower()
+    found = find_email(text)
+    if found:
+        email = found.lower()
     phone = ""
     phone_patterns = [
         r"(?:\+?91[\s\-]?)?[6-9]\d{4}[\s\-]?\d{5}",
