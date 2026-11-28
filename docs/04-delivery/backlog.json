@@ -361,7 +361,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 8,
-      "status": "todo",
+      "status": "in_progress",
       "owner": "Claude",
       "fr": [
         "NFR-ATS-2"
@@ -381,7 +381,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 3,
-      "status": "todo",
+      "status": "done",
       "owner": "Claude",
       "fr": [
         "NFR-ATS-1"
