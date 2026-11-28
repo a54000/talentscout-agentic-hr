@@ -1,6 +1,6 @@
 # Functional Requirements Document (FRD)
 
-Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and forward to the backlog stories (TS-Ex-yy).
+Version 0.3 (scope change 2026-11-28: audit, verification, pitches). Requirements trace back to the [PRD](PRD.md) features (F-xx) and forward to the backlog stories (TS-Ex-yy).
 
 ## 1. Functional requirements
 
@@ -46,6 +46,46 @@ Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | FR-AGT-9 | A run interrupted by a crash or rate limit resumes from the last checkpoint. | F-08 |
 | FR-AGT-10 | The agent execution dashboard streams step events live: plan, tool call, observation, funnel, replan, escalation, approval needed, done. | F-14 |
 
+### FR-AUD: Submission quality audit (UC-002)
+| ID | Requirement | Feature |
+|---|---|---|
+| FR-AUD-1 | Every new or changed ATS submission (candidate row with `requirement_id`) is audited automatically after connector sync, within 1 hour (KPI-7). Audits are idempotent per submission version. | F-20 |
+| FR-AUD-2 | Detail accuracy: entered `experience_years`, `current_company`, `current_role`, `current_location` and `key_skills` are compared with facts extracted from the CV: `consistent`, `mismatch` (with CV quote) or `not_in_cv`. Extraction uses the local model only. | F-20 |
+| FR-AUD-3 | Constraint fit: entered expected CTC vs requirement budget, notice vs max notice, location vs requirement location: `within`, `outside`, `unknown`. Deterministic rules, no LLM. | F-20 |
+| FR-AUD-4 | Duplicates: exact match on email or phone links submissions; name + company + CV similarity above a threshold raises a possible duplicate for review. | F-20 |
+| FR-AUD-5 | Completeness: required fields and the CV file are present (reuses the ATS `missing_info` rules). A missing CV gives status `incomplete` with no LLM call. | F-20 |
+| FR-AUD-6 | Quality score 0–100 from weighted checks (default must-have 40, detail accuracy 25, constraint fit 20, duplicates 10, completeness 5; configurable). Every deduction names its check and evidence. | F-20 |
+| FR-AUD-7 | Audit records are stored in TalentScout, linked to ATS ids. Nothing is written to the ATS. | F-20, FR-ATS-1 |
+| FR-AUD-8 | Lead review queue: submissions with score < threshold (default 60) or any `mismatch`; the lead accepts or overrides each flag with a reason, which is saved as feedback memory. | F-21 |
+| FR-AUD-9 | Recruiter scorecard per week and month: submissions, average score, mismatch rate, duplicate rate, confirmed flags. Recruiters see only their own. No automatic action against a recruiter (BR-9). | F-21 |
+| FR-AUD-10 | Audit precision and recall per check are measured on a labelled synthetic set in CI. | F-13, F-20 |
+
+### FR-VER: Candidate verification (UC-003)
+| ID | Requirement | Feature |
+|---|---|---|
+| FR-VER-1 | A lead selects a verification batch; the default weekly sample is all audit-flagged submissions plus 20% of the rest per recruiter. Opted-out candidates and closed submissions older than 90 days are excluded. | F-22 |
+| FR-VER-2 | Messages are drafted from a versioned template (role, client or industry, location, entered CTC, ECTC and notice) with an opt-out line. Drafts are never sent automatically. | F-22 |
+| FR-VER-3 | Sending requires an approval token for the batch from a named lead with step-up re-authentication. `message.send` refuses without it and logs the attempt (KPI-5). | F-22, F-10 |
+| FR-VER-4 | Channels: WhatsApp through the ATS relay and email through the ATS sender (ADR-0008). TalentScout holds no channel credentials. | F-22 |
+| FR-VER-5 | Replies are captured from the relay's inbound endpoint and the reply mailbox (IMAP) and linked to the message within 10 minutes. Bounces and invalid numbers give `unreachable`. | F-22 |
+| FR-VER-6 | Rate limits: default 30 messages per hour and 150 per day per channel; on WhatsApp failure the batch falls back to email and the admin is alerted. | F-22 |
+| FR-VER-7 | `STOP` (or equivalent) on any channel opts the candidate out of all channels permanently, with one confirmation message. | F-23 |
+| FR-VER-8 | Replies are classified by the local model into: contacted (yes / no / different role), interest (yes / no / maybe), and corrected values. Output is schema-validated; low confidence goes to the lead. | F-22 |
+| FR-VER-9 | Outcome per submission: `confirmed`, `details_mismatch` (with differences), `wrong_role`, `not_contacted`, `not_interested`, `no_response`, `unreachable`, `opted_out`. | F-22 |
+| FR-VER-10 | Follow-up: no WhatsApp reply in 48 h → one email; no reply after a further 72 h → `no_response`. At most 2 messages per candidate per verification. | F-22 |
+| FR-VER-11 | `not_contacted` and `wrong_role` are escalated to the lead with the message, the reply and the recruiter's entry side by side; the lead records a decision and reason (BR-11). | F-22 |
+| FR-VER-12 | Classification accuracy is measured on a synthetic reply set (including Hinglish, partial answers and injection attempts) in CI. | F-13, F-22 |
+
+### FR-PIT: Client pitches and drives (UC-004)
+| ID | Requirement | Feature |
+|---|---|---|
+| FR-PIT-1 | A pitch brief holds client or industry, role families and skills, experience bands, locations, count and optional budget band. | F-24 |
+| FR-PIT-2 | The Sourcing agent searches the ATS pool (hybrid search, funnel, replanning within the brief's hard limits, escalation). Ranking prefers a recent `confirmed` verification and a clean audit. | F-24, F-04 |
+| FR-PIT-3 | Anonymised profile: role, years, key skills with evidence, notice band, CTC band, location; no name, phone, email, current employer or photo (BR-12). | F-24 |
+| FR-PIT-4 | Export to PDF or XLSX is an approved, logged action. | F-24 |
+| FR-PIT-5 | Drive summary: available counts by skill, experience band, location and notice period. | F-24 |
+| FR-PIT-6 | Every export is scanned for identifiers from the source records; any hit blocks the export. | F-24, F-11 |
+
 ### FR-MEM: Memory
 | ID | Requirement | Feature |
 |---|---|---|
@@ -61,12 +101,12 @@ Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | FR-DASH-3 | Every run links to its full timeline and its trace (KPI-6). | F-14 |
 
 ### Future phase (not in MVP)
-Automated candidate outreach (former FR-OUT), the delivery monitoring agent (former FR-DEL), voice screening, and writing results back to the ATS. Naukri has no profile API, so Naukri-sourced candidates arrive through ATS uploads.
+Marketing or job-offer outreach (verification messages are in scope: FR-VER), the delivery monitoring agent (former FR-DEL), voice screening, and writing results back to the ATS. Naukri has no profile API, so Naukri-sourced candidates arrive through ATS uploads.
 
 ### FR-ATS: HR Guru ATS integration
 | ID | Requirement | Feature |
 |---|---|---|
-| FR-ATS-1 | The ATS is the system of record for candidates, CVs and requirements. TalentScout never writes to ATS tables in the MVP. | F-00 |
+| FR-ATS-1 | The ATS is the system of record for candidates submitted against requirements, their CVs and the recruiter-entered details. TalentScout never writes to ATS tables in the MVP; it only calls the ATS's messaging channels for approved verification messages (FR-VER-4). | F-00 |
 | FR-ATS-2 | The connector reads through a `SELECT`-only PostgreSQL role and syncs changes incrementally (by `updated_at`) into TalentScout's store within 10 minutes. | F-00 |
 | FR-ATS-3 | CV files are read from the ATS uploads storage, read-only. A candidate deleted in the ATS is deleted from TalentScout's index at the next sync, including chunks and embeddings. | F-00, NFR-2 |
 | FR-ATS-4 | Connector contract tests run in CI against a bootstrapped ATS schema. | F-00 |

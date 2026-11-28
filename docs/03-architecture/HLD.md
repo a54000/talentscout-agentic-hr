@@ -1,6 +1,6 @@
 # High-Level Design (HLD)
 
-Version 0.3. Architecture decisions are recorded in [adr/](adr/). The HR Guru ATS is the system of record for candidates, CVs and requirements ([ADR-0006](adr/0006-monorepo-with-hr-guru-ats.md), [ADR-0007](adr/0007-ats-as-system-of-record.md)).
+Version 0.4 (scope change 2026-11-28: audit, verification and pitches; [ADR-0008](adr/0008-candidate-verification-outreach.md)). Architecture decisions are recorded in [adr/](adr/). The HR Guru ATS is the system of record for candidates, CVs and requirements ([ADR-0006](adr/0006-monorepo-with-hr-guru-ats.md), [ADR-0007](adr/0007-ats-as-system-of-record.md)).
 
 ## 1. Architecture at a glance
 
@@ -15,6 +15,8 @@ flowchart TB
     ATS[ATS app<br/>Flask + Waitress<br/>uploads CVs, requirements]
     APG[(ATS PostgreSQL)]
     UPL[(CV / JD uploads)]
+    WAR[WhatsApp relay]
+    MAIL[ATS email sender<br/>+ reply mailbox]
     ATS --> APG
     ATS --> UPL
   end
@@ -32,9 +34,11 @@ flowchart TB
     SRC[Sourcing]
     SCR[Screening]
     QA[Quality]
-    FUT[Future phase:<br/>Outreach, Delivery agents]
+    VER[Verification]
+    PIT[Pitch]
+    FUT[Future phase:<br/>Delivery agent]
     AGS --- SUP
-    SUP --> REQ & SRC & SCR & QA
+    SUP --> REQ & SRC & SCR & QA & VER & PIT
     SUP -.-> FUT
   end
 
@@ -61,6 +65,9 @@ flowchart TB
   APG -.->|SELECT-only role| CON
   UPL -.->|read-only| CON
   CON -->|profiles, masked chunks, embeddings, requirement snapshots| MDB
+  MCP -->|message.send with approval token| WAR & MAIL
+  WAR & MAIL -.->|replies, read-only| MCP
+  CAND[Candidates] <-->|verification messages| WAR & MAIL
   WEB -->|HTTPS JSON / SSE| API
   API -->|REST + service token| AGS
   API --> MDB
@@ -82,6 +89,7 @@ flowchart TB
 | Component | Tech | Responsibility | Owns data |
 |---|---|---|---|
 | HR Guru ATS | Flask, Waitress, PostgreSQL 16, server-rendered templates | Live recruiter system: candidate and CV upload (including Naukri-sourced candidates), requirements, submissions, reports. Restored to run locally in Docker and exposed through Cloudflare Tunnel | candidates, CVs, requirements, submissions (**source of truth**) |
+| Verification channels | Existing ATS WhatsApp relay (`whatsapp-web.js`) and Gmail sender, plus an IMAP reply mailbox | Send approved verification messages, return replies; called only through the `message.send` / `message.replies` MCP tools ([ADR-0008](adr/0008-candidate-verification-outreach.md)) | message log (in TalentScout) |
 | ATS connector | Python, in the agent service | Incremental read-only sync from the ATS (`updated_at`), resume parsing via the ATS parser, PII masking, embeddings; deletion propagation | — (writes derived data to MongoDB) |
 | Web | React 19, Vite, TypeScript, TanStack Query | UI for requirements, agent execution dashboard (live run view, run history, KPIs), shortlist review, approvals | — |
 | API / BFF | Node 22, Express 5, Zod, Mongoose | Auth (JWT plus refresh), RBAC, CRUD, approval endpoints, proxying run events to the UI over Server-Sent Events (SSE), audit writes | users, requirements, approvals |
@@ -95,6 +103,8 @@ flowchart TB
 | Langfuse | Cloud Hobby (free) | Traces, prompt versions, evaluation scores, cost | traces (masked) |
 
 ## 3. Key flows
+
+Agent combinations per use case: **UC-002 audit** = Supervisor → Requirement → Screening → Quality (§3.3). **UC-003 verification** = Supervisor → Verification (§3.4). **UC-004 pitches** = Supervisor → Sourcing → Screening → Pitch, reusing the search and replan flow in §3.1.
 
 ### 3.1 Sourcing run (happy path with a replan)
 
@@ -128,6 +138,56 @@ sequenceDiagram
   Note over S,A: If < 5 after 3 replans: event escalation_required<br/>with funnel, strategies tried, options
 ```
 
+### 3.3 Submission audit (UC-002)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant C as ATS connector
+  participant S as Supervisor
+  participant RQ as Requirement agent
+  participant SC as Screening agent (local model)
+  participant Q as Quality agent
+  actor L as Delivery Lead
+  C->>S: new submission (candidate, requirement, recruiter entries, CV)
+  S->>RQ: must-haves for requirement (cached per version)
+  S->>SC: must-have evidence + CV facts (experience, company, role, location, skills)
+  S->>S: rules: constraint fit, duplicates, completeness, score
+  S->>Q: verify every quote is in the CV
+  Q-->>S: unsupported claims removed
+  S-->>L: audit record; flagged if score < 60 or any mismatch
+  L->>S: accept / override flag with reason (feedback memory)
+  Note over S: Nothing is written to the ATS
+```
+
+### 3.4 Candidate verification (UC-003)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor L as Delivery Lead
+  participant S as Supervisor
+  participant V as Verification agent
+  participant M as MCP message tools
+  participant CH as WhatsApp relay / email
+  actor K as Candidate
+  L->>S: verify weekly sample
+  S->>V: draft messages (template, opt-outs excluded)
+  V-->>L: drafts (interrupt: approval_required)
+  L->>S: approve batch (step-up re-auth) → approval token
+  V->>M: message.send(token) — rate-limited
+  M->>CH: send
+  CH->>K: "Were you contacted for {role}? Interested? Details correct?"
+  K-->>CH: reply / no reply / STOP
+  CH-->>M: replies (read-only)
+  V->>V: classify locally, compare with recruiter entries
+  alt no reply in 48 h
+    V->>M: one email follow-up (same approval)
+  end
+  V-->>L: outcomes; not_contacted / wrong_role escalated with evidence
+  L->>S: decision + reason (no automatic action on recruiter)
+```
+
 ### 3.2 Failure and resume
 1. Every LangGraph node transition is checkpointed to MongoDB (`thread_id = run_id`).
 2. A free tier returns 429. LiteLLM tries the next provider, then falls back to local Ollama.
@@ -150,7 +210,8 @@ The **data classification tag** travels with every request (`pii: true|false`). 
 |---|---|
 | Edge / API | Helmet headers, CORS allow-list, rate limiting, Zod validation on every input, JWT (15 min) plus rotating refresh token, RBAC middleware, CSRF protection on cookie routes |
 | Service-to-service | Shared service token (dev) → mTLS or signed JWT (pilot); agent service is not exposed publicly |
-| Agents | Untrusted-content wrapping for resumes and JDs (treated as data, not instructions); allow-listed tools per agent; argument schema validation; approval tokens for side-effecting tools; loop, time and token limits |
+| Candidate messaging | Approval token per batch (named lead, step-up re-auth); opt-out registry checked before every send; per-channel rate limits; templates versioned; replies treated as untrusted data and classified locally; relay requires a token |
+| Agents | Untrusted-content wrapping for resumes, JDs and candidate replies (treated as data, not instructions); allow-listed tools per agent; argument schema validation; approval tokens for side-effecting tools; loop, time and token limits |
 | ATS boundary | TalentScout uses a `SELECT`-only database role; no TalentScout code path writes to ATS tables; connector contract tests; the ATS is published only through Cloudflare Tunnel with HTTPS |
 | Data | PII masking before any cloud call; encryption at rest (Atlas); field-level separation of protected attributes; retention job; erasure endpoint |
 | Supply chain | Lockfiles, Dependabot, CodeQL, Semgrep, npm audit / pip-audit, gitleaks, Trivy image scans, SBOM |

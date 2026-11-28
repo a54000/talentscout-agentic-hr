@@ -12,7 +12,10 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | E4 | MCP and memory | 5 | 21 |
 | E5 | Responsible AI and LLMOps | 9 | 31 |
 | E6 | Interoperability, delivery and pilot | 7 | 27 |
-| **Total** | | **65** | **239** |
+| E7 | Submission quality audit | 6 | 22 |
+| E8 | Candidate verification | 8 | 34 |
+| E9 | Client pitches and drives | 4 | 13 |
+| **Total** | | **83** | **308** |
 
 ## E0: Inception and platform
 
@@ -364,6 +367,7 @@ Acceptance criteria:
 - Given a seed, when the generator runs, then the output is deterministic
 - Given the UC-001 profile, when generated into a development ATS database (never the live one), then 500 resumes reproduce the funnel 500 -> 80 -> 25 -> 12 -> 2 and include serving-notice and alternative-title candidates that qualify
 - Given generated data, when checked, then no protected attributes are present in searchable fields
+- Given the audit scenario set, then it includes submissions with entered-vs-CV mismatches (experience, CTC, notice, location), cross-recruiter duplicates and incomplete rows, each labelled with the expected audit result
 
 ### TS-E2-07: Resume parsing of ATS CVs  (3 pts, Sprint 3, To do, Jira TS-36)
 
@@ -395,7 +399,7 @@ Acceptance criteria:
 - Given atlas-local, when the setup script runs, then vector_index and text_index exist
 - Given the script runs twice, then it is idempotent
 
-### TS-E2-04: Hybrid search with RRF and filters  (5 pts, Sprint 4, To do, Jira TS-39)
+### TS-E2-04: Hybrid search with RRF and filters  (5 pts, Sprint 8, To do, Jira TS-39)
 
 *As a recruiter I want meaning-based and keyword search combined so that I find relevant people who use different words.*
 
@@ -405,7 +409,7 @@ Acceptance criteria:
 - Given a query and filters, when searched, then results honour notice and CTC filters
 - Given 50k profiles, when searched, then p95 latency is under 1 s locally
 
-### TS-E2-05: Sourcing agent with tool calling  (5 pts, Sprint 4, To do, Jira TS-40)
+### TS-E2-05: Sourcing agent with tool calling  (5 pts, Sprint 8, To do, Jira TS-40)
 
 *As a recruiter I want an agent to formulate searches from the requirement so that I do not write boolean strings.*
 
@@ -415,7 +419,7 @@ Acceptance criteria:
 - Given an analysed requirement, when the agent runs, then it issues at most 5 tool calls and returns candidates with retrieved evidence
 - Given the UC-001 dataset, when the agent searches, then it reports funnel counts per stage (experience, skills, budget, notice)
 
-### TS-E2-06: Retrieval evaluation: hybrid vs keyword  (4 pts, Sprint 4, To do, Jira TS-41)
+### TS-E2-06: Retrieval evaluation: hybrid vs keyword  (4 pts, Sprint 8, To do, Jira TS-41)
 
 *As an architect I want recall@10 and nDCG@10 measured so that the hybrid design is justified with data.*
 
@@ -439,7 +443,7 @@ Acceptance criteria:
 - Given a requirement, when a run starts, then a plan with steps and success criteria is stored
 - Given the graph, when visualised, then nodes and conditional edges match the LLD
 
-### TS-E3-02: Bottleneck diagnosis, replanning and escalation (UC-001)  (8 pts, Sprint 5, To do, Jira TS-43)
+### TS-E3-02: Bottleneck diagnosis, replanning and escalation (UC-001)  (8 pts, Sprint 8, To do, Jira TS-43)
 
 *As a recruiter I want the system to recognise why the objective was not met and change strategy, without breaking my hiring constraints, and to tell me when it cannot succeed.*
 
@@ -451,7 +455,7 @@ Acceptance criteria:
 - Given any replan, then the mandatory constraints in run state equal the original requirement (budget, skills, experience, location, notice)
 - Given fewer than 5 qualify after 3 replans, then the run ends escalated with the funnel, strategies tried and decision options, not failed
 
-### TS-E3-03: Evidence-based matching per mandatory skill  (5 pts, Sprint 5, To do, Jira TS-44)
+### TS-E3-03: Evidence-based matching per mandatory skill  (5 pts, Sprint 4, To do, Jira TS-44)
 
 *As a recruiter I want each requirement judged with quotes from the resume so that I can trust the score.*
 
@@ -471,7 +475,7 @@ Acceptance criteria:
 - Given a screening with a fabricated quote, when verified, then it is flagged unsupported and removed from facts
 - Given a clean screening, then no flags are raised
 
-### TS-E3-05: Live run view over SSE (dashboard part 1)  (3 pts, Sprint 6, To do, Jira TS-46)
+### TS-E3-05: Live run view over SSE (dashboard part 1)  (3 pts, Sprint 5, To do, Jira TS-46)
 
 *As a recruiter I want to watch the agents plan, act and replan so that I understand what they are doing.*
 
@@ -549,7 +553,7 @@ Acceptance criteria:
 
 Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP.
 
-### TS-E5-01: Prompt-injection defence for untrusted content  (5 pts, Sprint 7, To do, Jira TS-53)
+### TS-E5-01: Prompt-injection defence for untrusted content  (5 pts, Sprint 8, To do, Jira TS-53)
 
 *As a security owner I want resumes and JDs treated as data so that embedded instructions cannot steer agents.*
 
@@ -559,7 +563,7 @@ Acceptance criteria:
 - Given the injection corpus (20 cases), when evaluated, then no case changes scores or triggers tools
 - Given a detected injection, then a guardrail_block event is recorded
 
-### TS-E5-02: PII masking and local-only routing enforcement  (3 pts, Sprint 7, To do, Jira TS-54)
+### TS-E5-02: PII masking and local-only routing enforcement  (3 pts, Sprint 5, To do, Jira TS-54)
 
 *As a data protection contact I want PII masked and kept local so that we comply with DPDP and provider terms.*
 
@@ -569,7 +573,7 @@ Acceptance criteria:
 - Given any cloud-bound prompt, when inspected in tests, then no email, phone or name from the candidate store appears
 - Given pii=true, then only the local route is ever used
 
-### TS-E5-03: Langfuse tracing and prompt versioning  (3 pts, Sprint 7, To do, Jira TS-55)
+### TS-E5-03: Langfuse tracing and prompt versioning  (3 pts, Sprint 8, To do, Jira TS-55)
 
 *As a tech lead I want traces and prompt versions so that I can debug and compare agent behaviour.*
 
@@ -579,7 +583,7 @@ Acceptance criteria:
 - Given a run, then a Langfuse trace exists with spans per node and tool, with PII masked
 - Given a prompt change, then the new version id is recorded on each call
 
-### TS-E5-04: Loop, time and token limits  (3 pts, Sprint 7, To do, Jira TS-56)
+### TS-E5-04: Loop, time and token limits  (3 pts, Sprint 6, To do, Jira TS-56)
 
 *As an engineering manager I want hard limits so that runaway agents cannot burn quota or time.*
 
@@ -588,7 +592,7 @@ Traces to: FR-AGT-5
 Acceptance criteria:
 - Given a graph that never satisfies its goal, when run, then it stops at 12 iterations with status stopped_limit and a partial result
 
-### TS-E5-05: Approval-token gate on side-effecting tools  (3 pts, Sprint 7, To do, Jira TS-57)
+### TS-E5-05: Approval-token gate on side-effecting tools  (3 pts, Sprint 6, To do, Jira TS-57)
 
 *As a director I want side-effecting tools to be impossible to run without approval so that there are zero unauthorised actions.*
 
@@ -598,7 +602,7 @@ Acceptance criteria:
 - Given no approvalId, when shortlist.finalise or memory.save_feedback is called, then it is refused and audited
 - Given an approval for a different run or candidate, then it is refused
 
-### TS-E5-06: Step-up re-authentication for approvals  (3 pts, Sprint 7, To do, Jira TS-58)
+### TS-E5-06: Step-up re-authentication for approvals  (3 pts, Sprint 6, To do, Jira TS-58)
 
 *As a security owner I want recent authentication before approvals so that a stolen session cannot approve a shortlist or constraint relaxation.*
 
@@ -607,7 +611,7 @@ Traces to: FR-AUTH-1
 Acceptance criteria:
 - Given a session older than 10 minutes, when approving a shortlist or a constraint relaxation, then password re-entry is required
 
-### TS-E5-07: Tamper-evident audit trail  (3 pts, Sprint 7, To do, Jira TS-59)
+### TS-E5-07: Tamper-evident audit trail  (3 pts, Sprint 9, To do, Jira TS-59)
 
 *As an auditor I want to detect altered audit events so that the trail can be trusted.*
 
@@ -617,7 +621,7 @@ Acceptance criteria:
 - Given a run's events, when one is modified directly in the DB, then the verification endpoint reports the broken hash chain
 - Given a completed run, when the completeness check runs, then every graph step has a matching audit event (traceability 100%)
 
-### TS-E5-08: Evaluation gate in CI  (5 pts, Sprint 7, To do, Jira TS-60)
+### TS-E5-08: Evaluation gate in CI  (5 pts, Sprint 9, To do, Jira TS-60)
 
 *As QA I want evals to run on agent changes so that quality regressions block merges.*
 
@@ -627,7 +631,7 @@ Acceptance criteria:
 - Given a PR touching prompts or agents, when CI runs, then golden, hallucination and fairness (name-swap) evals run on synthetic data
 - Given a regression beyond threshold, then the check fails
 
-### TS-E5-10: DPDP compliance pack  (3 pts, Sprint 8, To do, Jira TS-61)
+### TS-E5-10: DPDP compliance pack  (3 pts, Sprint 7, To do, Jira TS-61)
 
 *As a data protection contact I want consent, retention and erasure implemented so that the pilot can use real data lawfully.*
 
@@ -641,7 +645,7 @@ Acceptance criteria:
 
 LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch).
 
-### TS-E6-01: LiteLLM gateway with multi-provider fallback  (5 pts, Sprint 8, To do, Jira TS-62)
+### TS-E6-01: LiteLLM gateway with multi-provider fallback  (5 pts, Sprint 9, To do, Jira TS-62)
 
 *As an architect I want routing across free providers with fallback so that rate limits do not stop work.*
 
@@ -651,7 +655,7 @@ Acceptance criteria:
 - Given provider A returns 429, when called, then provider B is used, then Ollama
 - Given routing policy tests, then pii=true never reaches a cloud provider
 
-### TS-E6-02: Parallel screening fan-out  (3 pts, Sprint 8, To do, Jira TS-63)
+### TS-E6-02: Parallel screening fan-out  (3 pts, Sprint 9, To do, Jira TS-63)
 
 *As a recruiter I want candidates screened in parallel so that shortlists arrive faster.*
 
@@ -660,7 +664,7 @@ Traces to: NFR-5
 Acceptance criteria:
 - Given 20 candidates, when screened, then concurrency is bounded and total time drops versus sequential, recorded in the review
 
-### TS-E6-03: Agent execution dashboard (dashboard part 2)  (5 pts, Sprint 8, To do, Jira TS-64)
+### TS-E6-03: Agent execution dashboard (dashboard part 2)  (5 pts, Sprint 10, To do, Jira TS-64)
 
 *As a delivery lead I want run history and KPIs in one place so that I can see whether the agents are working and what they cost.*
 
@@ -671,7 +675,7 @@ Acceptance criteria:
 - Given a period, then completion rate, acceptance rate, evidence accuracy, escalations and guardrail blocks are shown
 - Given any run, then it links to its full timeline and trace
 
-### TS-E6-04: A2A Talent Intelligence agent (stretch)  (5 pts, Sprint 8, To do, Jira TS-65)
+### TS-E6-04: A2A Talent Intelligence agent (stretch)  (5 pts, Sprint 10, To do, Jira TS-65)
 
 *As an architect I want an independently deployed agent reachable over A2A so that we prove interoperability.*
 
@@ -681,7 +685,7 @@ Acceptance criteria:
 - Given the agent card, when the supervisor discovers it, then it can delegate a salary-benchmark task and receive a result
 - Given the A2A agent is unavailable, then the run continues without it and logs a warning
 
-### TS-E6-05: Demo deployment  (3 pts, Sprint 8, To do, Jira TS-66)
+### TS-E6-05: Demo deployment  (3 pts, Sprint 10, To do, Jira TS-66)
 
 *As a candidate in interviews I want a running demo on synthetic data so that I can show the system live.*
 
@@ -690,7 +694,7 @@ Traces to: n/a
 Acceptance criteria:
 - Given a merge to main with demo secrets, when CD runs, then the demo host serves the latest images and health checks pass
 
-### TS-E6-07: Performance and resilience testing  (3 pts, Sprint 8, To do, Jira TS-67)
+### TS-E6-07: Performance and resilience testing  (3 pts, Sprint 10, To do, Jira TS-67)
 
 *As a tech lead I want load and failure drills so that the pilot runs on a system with known limits.*
 
@@ -700,7 +704,7 @@ Acceptance criteria:
 - Given k6 load on API and search, then p95 targets in NFR-5 are met or the gap is reported
 - Given the agent process is killed or a provider is down during a UC-001 run, then the run recovers and the drill result is recorded
 
-### TS-E6-06: Recruiter pilot and results report  (3 pts, Sprint 8, To do, Jira TS-68)
+### TS-E6-06: Recruiter pilot and results report  (3 pts, Sprint 10, To do, Jira TS-68)
 
 *As a director I want a pilot report against the baseline so that the decision to scale is evidence-based.*
 
@@ -708,3 +712,203 @@ Traces to: BO-1, BO-2
 
 Acceptance criteria:
 - Given 2 weeks of pilot use, then the report compares effort, acceptance, evidence accuracy and incidents against the baseline, with limitations stated
+
+## E7: Submission quality audit
+
+UC-002: audit every ATS submission against its requirement and CV (must-have evidence, detail accuracy, constraint fit, duplicates, completeness), score it, and give leads a review queue and recruiter scorecards.
+
+### TS-E7-01: Detail-accuracy check: recruiter entries vs CV  (5 pts, Sprint 4, To do, Jira TS-77)
+
+*As a delivery lead I want what the recruiter typed compared with the CV so that wrong experience, company, role, location or skills are caught before the client sees them.*
+
+Traces to: FR-AUD-2
+
+Acceptance criteria:
+- Given a submission whose entered experience is 12 years and whose CV shows 6, then the check returns experience: mismatch with the CV quote
+- Given a field the CV does not mention, then the result is not_in_cv, not mismatch
+- Given real CV text, then extraction runs only on the local model (pii=true)
+
+### TS-E7-02: Constraint fit, completeness and quality score  (3 pts, Sprint 4, To do, Jira TS-78)
+
+*As a delivery lead I want each submission scored 0-100 with every deduction explained so that I can prioritise reviews.*
+
+Traces to: FR-AUD-3, FR-AUD-5, FR-AUD-6
+
+Acceptance criteria:
+- Given expected CTC above the requirement budget, then constraint fit for CTC is outside
+- Given configurable weights, then the score equals the weighted checks and each deduction names its check
+- Given a missing CV, then the status is incomplete and no LLM call is made
+
+### TS-E7-03: Duplicate detection across recruiters  (3 pts, Sprint 4, To do, Jira TS-79)
+
+*As a delivery lead I want the same candidate submitted by different recruiters linked so that duplicates are not counted twice or sent twice to a client.*
+
+Traces to: FR-AUD-4
+
+Acceptance criteria:
+- Given two submissions with the same email or phone, then they are linked as duplicates
+- Given different contact details but same name, company and a CV similarity above the threshold, then they are flagged as possible duplicates for review
+
+### TS-E7-04: Audit records and automatic audit on sync  (3 pts, Sprint 4, To do, Jira TS-80)
+
+*As a delivery lead I want every new or changed submission audited automatically so that nothing slips through.*
+
+Traces to: FR-AUD-1, FR-AUD-7
+
+Acceptance criteria:
+- Given a new submission synced by the connector, then an audit record exists within 1 hour (KPI-7)
+- Given an audit, then no row in the ATS database changes
+- Given the same unchanged submission synced twice, then it is audited once (idempotent)
+
+### TS-E7-05: Lead review queue and recruiter scorecard  (5 pts, Sprint 4, To do, Jira TS-81)
+
+*As a delivery lead I want a queue of flagged submissions and a scorecard per recruiter so that I can coach recruiters with evidence.*
+
+Traces to: FR-AUD-8, FR-AUD-9
+
+Acceptance criteria:
+- Given flagged submissions, then the queue shows score, failed checks, the recruiter's entry next to the CV fact, and accept/override with a reason
+- Given a recruiter, then the scorecard shows submissions, average score, mismatch and duplicate rates and confirmed flags per week and month
+- Given a recruiter user, then they see only their own scorecard and flags
+
+### TS-E7-06: Golden audit dataset and precision evaluation  (3 pts, Sprint 5, To do, Jira TS-82)
+
+*As a QA owner I want audit precision measured on labelled submissions so that flag quality is known before leads rely on it.*
+
+Traces to: FR-AUD-10
+
+Acceptance criteria:
+- Given the labelled synthetic audit set, then precision and recall per check are reported in CI
+- Given a prompt or model change, then a precision drop beyond the agreed threshold fails the evaluation gate
+
+## E8: Candidate verification
+
+UC-003: approved WhatsApp and email verification messages through the ATS channels, opt-outs, reply capture and local classification, comparison with recruiter entries, follow-up and escalation of possible false submissions.
+
+### TS-E8-01: Harden the WhatsApp relay and add inbound messages  (5 pts, Sprint 5, To do, Jira TS-83)
+
+*As an admin I want the ATS WhatsApp relay secured and able to report replies so that verification can use it safely.*
+
+Traces to: FR-VER-4, FR-VER-5
+
+Acceptance criteria:
+- Given no relay token configured, then the relay refuses to start
+- Given an inbound WhatsApp message, then it is available through an authenticated endpoint with sender, time and text
+- Given user text in logs, then it is escaped (fixes the CodeQL log-injection alerts)
+
+### TS-E8-02: Opt-out and contact-consent registry  (3 pts, Sprint 5, To do, Jira TS-84)
+
+*As a candidate I want STOP to end all messages so that I am not contacted again.*
+
+Traces to: FR-VER-7
+
+Acceptance criteria:
+- Given a STOP reply on any channel, then the candidate is opted out on all channels and gets one confirmation
+- Given an opted-out candidate, then drafting and sending refuse them
+
+### TS-E8-03: Verification batches, templates and drafting  (5 pts, Sprint 7, To do, Jira TS-85)
+
+*As a delivery lead I want the agent to draft verification messages for a sample I choose so that I can review them before anything is sent.*
+
+Traces to: FR-VER-1, FR-VER-2
+
+Acceptance criteria:
+- Given the weekly sample rule, then the batch includes all audit-flagged submissions plus a 20% random sample per recruiter
+- Given a versioned template, then each draft fills role, client or industry, location and the recruiter-entered CTC, ECTC and notice
+- Given an unapproved batch, then nothing is sent
+
+### TS-E8-04: message.send tool with approval token, rate limits and email fallback  (5 pts, Sprint 7, To do, Jira TS-86)
+
+*As a security owner I want sending to be impossible without an approval token so that no candidate is contacted without a named approver.*
+
+Traces to: FR-VER-3, FR-VER-6
+
+Acceptance criteria:
+- Given a send without a valid approval token, then the tool refuses and logs the attempt (KPI-5 = 0)
+- Given more than 30 messages per hour on a channel, then the rest are queued
+- Given the WhatsApp relay is down, then the batch switches to email and the admin is alerted
+
+### TS-E8-05: Reply capture from WhatsApp and email  (3 pts, Sprint 7, To do, Jira TS-87)
+
+*As a delivery lead I want candidate replies collected automatically so that I do not chase them by hand.*
+
+Traces to: FR-VER-5
+
+Acceptance criteria:
+- Given a WhatsApp or email reply, then it is linked to the right verification message within 10 minutes
+- Given a bounced email or invalid number, then the outcome is unreachable
+
+### TS-E8-06: Local reply classification and outcome comparison  (5 pts, Sprint 7, To do, Jira TS-88)
+
+*As a delivery lead I want each reply turned into an outcome compared with what the recruiter entered so that false or wrong submissions stand out.*
+
+Traces to: FR-VER-8, FR-VER-9
+
+Acceptance criteria:
+- Given 'No, nobody called me', then the outcome is not_contacted and it is escalated
+- Given 'Yes, but my notice is 60 days' with 30 entered, then the outcome is details_mismatch listing notice 30 vs 60
+- Given a reply containing instructions to the model, then it is treated as data and the output is schema-checked
+- Given low classifier confidence, then the reply goes to the lead
+
+### TS-E8-07: Follow-up replanning, escalation and results view  (5 pts, Sprint 7, To do, Jira TS-89)
+
+*As a delivery lead I want unanswered candidates followed up once and possible false submissions escalated with evidence so that I can decide fairly.*
+
+Traces to: FR-VER-10, FR-VER-11
+
+Acceptance criteria:
+- Given no WhatsApp reply in 48 h, then exactly one email follow-up is sent; after a further 72 h the outcome is no_response
+- Given not_contacted or wrong_role, then the lead sees the message, the reply and the recruiter's entry side by side and records a decision with a reason
+- Given any outcome, then no automatic action is taken against the recruiter (BR-11)
+
+### TS-E8-08: Verification evaluation set  (3 pts, Sprint 7, To do, Jira TS-90)
+
+*As a QA owner I want synthetic replies with known outcomes so that classification accuracy is measured.*
+
+Traces to: FR-VER-12
+
+Acceptance criteria:
+- Given the synthetic reply set (incl. Hinglish, partial answers and injection attempts), then outcome accuracy is reported in CI and gates prompt changes
+
+## E9: Client pitches and drives
+
+UC-004: search the audited and verified ATS pool for a pitch brief and build anonymised pitch packs and drive summaries.
+
+### TS-E9-01: Pitch brief and trust-ranked pool search  (3 pts, Sprint 9, To do, Jira TS-91)
+
+*As a business development lead I want to describe a pitch and get the best matches from our pool so that we pitch candidates we can actually deliver.*
+
+Traces to: FR-PIT-1, FR-PIT-2
+
+Acceptance criteria:
+- Given a pitch brief, then results come from the ATS pool with the funnel shown
+- Given equal fit, then candidates with a recent confirmed verification and a clean audit rank first
+- Given a brief the pool can't fill, then the run escalates with options instead of padding
+
+### TS-E9-02: Anonymised pitch pack export  (5 pts, Sprint 9, To do, Jira TS-92)
+
+*As a business development lead I want an anonymised pitch pack so that I can share our talent with a client without exposing candidates.*
+
+Traces to: FR-PIT-3, FR-PIT-4
+
+Acceptance criteria:
+- Given a pack, then each profile has role, years, skills with evidence, notice band, CTC band and location, and no name, phone, email, employer or photo
+- Given an export, then it needs approval and is logged
+
+### TS-E9-03: Hiring-drive pool summary  (3 pts, Sprint 9, To do, Jira TS-93)
+
+*As a delivery lead planning a drive I want counts by skill, experience band, location and notice so that I can promise realistic numbers.*
+
+Traces to: FR-PIT-5
+
+Acceptance criteria:
+- Given a drive brief, then the summary shows available counts by skill, experience band, location and notice period
+
+### TS-E9-04: Anonymisation leak test  (2 pts, Sprint 9, To do, Jira TS-94)
+
+*As a privacy owner I want every pitch export scanned for identifiers so that no candidate is exposed by mistake.*
+
+Traces to: FR-PIT-6
+
+Acceptance criteria:
+- Given a generated pack, then an automated scan finds no names, emails or phone numbers from the source records, else the export is blocked

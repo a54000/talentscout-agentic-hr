@@ -1,6 +1,6 @@
 # UC-001: Intelligent Candidate Sourcing
 
-This is the reference business use case. It is carried through every sprint: each new capability must work on this scenario, and it is the first end-to-end acceptance test.
+This is the reference scenario for **search, funnel analysis and replanning**. Since the scope change of 2026-11-28 it is used through [UC-004: Client Pitches and Drives](UC-004-client-pitches-and-drives.md), where the agents search the audited ATS pool. The MVP's first priorities are [UC-002](UC-002-submission-quality-audit.md) (audit) and [UC-003](UC-003-candidate-verification.md) (verification).
 
 > **In plain words:** the client wants 5 AWS Cloud Architects. We apply the hiring rules one by one to the CVs in the ATS, and most people drop out at the notice-period rule, leaving only 2. A normal search stops there. The agent should notice *where* people dropped out and try other legitimate ways to find more, such as people already serving notice or people with a different job title. It must not change the rules itself. If it still can't reach 5, it asks the recruiter what to do. **The numbers are illustrative.** We generate fake CVs that reproduce them so the behaviour can be tested.
 
@@ -54,7 +54,7 @@ This lets the replanning step find more qualifying candidates, while still stopp
 
 - The agent **cannot** relax budget, mandatory skills, experience, location or notice period on its own. It may only *propose* a relaxation, and the recruiter decides (BR-2).
 - Every claim of the form "candidate has skill X" must cite resume evidence (BR-7).
-- The agent makes no hiring decision and contacts no candidate (BR-1, BR-5).
+- The agent makes no hiring decision and contacts no candidate in this flow (BR-1, BR-5); verification messages are a separate, approved flow (UC-003).
 
 ## 5. Acceptance (used by TS-E3-02 and the evaluation suite)
 
