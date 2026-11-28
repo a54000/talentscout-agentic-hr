@@ -125,33 +125,53 @@ docker compose up -d --force-recreate ats
 
 Until this is done, the Google button shows *"Google login is not configured"* instead of Google's error page.
 
-## E. Make it reachable for recruiters (no public IP needed, free)
-Use a **Cloudflare Tunnel**. The domain `hrgp.in` is already on Cloudflare, and a tunnel was used before (`hireflow.hrgp.in`).
+## E. Make it reachable for recruiters: Cloudflare Tunnel (free, no open ports)
+
+The tunnel container makes an **outbound** connection to Cloudflare. Cloudflare serves `https://ats.hrgp.in` (with a certificate) and forwards requests to the `ats` container. No router port forwarding and no public IP are needed.
+
+**E1. Free up the hostname.** In the Cloudflare dashboard, go to `hrgp.in` → DNS → Records. Delete the old **A** record for `ats` that points to the torn-down EC2 IP. If there is an old `hireflow` tunnel CNAME you no longer use, delete it too.
+
+**E2. Create the tunnel.** In Zero Trust (free plan), go to Networks → Tunnels → **Create a tunnel** → type **Cloudflared**, named `hrguru-ats`. On the install screen, choose *Docker* and copy only the **token**: the long string after `--token`.
+
+**E3. Add the public hostname.** In the same wizard (Public Hostname tab):
+- Subdomain `ats`, domain `hrgp.in`, path empty
+- Service type `HTTP`, URL `ats:5001` (the container name on the compose network, not localhost)
+
+**E4. Give the token to compose.** In the root `.env` add `CLOUDFLARE_TUNNEL_TOKEN=<token>`. It is git-ignored; never commit it.
+
+**E5. Point the ATS at its public URL.** In `apps/ats/.env` set:
+- `PUBLIC_BASE_URL=https://ats.hrgp.in`
+- `PREFERRED_URL_SCHEME=https`
+- `GOOGLE_REDIRECT_URI=https://ats.hrgp.in/login/callback`
+
+Make sure that redirect URI is in the Google OAuth client's list. Then recreate the ATS:
 
 ```bash
-brew install cloudflared
+docker compose up -d --force-recreate ats
+```
+
+**E6. Start the tunnel:**
+
+```bash
+docker compose --profile live up -d tunnel
 ```
 
 ```bash
-cloudflared tunnel login
+docker compose logs --tail 20 tunnel
 ```
 
-```bash
-cloudflared tunnel create hrguru-ats
-```
+Look for `Registered tunnel connection` (normally 4 lines). The tunnel then shows **Healthy** in the dashboard.
 
-```bash
-cloudflared tunnel route dns hrguru-ats ats.hrgp.in
-```
+**E7. Verify** from a phone on mobile data (not office Wi-Fi):
+- `https://ats.hrgp.in/healthz` returns `"ok":true`.
+- Google login and password login work.
 
-```bash
-cloudflared tunnel run --url http://localhost:5001 hrguru-ats
-```
+**E8. Recommended hardening (free for up to 50 users): Cloudflare Access.** The ATS is a legacy app with known weaknesses (R-15), and the tunnel makes it reachable from the whole internet. In Zero Trust → Access → Applications, add a *Self-hosted* app for `ats.hrgp.in` with a policy that allows only HR Guru emails (Google or one-time PIN). Recruiters then pass a Cloudflare login before the ATS login. If external client users also use the ATS, add their emails or domains to the policy.
 
-Then:
-- In Google Cloud console → OAuth client, keep the redirect URI `https://ats.hrgp.in/login/callback`.
-- Set `PUBLIC_BASE_URL=https://ats.hrgp.in` and `PREFERRED_URL_SCHEME=https` in `apps/ats/.env`.
-- Keep the Mac awake during working hours: System Settings → Battery/Energy → prevent sleep on power adapter, or run `caffeinate -s` in a terminal.
+**E9. Keep the Mac serving during working hours:**
+- Docker Desktop → Settings → General → *Start Docker Desktop when you sign in*.
+- System Settings → Battery/Energy → *Prevent automatic sleeping when the display is off* (on power adapter).
+- All ATS containers use `restart: unless-stopped`, so they come back after a reboot once Docker starts.
 
 ## F. Backups (do not skip: the last outage lost the host)
 Nightly at 21:00 via launchd (TS-EA-06): `pg_dump -Fc` plus a tar of `ats-uploads`. Keep 14 copies locally and copy them to a second location (external disk or Google Drive). Do a restore drill monthly using procedure B1 into a scratch database.

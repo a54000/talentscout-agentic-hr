@@ -44,6 +44,17 @@ services:
       ats-db: { condition: service_healthy }
     restart: unless-stopped
 
+  # Cloudflare Tunnel: publishes the ATS at https://ats.hrgp.in with no open ports on the Mac.
+  # Only starts with the "live" profile:  docker compose --profile live up -d tunnel
+  tunnel:
+    image: cloudflare/cloudflared:2026.11.2
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}   # set in .env; cloudflared exits with an error if empty
+    depends_on: [ats]
+    restart: unless-stopped
+    profiles: ["live"]
+
   redis:
     image: redis:7-alpine
     ports: ["6379:6379"]
