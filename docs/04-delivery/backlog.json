@@ -263,7 +263,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 5,
-      "status": "done",
+      "status": "in_progress",
       "owner": "Claude",
       "fr": [
         "NFR-1",
