@@ -5209,6 +5209,14 @@ def _safe_path_part(value):
     value = secure_filename(str(value or "").strip())
     return value or "default"
 
+def path_under(root, *parts):
+    """Join parts onto root and refuse any result that escapes root (e.g. via '..')."""
+    base = os.path.realpath(root)
+    full = os.path.realpath(os.path.join(base, *parts))
+    if full != base and not full.startswith(base + os.sep):
+        raise ValueError("Path escapes the uploads folder")
+    return full
+
 def current_upload_owner_key():
     return _safe_path_part(
         session.get("recruiter_email")
@@ -10641,10 +10649,11 @@ def upload_candidate_cv(cid):
     ext = os.path.splitext(f.filename)[1].lower()
     if ext not in [".pdf", ".doc", ".docx"]:
         return jsonify({"error": "Invalid file type"}), 400
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "candidates", "single", f"candidate_{cid}")
+    uploads_root = os.path.join(app.root_path, "uploads")
+    upload_folder = path_under(uploads_root, "recruiters", current_upload_owner_key(), "candidates", "single", f"candidate_{cid}")
     os.makedirs(upload_folder, exist_ok=True)
     saved_name = hrguru_cv_filename(f.filename, upload_folder)
-    file_path = os.path.join(upload_folder, saved_name)
+    file_path = path_under(upload_folder, saved_name)
     f.save(file_path)
     data = {
         "ok": True,
@@ -11542,6 +11551,17 @@ def get_team():
     rows=conn.execute("SELECT * FROM team_members ORDER BY name").fetchall()
     conn.close(); return jsonify([dict(r) for r in rows])
 
+def build_update_set(data, allowed, transform=None):
+    """Return (set_clause, values) for an UPDATE.
+
+    Column names come only from the fixed ``allowed`` list, never from the
+    request, so a crafted JSON key cannot change the SQL. Values stay bound
+    parameters.
+    """
+    cols = [col for col in dict.fromkeys(allowed) if col in data]
+    vals = [transform(col, data[col]) if transform else data[col] for col in cols]
+    return ", ".join(f"{col}=?" for col in cols), vals
+
 @app.route("/api/team",methods=["POST"])
 @login_required
 def add_team():
@@ -11558,16 +11578,13 @@ def update_team_member(tid):
         return jsonify({"error":"Admin only"}),403
     d=request.json or {}
     allowed=["name","email","phone","role","can_bulk_upload"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[]
-    for k,v in d.items():
-        if k not in allowed:
-            continue
+    def _clean(k, v):
         if k == "email":
-            v = (v or "").lower()
+            return (v or "").lower()
         if k == "can_bulk_upload":
-            v = 1 if v else 0
-        vals.append(v)
+            return 1 if v else 0
+        return v
+    sets, vals = build_update_set(d, allowed, _clean)
     if not sets:
         return jsonify({"error":"nothing to update"}),400
     vals.append(tid)
@@ -11867,8 +11884,8 @@ def update_candidate(cid):
             data["recruiter_email"] = (member["email"] or "").lower()
             allowed.extend(["recruiter_name", "recruiter_email"])
     
-    sets=", ".join(f"{k}=?" for k in data if k in allowed)
-    vals=[v for k,v in data.items() if k in allowed]+[cid]
+    sets, vals = build_update_set(data, allowed)
+    vals.append(cid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE candidates SET {sets}, updated_at=datetime('now','localtime') WHERE id=?",vals)
@@ -12802,11 +12819,12 @@ def upload_requirement_jd(rid):
     if not exists:
         conn.close()
         return jsonify({"error": "Requirement not found"}), 404
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "requirements", "single", f"requirement_{rid}")
+    uploads_root = os.path.join(app.root_path, "uploads")
+    upload_folder = path_under(uploads_root, "recruiters", current_upload_owner_key(), "requirements", "single", f"requirement_{rid}")
     os.makedirs(upload_folder, exist_ok=True)
     safe_name = secure_filename(f.filename)
     saved_name = f"requirement_jd_{rid}_{int(datetime.now().timestamp())}_{safe_name}"
-    file_path = os.path.join(upload_folder, saved_name)
+    file_path = path_under(upload_folder, saved_name)
     try:
         f.save(file_path)
         file_url = f"/uploads/{os.path.relpath(file_path, os.path.join(app.root_path, 'uploads')).replace(os.sep, '/')}"
@@ -13015,8 +13033,8 @@ def add_interview():
 def update_interview(iid):
     d=request.json
     allowed=["interviewer_name","interviewer_email","scheduled_at","duration_mins","location","meeting_link","status","notes"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[v for k,v in d.items() if k in allowed]+[iid]
+    sets, vals = build_update_set(d, allowed)
+    vals.append(iid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE interviews SET {sets} WHERE id=?",vals)
@@ -13092,8 +13110,8 @@ def add_email_template():
 def update_email_template(tid):
     d=request.json
     allowed=["name","subject","body","trigger_event"]
-    sets=", ".join(f"{k}=?" for k in d if k in allowed)
-    vals=[v for k,v in d.items() if k in allowed]+[tid]
+    sets, vals = build_update_set(d, allowed)
+    vals.append(tid)
     if not sets: return jsonify({"error":"nothing to update"}),400
     conn=get_db()
     conn.execute(f"UPDATE email_templates SET {sets} WHERE id=?",vals)
