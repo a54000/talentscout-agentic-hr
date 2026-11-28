@@ -2345,6 +2345,34 @@ def ensure_auth_workflow_schema(conn):
     );
     """)
 
+PERFORMANCE_INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_candidates_created_at ON candidates(created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_status ON candidates(status)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_requirement_id ON candidates(requirement_id)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_recruiter_email ON candidates(recruiter_email)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_sourcer_id ON candidates(sourcer_id)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_duplicate ON candidates(is_duplicate)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_owner_created ON candidates(sourcer_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_owner_status_created ON candidates(sourcer_id, status, created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_requirement_created ON candidates(requirement_id, created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_status_created ON candidates(status, created_at)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_email_lower ON candidates(lower(recruiter_email))",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_candidate_name ON candidates(candidate_name)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_email_addr ON candidates(email_addr)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_phone ON candidates(phone)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_phone_normalized ON candidates(replace(replace(replace(phone,'+',''),'-',''),' ',''))",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_role_company ON candidates(role_name, current_company)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_locations ON candidates(current_location, preferred_location)",
+    "CREATE INDEX IF NOT EXISTS idx_candidates_skills ON candidates(key_skills)",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_created_at ON requirements(created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_status_created ON requirements(status, created_at DESC)",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_title_lower ON requirements(lower(COALESCE(title,'')))",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_client_name ON requirements(client_name)",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_client_id ON requirements(client_name, id)",
+    "CREATE INDEX IF NOT EXISTS idx_requirements_client_lower ON requirements(lower(trim(COALESCE(client_name,''))))",
+]
+
+
 def init_db():
     conn = get_db()
     try:
@@ -3084,32 +3112,7 @@ def init_db():
                         (requirement_id,check_name,check_description,check_type,pass_criteria,sort_order)
                         VALUES (?,?,?,?,?,?)""",
                         (rid, check_name, "", "boolean", "Yes", i))
-        for index_sql in [
-            "CREATE INDEX IF NOT EXISTS idx_candidates_created_at ON candidates(created_at)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_status ON candidates(status)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_requirement_id ON candidates(requirement_id)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_recruiter_email ON candidates(recruiter_email)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_sourcer_id ON candidates(sourcer_id)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_duplicate ON candidates(is_duplicate)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_owner_created ON candidates(sourcer_id, created_at)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_owner_status_created ON candidates(sourcer_id, status, created_at)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_requirement_created ON candidates(requirement_id, created_at)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_status_created ON candidates(status, created_at)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_email_lower ON candidates(lower(recruiter_email))",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_candidate_name ON candidates(candidate_name)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_email_addr ON candidates(email_addr)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_phone ON candidates(phone)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_phone_normalized ON candidates(replace(replace(replace(phone,'+',''),'-',''),' ',''))",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_role_company ON candidates(role_name, current_company)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_locations ON candidates(current_location, preferred_location)",
-            "CREATE INDEX IF NOT EXISTS idx_candidates_skills ON candidates(key_skills)",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_created_at ON requirements(created_at DESC)",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_status_created ON requirements(status, created_at DESC)",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_title_lower ON requirements(lower(COALESCE(title,'')))",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_client_name ON requirements(client_name)",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_client_id ON requirements(client_name, id)",
-            "CREATE INDEX IF NOT EXISTS idx_requirements_client_lower ON requirements(lower(trim(COALESCE(client_name,''))))",
-        ]:
+        for index_sql in PERFORMANCE_INDEXES:
             conn.execute(index_sql)
         date_cleanup_version = "2026-05-23-candidate-date-cleanup-v2"
         cleanup_done = conn.execute(
@@ -3129,10 +3132,30 @@ def init_db():
     finally:
         conn.close()
 
+def ensure_performance_indexes(conn):
+    """Create the query indexes in PostgreSQL too (the SQLite->PostgreSQL migration only copies
+    unique indexes, which left candidates/requirements without them). Idempotent; one failing
+    index never blocks startup."""
+    created = 0
+    for index_sql in PERFORMANCE_INDEXES:
+        try:
+            conn.execute(index_sql)
+            conn.commit()
+            created += 1
+        except Exception as exc:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            print(f"Index skipped: {index_sql.split(' ON ')[0][-60:]}: {type(exc).__name__}", flush=True)
+    print(f"Performance indexes ensured: {created}/{len(PERFORMANCE_INDEXES)}", flush=True)
+
+
 def initialize_app_database():
     if USE_POSTGRES:
         conn = get_db(timeout=5)
         try:
+            ensure_performance_indexes(conn)
             ensure_candidate_selection_schema(conn)
             conn.execute("SELECT 1")
         finally:

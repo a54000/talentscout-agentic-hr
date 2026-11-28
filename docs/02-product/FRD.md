@@ -92,6 +92,9 @@ Automated candidate outreach (former FR-OUT), the delivery monitoring agent (for
 | NFR-8 | Supply chain | Dependencies pinned via lockfiles; Dependabot; SCA (software composition analysis), SAST, secret and container scans in CI. |
 | NFR-9 | Accessibility | WCAG 2.1 AA for core screens. |
 | NFR-10 | Portability | Whole stack runs with `docker compose up`. Ollama runs natively on macOS for GPU (Metal) acceleration. |
+| NFR-ATS-1 | ATS performance | With 25 recruiters active: page and API p95 < 1 s; no request slows others by more than 2× while a bulk upload runs. Measured with the load-test scripts (TS-EA-13) |
+| NFR-ATS-2 | ATS bulk upload | Upload of up to 100 rows + CVs is accepted in < 5 s and processed in the background with visible progress (TS-EA-12); a failure in one row never loses the others |
+| NFR-ATS-3 | ATS availability | Detect downtime within 10 min (uptime monitor); restore from last night's backup within 1 h (runbook F) |
 
 ## 3. Traceability
 

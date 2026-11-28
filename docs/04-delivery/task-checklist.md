@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Total |
 |---|---|---|---|---|
-| 9 | 4 | 0 | 48 | 61 |
+| 9 | 5 | 0 | 51 | 65 |
 
 ## Your actions (outside the backlog)
 
@@ -30,6 +30,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-06 ATS backups and restore drill**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
 - [x] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_
 - [ ] **TS-EA-10 Close the post-May 2026 data gap and the missing CV/JD files**: Candidates and requirements added after 26 May 2026 recovered or re-entered, so that recruiters work from complete data. _(2 pts, owner: You, Jira TS-69)_
+- [ ] **TS-EA-11 ATS performance quick wins: PostgreSQL indexes and multi-process serving** **[In progress]**: The ATS to stay responsive while colleagues upload candidates, so that my work is not blocked. _(3 pts, owner: Claude + You, Jira TS-70)_
 - [x] **TS-E0-01 Monorepo structure and tooling**: A monorepo with web, api and agents projects, so that all tiers build and test the same way. _(2 pts, owner: Claude, Jira TS-18)_
 - [ ] **TS-E0-02 CI pipeline: lint, test, build** **[In progress]**: Every PR linted, tested and built, so that broken code never reaches main. _(3 pts, owner: Claude, Jira TS-19)_
 - [ ] **TS-E0-03 Security scanning pipeline** **[In progress]**: SAST, SCA, secret and container scans on every PR, so that vulnerabilities are caught early. _(3 pts, owner: Claude, Jira TS-20)_
@@ -41,6 +42,9 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 ## Sprint 1 - ATS hardening and product foundation (2026-12-14 → 2026-12-24)
 
 - [ ] **TS-EA-07 ATS security hardening baseline**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
+- [ ] **TS-EA-12 Asynchronous bulk upload with progress**: My bulk upload accepted immediately and processed in the background, so that I can keep working and see progress. _(8 pts, owner: Claude, Jira TS-71)_
+- [ ] **TS-EA-13 ATS performance baseline and load test**: Measured response times under realistic load, so that performance targets are verified, not assumed. _(3 pts, owner: Claude, Jira TS-72)_
+- [ ] **TS-EA-14 Restore scheduled WhatsApp/email reports on the Mac**: The daily and weekly submission reports and recruiter reminders running again, so that the team keeps its routine. _(3 pts, owner: Claude + You, Jira TS-73)_
 - [ ] **TS-E0-06 Spike: local model selection on M2 16 GB**: To measure candidate local models, so that the PII-safe route is good enough and fast enough. _(3 pts, owner: You, Jira TS-23)_
 - [ ] **TS-E0-08 Baseline measurement plan**: A baseline of recruiter effort, so that pilot results can be compared honestly. _(3 pts, owner: You, Jira TS-25)_
 - [ ] **TS-E1-01 Requirement CRUD API and UI**: To create and view requirements with constraints, so that the agents know the hiring goal. _(5 pts, owner: Claude, Jira TS-27)_

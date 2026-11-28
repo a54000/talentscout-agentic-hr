@@ -297,6 +297,79 @@
       "jira": "TS-69"
     },
     {
+      "id": "TS-EA-11",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "in_progress",
+      "owner": "Claude + You",
+      "fr": [
+        "NFR-ATS-1"
+      ],
+      "title": "ATS performance quick wins: PostgreSQL indexes and multi-process serving",
+      "story": "As a recruiter I want the ATS to stay responsive while colleagues upload candidates so that my work is not blocked.",
+      "ac": [
+        "Given PostgreSQL mode, when the ATS starts, then the 24 query indexes exist (log: Performance indexes ensured: 24/24); duplicate-check lookups use an index (measured 12-26x faster on 10k candidates)",
+        "Given 4 concurrent CV parses, then /healthz average latency stays under 50 ms (measured: 129 ms with 1 process, 24 ms with 3 workers)",
+        "Given SQLite mode, then the image falls back to 1 worker (file lock)"
+      ],
+      "jira": "TS-70"
+    },
+    {
+      "id": "TS-EA-12",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 8,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-2"
+      ],
+      "title": "Asynchronous bulk upload with progress",
+      "story": "As a recruiter I want my bulk upload accepted immediately and processed in the background so that I can keep working and see progress.",
+      "ac": [
+        "Given an upload of up to 100 rows with CVs, when submitted, then the request returns a job id in under 5 s and a worker processes it in a separate process",
+        "Given a running job, then the UI shows rows done / failed / duplicates and the final summary matches today's synchronous result",
+        "Given one bad row or CV, then other rows are still saved and the error is reported per row",
+        "Given the worker restarts mid-job, then the job resumes or is marked failed with no duplicate rows"
+      ],
+      "jira": "TS-71"
+    },
+    {
+      "id": "TS-EA-13",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-1"
+      ],
+      "title": "ATS performance baseline and load test",
+      "story": "As a tech lead I want measured response times under realistic load so that performance targets are verified, not assumed.",
+      "ac": [
+        "Given the existing load-test scripts (apps/ats/scripts/*load_test*), when run against a staging copy with 25 simulated recruiters, then p50/p95 per key page and the bulk-upload duration are recorded",
+        "Given the results, then gaps against NFR-ATS-1 are listed with the top 3 slow endpoints"
+      ],
+      "jira": "TS-72"
+    },
+    {
+      "id": "TS-EA-14",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude + You",
+      "fr": [],
+      "title": "Restore scheduled WhatsApp/email reports on the Mac",
+      "story": "As a delivery lead I want the daily and weekly submission reports and recruiter reminders running again so that the team keeps its routine.",
+      "ac": [
+        "Given the old systemd timers (apps/ats/deploy/systemd), when ported to launchd or a compose scheduler, then each report runs at its old time against the local ATS",
+        "Given a report fails, then it is logged and does not affect the ATS"
+      ],
+      "jira": "TS-73"
+    },
+    {
       "id": "TS-E0-01",
       "epic": "E0",
       "sprint": 0,

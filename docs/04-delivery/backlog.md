@@ -5,14 +5,14 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | Epic | Name | Stories | Points |
 |---|---|---|---|
 | E0 | Inception and platform | 9 | 24 |
-| EA | HR Guru ATS restore and integration | 10 | 30 |
+| EA | HR Guru ATS restore and integration | 14 | 47 |
 | E1 | Requirement agent | 8 | 28 |
 | E2 | Intelligent retrieval | 7 | 29 |
 | E3 | Multi-agent orchestration | 6 | 32 |
 | E4 | MCP and memory | 5 | 21 |
 | E5 | Responsible AI and LLMOps | 9 | 31 |
 | E6 | Interoperability, delivery and pilot | 7 | 27 |
-| **Total** | | **61** | **222** |
+| **Total** | | **65** | **239** |
 
 ## E0: Inception and platform
 
@@ -217,6 +217,49 @@ Acceptance criteria:
 - Given any remaining AWS artefact (EBS snapshot, RDS or pg_dump, S3 backup, recruiter Excel uploads), when found, then the missing records are imported with the runbook B1 procedure
 - Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded
 - Findings 2026-11-28: CV/JD files were only on the EC2 disk; no ATS zip backups found in Google Drive. Remaining source: AWS detached EBS volumes / snapshots / AMIs / AWS Backup in the old region; otherwise recruiters re-upload CVs for active candidates
+
+### TS-EA-11: ATS performance quick wins: PostgreSQL indexes and multi-process serving  (3 pts, Sprint 0, In progress, Jira TS-70)
+
+*As a recruiter I want the ATS to stay responsive while colleagues upload candidates so that my work is not blocked.*
+
+Traces to: NFR-ATS-1
+
+Acceptance criteria:
+- Given PostgreSQL mode, when the ATS starts, then the 24 query indexes exist (log: Performance indexes ensured: 24/24); duplicate-check lookups use an index (measured 12-26x faster on 10k candidates)
+- Given 4 concurrent CV parses, then /healthz average latency stays under 50 ms (measured: 129 ms with 1 process, 24 ms with 3 workers)
+- Given SQLite mode, then the image falls back to 1 worker (file lock)
+
+### TS-EA-12: Asynchronous bulk upload with progress  (8 pts, Sprint 1, To do, Jira TS-71)
+
+*As a recruiter I want my bulk upload accepted immediately and processed in the background so that I can keep working and see progress.*
+
+Traces to: NFR-ATS-2
+
+Acceptance criteria:
+- Given an upload of up to 100 rows with CVs, when submitted, then the request returns a job id in under 5 s and a worker processes it in a separate process
+- Given a running job, then the UI shows rows done / failed / duplicates and the final summary matches today's synchronous result
+- Given one bad row or CV, then other rows are still saved and the error is reported per row
+- Given the worker restarts mid-job, then the job resumes or is marked failed with no duplicate rows
+
+### TS-EA-13: ATS performance baseline and load test  (3 pts, Sprint 1, To do, Jira TS-72)
+
+*As a tech lead I want measured response times under realistic load so that performance targets are verified, not assumed.*
+
+Traces to: NFR-ATS-1
+
+Acceptance criteria:
+- Given the existing load-test scripts (apps/ats/scripts/*load_test*), when run against a staging copy with 25 simulated recruiters, then p50/p95 per key page and the bulk-upload duration are recorded
+- Given the results, then gaps against NFR-ATS-1 are listed with the top 3 slow endpoints
+
+### TS-EA-14: Restore scheduled WhatsApp/email reports on the Mac  (3 pts, Sprint 1, To do, Jira TS-73)
+
+*As a delivery lead I want the daily and weekly submission reports and recruiter reminders running again so that the team keeps its routine.*
+
+Traces to: n/a
+
+Acceptance criteria:
+- Given the old systemd timers (apps/ats/deploy/systemd), when ported to launchd or a compose scheduler, then each report runs at its old time against the local ATS
+- Given a report fails, then it is logged and does not affect the ATS
 
 ## E1: Requirement agent
 

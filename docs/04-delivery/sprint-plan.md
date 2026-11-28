@@ -4,8 +4,8 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Sprint | Dates | Goal | Points | Load |
 |---|---|---|---|---|
-| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups. | 38 | +12 over (stretch items flagged in planning) |
-| 1 | 2026-12-14 → 2026-12-24 | The live ATS is hardened and measured (baseline); TalentScout has auth, requirements, the PII-aware model router and a parser reuse decision. | 26 | OK |
+| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups. | 41 | +15 over (stretch items flagged in planning) |
+| 1 | 2026-12-14 → 2026-12-24 | The live ATS is hardened and measured (baseline); TalentScout has auth, requirements, the PII-aware model router and a parser reuse decision. | 40 | +14 over (stretch items flagged in planning) |
 | 2 | 2027-01-04 → 2027-01-15 | The Requirement agent analyses the UC-001 JD into validated structured output, and candidates, CVs and requirements sync read-only from the ATS. | 26 | OK |
 | 3 | 2027-01-18 → 2027-01-29 | Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists. | 26 | OK |
 | 4 | 2027-02-01 → 2027-02-12 | UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation. | 24 | OK |
@@ -28,6 +28,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-06 | ATS backups and restore drill | 3 | Done |
 | TS-EA-09 | ATS health monitoring | 2 | Done |
 | TS-EA-10 | Close the post-May 2026 data gap and the missing CV/JD files | 2 | To do |
+| TS-EA-11 | ATS performance quick wins: PostgreSQL indexes and multi-process serving | 3 | In progress |
 | TS-E0-01 | Monorepo structure and tooling | 2 | Done |
 | TS-E0-02 | CI pipeline: lint, test, build | 3 | In progress |
 | TS-E0-03 | Security scanning pipeline | 3 | In progress |
@@ -44,6 +45,9 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | Story | Title | Points | Status |
 |---|---|---|---|
 | TS-EA-07 | ATS security hardening baseline | 5 | To do |
+| TS-EA-12 | Asynchronous bulk upload with progress | 8 | To do |
+| TS-EA-13 | ATS performance baseline and load test | 3 | To do |
+| TS-EA-14 | Restore scheduled WhatsApp/email reports on the Mac | 3 | To do |
 | TS-E0-06 | Spike: local model selection on M2 16 GB | 3 | To do |
 | TS-E0-08 | Baseline measurement plan | 3 | To do |
 | TS-E1-01 | Requirement CRUD API and UI | 5 | To do |

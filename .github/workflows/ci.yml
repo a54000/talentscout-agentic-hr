@@ -103,6 +103,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://hrguru:ci-only-password@127.0.0.1:5432/hrguru_ats
         run: tests/smoke_test.sh "$(command -v python)"
+      - name: Smoke test (PostgreSQL, gunicorn multi-process as in the Docker image)
+        env:
+          DATABASE_URL: postgresql://hrguru:ci-only-password@127.0.0.1:5432/hrguru_ats
+          ATS_SMOKE_SERVER: gunicorn
+        run: tests/smoke_test.sh "$(command -v python)"
 
   docs:
     name: backlog docs are in sync
