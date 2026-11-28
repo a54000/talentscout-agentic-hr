@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 ATS = Path(__file__).resolve().parents[1]
-GATED = {"run_candidate_ai_screening",
+GATED = {"run_candidate_ai_screening", "parse_huggingface",
          "maybe_generate_gemini_screening_report", "call_resume_analysis_llm"}
 
 
