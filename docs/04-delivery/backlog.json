@@ -231,7 +231,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 5,
-      "status": "todo",
+      "status": "in_progress",
       "owner": "Claude",
       "fr": [
         "NFR-1",
@@ -449,7 +449,7 @@
         "Given a critical vulnerability in an image, when Trivy scans it, then the image is not pushed",
         "Given demo secrets are absent, when CD runs, then deploy is skipped with a notice instead of failing"
       ],
-      "status": "in_progress",
+      "status": "done",
       "owner": "Claude",
       "jira": "TS-21"
     },

@@ -33,7 +33,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E0-01 | Monorepo structure and tooling | 2 | Done |
 | TS-E0-02 | CI pipeline: lint, test, build | 3 | Done |
 | TS-E0-03 | Security scanning pipeline | 3 | Done |
-| TS-E0-04 | CD pipeline to GHCR and demo host | 3 | In progress |
+| TS-E0-04 | CD pipeline to GHCR and demo host | 3 | Done |
 | TS-E0-05 | Docker Compose local stack | 2 | In progress |
 | TS-E0-07 | Free-tier accounts and secrets handling | 2 | To do |
 | TS-E0-09 | Agile artefacts in Jira | 3 | Done |
@@ -45,7 +45,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Story | Title | Points | Status |
 |---|---|---|---|
-| TS-EA-07 | ATS security hardening baseline | 5 | To do |
+| TS-EA-07 | ATS security hardening baseline | 5 | In progress |
 | TS-EA-12 | Asynchronous bulk upload with progress | 8 | To do |
 | TS-EA-13 | ATS performance baseline and load test | 3 | To do |
 | TS-EA-14 | Restore scheduled WhatsApp/email reports on the Mac | 3 | To do |
