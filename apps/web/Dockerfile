@@ -9,6 +9,9 @@ COPY apps/web apps/web
 RUN npm run build -w @talentscout/web
 
 FROM nginxinc/nginx-unprivileged:stable-alpine AS runtime
+# Pull OS security fixes released after the base image was built (Trivy gate blocks CRITICAL).
+USER root
+RUN apk upgrade --no-cache
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
 USER 101

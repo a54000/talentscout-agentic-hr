@@ -410,7 +410,7 @@
         "Given a PR, when CI runs, then Node and Python lint, unit tests and builds run and report status",
         "Given a failing test, when CI runs, then the PR check is red and merge is blocked"
       ],
-      "status": "in_progress",
+      "status": "done",
       "owner": "Claude",
       "jira": "TS-19"
     },
@@ -430,7 +430,7 @@
         "Given a committed fake secret, when gitleaks runs, then the job fails",
         "Given a high-severity dependency vulnerability, when audit runs, then the job fails"
       ],
-      "status": "in_progress",
+      "status": "done",
       "owner": "Claude",
       "jira": "TS-20"
     },
