@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 12 | 2 | 0 | 50 | 1 | 65 |
+| 12 | 2 | 0 | 68 | 1 | 83 |
 
 ## Your actions (outside the backlog)
 
@@ -66,45 +66,69 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [ ] **TS-E2-02 Chunking, masking and embedding pipeline**: Resumes chunked, masked and embedded locally, so that semantic search is possible safely. _(5 pts, owner: Claude, Jira TS-37)_
 - [ ] **TS-E2-03 Atlas vector and text indexes**: Vector and text indexes defined as code, so that environments are reproducible. _(2 pts, owner: Claude, Jira TS-38)_
 
-## Sprint 4 - RAG and intelligent retrieval (2027-02-01 → 2027-02-12)
+## Sprint 4 - Submission quality audit (UC-002) (2027-02-01 → 2027-02-12)
 
-- [ ] **TS-E2-04 Hybrid search with RRF and filters**: Meaning-based and keyword search combined, so that I find relevant people who use different words. _(5 pts, owner: Claude, Jira TS-39)_
-- [ ] **TS-E2-05 Sourcing agent with tool calling**: An agent to formulate searches from the requirement, so that I do not write boolean strings. _(5 pts, owner: Claude, Jira TS-40)_
-- [ ] **TS-E2-06 Retrieval evaluation: hybrid vs keyword**: Recall@10 and nDCG@10 measured, so that the hybrid design is justified with data. _(4 pts, owner: Claude, Jira TS-41)_
 - [ ] **TS-E3-01 LangGraph supervisor graph and state**: One goal to trigger a coordinated team of agents, so that I do not orchestrate steps myself. _(5 pts, owner: Claude, Jira TS-42)_
-
-## Sprint 5 - Multi-agent orchestration (UC-001 end to end) (2027-02-15 → 2027-02-26)
-
-- [ ] **TS-E3-02 Bottleneck diagnosis, replanning and escalation (UC-001)**: The system to recognise why the objective was not met and change strategy, without breaking my hiring constraints, and to tell me when it cannot succeed. _(8 pts, owner: Claude, Jira TS-43)_
 - [ ] **TS-E3-03 Evidence-based matching per mandatory skill**: Each requirement judged with quotes from the resume, so that I can trust the score. _(5 pts, owner: Claude, Jira TS-44)_
+- [ ] **TS-E7-01 Detail-accuracy check: recruiter entries vs CV**: What the recruiter typed compared with the CV, so that wrong experience, company, role, location or skills are caught before the client sees them. _(5 pts, owner: Claude)_
+- [ ] **TS-E7-02 Constraint fit, completeness and quality score**: Each submission scored 0-100 with every deduction explained, so that I can prioritise reviews. _(3 pts, owner: Claude)_
+- [ ] **TS-E7-03 Duplicate detection across recruiters**: The same candidate submitted by different recruiters linked, so that duplicates are not counted twice or sent twice to a client. _(3 pts, owner: Claude)_
+- [ ] **TS-E7-04 Audit records and automatic audit on sync**: Every new or changed submission audited automatically, so that nothing slips through. _(3 pts, owner: Claude)_
+- [ ] **TS-E7-05 Lead review queue and recruiter scorecard**: A queue of flagged submissions and a scorecard per recruiter, so that I can coach recruiters with evidence. _(5 pts, owner: Claude)_
+
+## Sprint 5 - Audit quality and verification groundwork (2027-02-15 → 2027-02-26)
+
 - [ ] **TS-E3-04 Quality agent evidence verification**: Unsupported claims caught before recruiters see them, so that clients get accurate submissions. _(5 pts, owner: Claude, Jira TS-45)_
-- [ ] **TS-E3-06 Human approval gate for shortlist and escalation**: To approve or reject each shortlisted candidate with a reason, so that I remain accountable. _(6 pts, owner: Claude, Jira TS-47)_
-
-## Sprint 6 - MCP, memory and durable execution (2027-03-01 → 2027-03-12)
-
 - [ ] **TS-E3-05 Live run view over SSE (dashboard part 1)**: To watch the agents plan, act and replan, so that I understand what they are doing. _(3 pts, owner: Claude, Jira TS-46)_
+- [ ] **TS-E3-06 Human approval gate for shortlist and escalation**: To approve or reject each shortlisted candidate with a reason, so that I remain accountable. _(6 pts, owner: Claude, Jira TS-47)_
+- [ ] **TS-E5-02 PII masking and local-only routing enforcement**: PII masked and kept local, so that we comply with DPDP and provider terms. _(3 pts, owner: Claude, Jira TS-54)_
+- [ ] **TS-E7-06 Golden audit dataset and precision evaluation**: Audit precision measured on labelled submissions, so that flag quality is known before leads rely on it. _(3 pts, owner: Claude)_
+- [ ] **TS-E8-01 Harden the WhatsApp relay and add inbound messages**: The ATS WhatsApp relay secured and able to report replies, so that verification can use it safely. _(5 pts, owner: Claude)_
+- [ ] **TS-E8-02 Opt-out and contact-consent registry**: STOP to end all messages, so that I am not contacted again. _(3 pts, owner: Claude)_
+
+## Sprint 6 - MCP, memory, durable execution and approval controls (2027-03-01 → 2027-03-12)
+
 - [ ] **TS-E4-01 MCP server with recruitment tools**: Recruitment capabilities exposed as MCP tools, so that any compliant agent can use them through one contract. _(5 pts, owner: Claude, Jira TS-48)_
 - [ ] **TS-E4-02 Agents consume tools via MCP client**: Agents to discover tools at runtime, so that adding a tool needs no agent code change. _(3 pts, owner: Claude, Jira TS-49)_
 - [ ] **TS-E4-03 Per-agent tool scopes**: Each agent limited to its tools, so that a compromised agent cannot act beyond its role. _(3 pts, owner: Claude, Jira TS-50)_
 - [ ] **TS-E4-04 Durable execution with MongoDB checkpointer**: An interrupted run to continue where it stopped, so that work and quota are not wasted. _(5 pts, owner: Claude, Jira TS-51)_
 - [ ] **TS-E4-05 Long-term feedback memory**: My rejection reasons remembered, so that future searches avoid the same mistakes. _(5 pts, owner: Claude, Jira TS-52)_
-
-## Sprint 7 - Responsible AI and LLMOps (2027-03-15 → 2027-03-26)
-
-- [ ] **TS-E5-01 Prompt-injection defence for untrusted content**: Resumes and JDs treated as data, so that embedded instructions cannot steer agents. _(5 pts, owner: Claude, Jira TS-53)_
-- [ ] **TS-E5-02 PII masking and local-only routing enforcement**: PII masked and kept local, so that we comply with DPDP and provider terms. _(3 pts, owner: Claude, Jira TS-54)_
-- [ ] **TS-E5-03 Langfuse tracing and prompt versioning**: Traces and prompt versions, so that I can debug and compare agent behaviour. _(3 pts, owner: Claude, Jira TS-55)_
 - [ ] **TS-E5-04 Loop, time and token limits**: Hard limits, so that runaway agents cannot burn quota or time. _(3 pts, owner: Claude, Jira TS-56)_
 - [ ] **TS-E5-05 Approval-token gate on side-effecting tools**: Side-effecting tools to be impossible to run without approval, so that there are zero unauthorised actions. _(3 pts, owner: Claude, Jira TS-57)_
 - [ ] **TS-E5-06 Step-up re-authentication for approvals**: Recent authentication before approvals, so that a stolen session cannot approve a shortlist or constraint relaxation. _(3 pts, owner: Claude, Jira TS-58)_
-- [ ] **TS-E5-07 Tamper-evident audit trail**: To detect altered audit events, so that the trail can be trusted. _(3 pts, owner: Claude, Jira TS-59)_
-- [ ] **TS-E5-08 Evaluation gate in CI**: Evals to run on agent changes, so that quality regressions block merges. _(5 pts, owner: Claude, Jira TS-60)_
 
-## Sprint 8 - Routing, dashboard, performance and pilot (2027-03-29 → 2027-04-09)
+## Sprint 7 - Candidate verification (UC-003) (2027-03-15 → 2027-03-26)
 
 - [ ] **TS-E5-10 DPDP compliance pack**: Consent, retention and erasure implemented, so that the pilot can use real data lawfully. _(3 pts, owner: Claude, Jira TS-61)_
+- [ ] **TS-E8-03 Verification batches, templates and drafting**: The agent to draft verification messages for a sample I choose, so that I can review them before anything is sent. _(5 pts, owner: Claude)_
+- [ ] **TS-E8-04 message.send tool with approval token, rate limits and email fallback**: Sending to be impossible without an approval token, so that no candidate is contacted without a named approver. _(5 pts, owner: Claude)_
+- [ ] **TS-E8-05 Reply capture from WhatsApp and email**: Candidate replies collected automatically, so that I do not chase them by hand. _(3 pts, owner: Claude)_
+- [ ] **TS-E8-06 Local reply classification and outcome comparison**: Each reply turned into an outcome compared with what the recruiter entered, so that false or wrong submissions stand out. _(5 pts, owner: Claude)_
+- [ ] **TS-E8-07 Follow-up replanning, escalation and results view**: Unanswered candidates followed up once and possible false submissions escalated with evidence, so that I can decide fairly. _(5 pts, owner: Claude)_
+- [ ] **TS-E8-08 Verification evaluation set**: Synthetic replies with known outcomes, so that classification accuracy is measured. _(3 pts, owner: Claude)_
+
+## Sprint 8 - Pool retrieval, replanning and AI safety (2027-03-29 → 2027-04-09)
+
+- [ ] **TS-E2-04 Hybrid search with RRF and filters**: Meaning-based and keyword search combined, so that I find relevant people who use different words. _(5 pts, owner: Claude, Jira TS-39)_
+- [ ] **TS-E2-05 Sourcing agent with tool calling**: An agent to formulate searches from the requirement, so that I do not write boolean strings. _(5 pts, owner: Claude, Jira TS-40)_
+- [ ] **TS-E2-06 Retrieval evaluation: hybrid vs keyword**: Recall@10 and nDCG@10 measured, so that the hybrid design is justified with data. _(4 pts, owner: Claude, Jira TS-41)_
+- [ ] **TS-E3-02 Bottleneck diagnosis, replanning and escalation (UC-001)**: The system to recognise why the objective was not met and change strategy, without breaking my hiring constraints, and to tell me when it cannot succeed. _(8 pts, owner: Claude, Jira TS-43)_
+- [ ] **TS-E5-01 Prompt-injection defence for untrusted content**: Resumes and JDs treated as data, so that embedded instructions cannot steer agents. _(5 pts, owner: Claude, Jira TS-53)_
+- [ ] **TS-E5-03 Langfuse tracing and prompt versioning**: Traces and prompt versions, so that I can debug and compare agent behaviour. _(3 pts, owner: Claude, Jira TS-55)_
+
+## Sprint 9 - Client pitches and drives (UC-004) and LLMOps (2027-04-12 → 2027-04-23)
+
+- [ ] **TS-E5-07 Tamper-evident audit trail**: To detect altered audit events, so that the trail can be trusted. _(3 pts, owner: Claude, Jira TS-59)_
+- [ ] **TS-E5-08 Evaluation gate in CI**: Evals to run on agent changes, so that quality regressions block merges. _(5 pts, owner: Claude, Jira TS-60)_
 - [ ] **TS-E6-01 LiteLLM gateway with multi-provider fallback**: Routing across free providers with fallback, so that rate limits do not stop work. _(5 pts, owner: Claude, Jira TS-62)_
 - [ ] **TS-E6-02 Parallel screening fan-out**: Candidates screened in parallel, so that shortlists arrive faster. _(3 pts, owner: Claude, Jira TS-63)_
+- [ ] **TS-E9-01 Pitch brief and trust-ranked pool search**: To describe a pitch and get the best matches from our pool, so that we pitch candidates we can actually deliver. _(3 pts, owner: Claude)_
+- [ ] **TS-E9-02 Anonymised pitch pack export**: An anonymised pitch pack, so that I can share our talent with a client without exposing candidates. _(5 pts, owner: Claude)_
+- [ ] **TS-E9-03 Hiring-drive pool summary**: Counts by skill, experience band, location and notice, so that I can promise realistic numbers. _(3 pts, owner: Claude)_
+- [ ] **TS-E9-04 Anonymisation leak test**: Every pitch export scanned for identifiers, so that no candidate is exposed by mistake. _(2 pts, owner: Claude)_
+
+## Sprint 10 - Dashboard, performance and pilot (2027-04-26 → 2027-05-07)
+
 - [ ] **TS-E6-03 Agent execution dashboard (dashboard part 2)**: Run history and KPIs in one place, so that I can see whether the agents are working and what they cost. _(5 pts, owner: Claude, Jira TS-64)_
 - [ ] **TS-E6-04 A2A Talent Intelligence agent (stretch)**: An independently deployed agent reachable over A2A, so that we prove interoperability. _(5 pts, owner: Claude, Jira TS-65)_
 - [ ] **TS-E6-05 Demo deployment**: A running demo on synthetic data, so that I can show the system live. _(3 pts, owner: Claude, Jira TS-66)_
