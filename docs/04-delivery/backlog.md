@@ -156,7 +156,7 @@ Acceptance criteria:
 - Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)
 - Result 2026-11-27: restored 9,988 candidates, 1,685 requirements, 41 team members, 5 app users from ats.db (sha256 0eb4a831...). Newest records 2026-05-26; data entered on the AWS PostgreSQL after that date is not in this file (gap tracked as R-13 and TS-EA-10)
 
-### TS-EA-05: Expose the local ATS to 25 recruiters securely  (3 pts, Sprint 0, To do, Jira TS-13)
+### TS-EA-05: Expose the local ATS to 25 recruiters securely  (3 pts, Sprint 0, In progress, Jira TS-13)
 
 *As a recruiter I want to reach the ATS from my own laptop so that I can work as before.*
 
