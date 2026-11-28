@@ -10,12 +10,24 @@
 | `llama3.1:8b` | ~5 GB | Widely used baseline |
 | `gemma3:4b` (or similar 3–4B) | ~3 GB | Fallback if RAM is tight |
 
-**Method:**
-1. Close Docker. Run each model on the same 5 synthetic JDs with the draft extraction prompt.
-2. Record: valid JSON rate, must-have recall against a hand-labelled answer, tokens/sec (`ollama run --verbose`), and peak memory (Activity Monitor).
-3. Repeat the best model with Docker running (mongo + redis + api) to check RAM headroom.
+**Method** (automated by [`scripts/model_spike/model_spike.py`](../../../scripts/model_spike/model_spike.py), using the 5 labelled synthetic JDs in [`jds.json`](../../../scripts/model_spike/jds.json)):
 
-**Results:** _to be filled in during Sprint 0_
+1. Install [Ollama](https://ollama.com) on the Mac and start it. **Quit Docker Desktop.** Then run the script, which downloads each model the first time (about 3–5 GB each):
+
+```bash
+python3 scripts/model_spike/model_spike.py --runs 2 --label "Docker stopped" --report docs/04-delivery/spikes/TS-E0-06-results.md
+```
+
+2. The script records, per model: valid JSON rate, must-have recall and precision against the labels, experience and location accuracy, tokens/sec, seconds per JD, and the model's memory. Also watch **Memory Pressure** in Activity Monitor: it should stay green.
+3. Start Docker with the live ATS (`docker compose up -d ats ats-worker ats-db`) and run the best model again, to check there's enough RAM next to the ATS:
+
+```bash
+python3 scripts/model_spike/model_spike.py --models <best model> --label "Docker running" --report docs/04-delivery/spikes/TS-E0-06-results.md
+```
+
+**Decision rule:** take the model with the highest must-have recall among those with ≥ 95% valid JSON that keep Memory Pressure green with Docker running. On a tie, take the faster one. If none reaches 80% recall, try `qwen3:14b` only if RAM allows; otherwise keep the deterministic parser and revisit.
+
+**Results:** _paste the tables from `TS-E0-06-results.md` here after the run_
 
 | Model | Valid JSON | Recall | Tokens/sec | Peak RAM | Notes |
 |---|---|---|---|---|---|
