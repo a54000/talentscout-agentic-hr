@@ -1,0 +1,2 @@
+sample_no,ats_candidate_id,recruiter_code,channel (call/whatsapp/email),contacted_for_this_role (yes/no/different_role/no_answer),interested (yes/no/maybe),details_correct (yes/no),what_was_wrong,minutes_spent
+1,12345,R1,call,yes,maybe,no,notice is 60 not 30,4

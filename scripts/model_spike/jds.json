@@ -1,0 +1,22 @@
+[
+  {"id": "JD-1", "title": "AWS Cloud Architect",
+   "text": "Investment bank (fictional) is hiring an AWS Cloud Architect in Gurgaon. Experience: 12-18 years. Budget up to 45 LPA, notice period 30 days maximum. Mandatory: AWS, Terraform, Kubernetes, networking, security, cloud migration and disaster recovery. Nice to have: Azure, Python scripting, AWS certifications. You will design landing zones, lead migrations of core banking workloads and define DR runbooks.",
+   "must": ["AWS", "Terraform", "Kubernetes", "Networking", "Security", "Cloud Migration", "Disaster Recovery"],
+   "experience": [12, 18], "location": "Gurgaon"},
+  {"id": "JD-2", "title": "Senior Java Backend Developer",
+   "text": "Senior Java Backend Developer, Pune (hybrid). 5 to 8 years of experience. Must have: Java 17, Spring Boot, microservices, REST APIs, PostgreSQL and Kafka. Good to have: Docker, AWS, Redis. Build payment services handling high volumes; own code reviews and production support. Immediate joiners preferred, notice up to 60 days.",
+   "must": ["Java", "Spring Boot", "Microservices", "REST", "PostgreSQL", "Kafka"],
+   "experience": [5, 8], "location": "Pune"},
+  {"id": "JD-3", "title": "Data Engineer",
+   "text": "We need a Data Engineer in Bengaluru with 4-7 years experience. Required skills: Python, SQL, Apache Spark, Airflow, and a cloud data warehouse (Snowflake or BigQuery). Desirable: dbt, Kafka, Terraform. You will build batch and streaming pipelines and data quality checks for the analytics team.",
+   "must": ["Python", "SQL", "Spark", "Airflow", "Snowflake"],
+   "experience": [4, 7], "location": "Bengaluru"},
+  {"id": "JD-4", "title": "Salesforce Developer",
+   "text": "Salesforce Developer - Hyderabad. 3-6 yrs. Must: Apex, Lightning Web Components (LWC), SOQL, Salesforce integrations (REST/SOAP) and Sales Cloud. Plus: Service Cloud, Platform Developer I certification. Work with business analysts to deliver CRM features in two-week sprints.",
+   "must": ["Apex", "LWC", "SOQL", "Integration", "Sales Cloud"],
+   "experience": [3, 6], "location": "Hyderabad"},
+  {"id": "JD-5", "title": "SAP FICO Consultant",
+   "text": "SAP FICO Consultant for a manufacturing client in Noida. 8-12 years of SAP FI/CO experience with at least two end-to-end S/4HANA implementations. Mandatory: SAP FI, SAP CO, S/4HANA, General Ledger, Asset Accounting and integration with SD/MM. Nice: SAP Activate, client-facing workshops. Travel 20%.",
+   "must": ["SAP FI", "SAP CO", "S/4HANA", "General Ledger", "Asset Accounting"],
+   "experience": [8, 12], "location": "Noida"}
+]

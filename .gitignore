@@ -14,3 +14,5 @@ __pycache__/
 data/real/
 *.real.json
 ops/backup/backup.env
+# Filled-in baseline sheets stay on the Mac (they reference real submissions)
+docs/00-discovery/baseline/*.filled.csv

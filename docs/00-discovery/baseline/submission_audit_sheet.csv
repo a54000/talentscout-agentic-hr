@@ -1,0 +1,2 @@
+sample_no,ats_candidate_id,recruiter_code,must_haves_met (all/some/none),experience_matches_cv (yes/no/not_in_cv),ctc_notice_match_cv (yes/no/unknown),duplicate (yes/no),would_send_to_client (yes/no),minutes_spent,notes
+1,12345,R1,some,no,unknown,no,no,6,example row - delete
