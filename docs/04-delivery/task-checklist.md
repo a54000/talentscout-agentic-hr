@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 15 | 2 | 0 | 69 | 1 | 87 |
+| 15 | 6 | 0 | 65 | 1 | 87 |
 
 ## Your actions (outside the backlog)
 
@@ -43,10 +43,10 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-07 ATS security hardening baseline**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
 - [ ] **TS-EA-12 Asynchronous bulk upload with progress** **[In progress]**: My bulk upload accepted immediately and processed in the background, so that I can keep working and see progress. _(8 pts, owner: Claude, Jira TS-71)_
 - [x] **TS-EA-13 ATS performance baseline and load test**: Measured response times under realistic load, so that performance targets are verified, not assumed. _(3 pts, owner: Claude, Jira TS-72)_
-- [ ] **TS-EA-14 Restore scheduled WhatsApp/email reports on the Mac**: The daily and weekly submission reports and recruiter reminders running again, so that the team keeps its routine. _(3 pts, owner: Claude + You, Jira TS-73)_
-- [ ] **TS-EA-15 Delete the retired AI screening code from the ATS**: The retired AI screening and JD/CV matching code deleted from the ATS, so that dead code, the Gemini dependency and its keys are gone. _(3 pts, owner: Claude, Jira TS-95)_
-- [ ] **TS-E0-06 Spike: local model selection on M2 16 GB**: To measure candidate local models, so that the PII-safe route is good enough and fast enough. _(3 pts, owner: You, Jira TS-23)_
-- [ ] **TS-E0-08 Baseline measurement plan**: A baseline of recruiter effort, so that pilot results can be compared honestly. _(3 pts, owner: You, Jira TS-25)_
+- [ ] **TS-EA-14 Restore scheduled WhatsApp/email reports on the Mac** **[In progress]**: The daily and weekly submission reports and recruiter reminders running again, so that the team keeps its routine. _(3 pts, owner: Claude + You, Jira TS-73)_
+- [ ] **TS-EA-15 Delete the retired AI screening code from the ATS** **[In progress]**: The retired AI screening and JD/CV matching code deleted from the ATS, so that dead code, the Gemini dependency and its keys are gone. _(3 pts, owner: Claude, Jira TS-95)_
+- [ ] **TS-E0-06 Spike: local model selection on M2 16 GB** **[In progress]**: To measure candidate local models, so that the PII-safe route is good enough and fast enough. _(3 pts, owner: You, Jira TS-23)_
+- [ ] **TS-E0-08 Baseline measurement plan** **[In progress]**: A baseline of recruiter effort, so that pilot results can be compared honestly. _(3 pts, owner: You, Jira TS-25)_
 
 ## Sprint 2 - Product foundation and ATS connector (2027-01-04 → 2027-01-15)
 

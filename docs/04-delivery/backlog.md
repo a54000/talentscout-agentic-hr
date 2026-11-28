@@ -73,7 +73,7 @@ Acceptance criteria:
 - Given Docker is running, when I run docker compose up, then web, api, agents, mongo and redis start and health checks pass
 - Given Ollama runs natively, when the agents service starts, then it reaches Ollama via host.docker.internal
 
-### TS-E0-06: Spike: local model selection on M2 16 GB  (3 pts, Sprint 1, To do, Jira TS-23)
+### TS-E0-06: Spike: local model selection on M2 16 GB  (3 pts, Sprint 1, In progress, Jira TS-23)
 
 *As an architect I want to measure candidate local models so that the PII-safe route is good enough and fast enough.*
 
@@ -93,7 +93,7 @@ Acceptance criteria:
 - Given the setup guide, when followed, then Atlas, Langfuse and one free LLM key are configured in a local .env that git ignores
 - Given .env.example, when compared with code, then every required variable is documented
 
-### TS-E0-08: Baseline measurement plan  (3 pts, Sprint 1, To do, Jira TS-25)
+### TS-E0-08: Baseline measurement plan  (3 pts, Sprint 1, In progress, Jira TS-25)
 
 *As a product owner I want a baseline of recruiter effort so that pilot results can be compared honestly.*
 
@@ -256,7 +256,7 @@ Acceptance criteria:
 - Given the existing load-test scripts (apps/ats/scripts/*load_test*), when run against a staging copy with 25 simulated recruiters, then p50/p95 per key page and the bulk-upload duration are recorded
 - Given the results, then gaps against NFR-ATS-1 are listed with the top 3 slow endpoints
 
-### TS-EA-14: Restore scheduled WhatsApp/email reports on the Mac  (3 pts, Sprint 1, To do, Jira TS-73)
+### TS-EA-14: Restore scheduled WhatsApp/email reports on the Mac  (3 pts, Sprint 1, In progress, Jira TS-73)
 
 *As a delivery lead I want the daily and weekly submission reports and recruiter reminders running again so that the team keeps its routine.*
 
@@ -266,7 +266,7 @@ Acceptance criteria:
 - Given the old systemd timers (apps/ats/deploy/systemd), when ported to launchd or a compose scheduler, then each report runs at its old time against the local ATS
 - Given a report fails, then it is logged and does not affect the ATS
 
-### TS-EA-15: Delete the retired AI screening code from the ATS  (3 pts, Sprint 1, To do, Jira TS-95)
+### TS-EA-15: Delete the retired AI screening code from the ATS  (3 pts, Sprint 1, In progress, Jira TS-95)
 
 *As a tech lead I want the retired AI screening and JD/CV matching code deleted from the ATS so that dead code, the Gemini dependency and its keys are gone.*
 
