@@ -1,5 +1,5 @@
 # Build context: repository root (npm workspaces).
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /repo
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY apps/api/package.json apps/api/
@@ -8,7 +8,7 @@ RUN npm ci -w @talentscout/api --include-workspace-root --no-audit --no-fund
 COPY apps/api apps/api
 RUN npm run build -w @talentscout/api
 
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 COPY package.json package-lock.json ./
