@@ -6,7 +6,7 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const PORT = process.env.PORT || 8090;
 const HOST = process.env.RELAY_HOST || "127.0.0.1";
 const TOKEN = process.env.WHATSAPP_RELAY_TOKEN || "";
-const AUTH_PATH = process.env.WWEBJS_AUTH_PATH || "/opt/hrguru-whatsapp-relay/.wwebjs_auth";
+const AUTH_PATH = process.env.WWEBJS_SESSION_DIR || "/opt/hrguru-whatsapp-relay/.wwebjs_auth";
 
 // Reachable beyond localhost (e.g. inside Docker) only with a token (TS-EA-14; full hardening in TS-E8-01).
 if (HOST !== "127.0.0.1" && !TOKEN) {

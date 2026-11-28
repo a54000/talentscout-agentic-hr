@@ -6,7 +6,7 @@ RUN apt-get update \
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     RELAY_HOST=0.0.0.0 \
-    WWEBJS_AUTH_PATH=/data/wwebjs_auth \
+    WWEBJS_SESSION_DIR=/data/wwebjs_session \
     NODE_ENV=production
 WORKDIR /app
 COPY package.json ./
