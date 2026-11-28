@@ -4025,16 +4025,21 @@ def parse_xlsx(file_bytes, role_override=""):
             rows.append(row)
     return rows, None
 
+GOOGLE_SHEET_ID_RE = re.compile(r"[A-Za-z0-9_-]{20,128}")
+GOOGLE_SHEET_URL_RE = re.compile(r"(?:https?://)?docs\.google\.com/spreadsheets/(?:u/\d+/)?d/([A-Za-z0-9_-]{20,128})(?:[/?#].*)?")
+
 def extract_google_sheet_id(url):
+    """Return the sheet ID only for a bare ID or a docs.google.com sheet URL."""
     value = (url or "").strip()
-    if re.fullmatch(r"[A-Za-z0-9_-]{20,}", value):
+    if GOOGLE_SHEET_ID_RE.fullmatch(value):
         return value
-    match = re.search(r"/spreadsheets/d/([A-Za-z0-9_-]+)", value)
+    match = GOOGLE_SHEET_URL_RE.fullmatch(value)
     return match.group(1) if match else ""
 
 def download_google_sheet_xlsx(sheet_url):
     sheet_id = extract_google_sheet_id(sheet_url)
-    if not sheet_id:
+    # Re-check right before building the URL so only a plain ID reaches the fixed Google host.
+    if not sheet_id or not GOOGLE_SHEET_ID_RE.fullmatch(sheet_id):
         return None, "Please enter a valid Google Sheet URL."
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx"
     def _is_xlsx_response(resp):
