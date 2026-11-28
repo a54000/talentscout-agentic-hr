@@ -12269,6 +12269,9 @@ def trigger_candidate_ai_screening(cid):
         return jsonify({"error": "AI screening already completed for this candidate. Normal users cannot re-run it."}), 403
     if not session.get("is_admin") and str(row_data.get("ai_screening_status") or "").lower() == "scored":
         return jsonify({"error": "AI screening already completed for this candidate. Normal users cannot re-run it."}), 403
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        print(f"AI SCREENING: skipped for candidate_id={cid} ({CLOUD_AI_DISABLED_MESSAGE})", flush=True)
+        return jsonify({"ok": False, "status": "disabled", "error": CLOUD_AI_DISABLED_MESSAGE, "message": CLOUD_AI_DISABLED_MESSAGE}), 409
     queued = queue_candidate_ai_screening(cid, trigger="manual_trigger")
     return jsonify({
         "ok": True,

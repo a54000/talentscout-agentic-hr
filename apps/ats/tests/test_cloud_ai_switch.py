@@ -31,3 +31,12 @@ def test_resume_extraction_stays_local_by_default(monkeypatch):
 
     monkeypatch.setattr(pipeline, "_gemini_extract", fail)
     assert pipeline.llm_extract("resume", "Ravi Kumar, 9876543210, AWS architect") == {}
+
+
+def test_manual_screening_button_reports_switched_off():
+    src = (ATS / "app.py").read_text(encoding="utf-8-sig")
+    tree = ast.parse(src)
+    fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "trigger_candidate_ai_screening")
+    body = ast.get_source_segment(src, fn)
+    assert body.index("if not CLOUD_AI_FOR_CANDIDATE_DATA") < body.index("queue_candidate_ai_screening(")
+    assert "CLOUD_AI_DISABLED_MESSAGE" in body
