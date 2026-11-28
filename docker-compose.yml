@@ -38,8 +38,24 @@ services:
         required: false
     environment:
       DATABASE_URL: postgresql://hrguru:${ATS_DB_PASSWORD}@ats-db:5432/hrguru_ats
+      ATS_UPLOAD_WORKER: external   # bulk uploads are processed by ats-worker (TS-EA-12)
     volumes: [ats-uploads:/app/uploads]
     ports: ["5001:5001"]
+    depends_on:
+      ats-db: { condition: service_healthy }
+    restart: unless-stopped
+
+  # Processes bulk uploads in the background so CV parsing never slows the web server.
+  ats-worker:
+    build: ./apps/ats
+    command: ["python", "upload_worker.py"]
+    env_file:
+      - path: apps/ats/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://hrguru:${ATS_DB_PASSWORD}@ats-db:5432/hrguru_ats
+      ATS_UPLOAD_WORKER: external
+    volumes: [ats-uploads:/app/uploads]
     depends_on:
       ats-db: { condition: service_healthy }
     restart: unless-stopped

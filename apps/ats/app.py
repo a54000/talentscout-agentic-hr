@@ -1,4 +1,4 @@
-﻿import os, re, hashlib, csv, io, sqlite3, json, smtplib, secrets, zipfile, traceback, difflib, tempfile, warnings, html, mimetypes, time, atexit, threading
+﻿import os, re, hashlib, shutil, csv, io, sqlite3, json, smtplib, secrets, zipfile, traceback, difflib, tempfile, warnings, html, mimetypes, time, atexit, threading
 import queue
 import subprocess
 import xml.etree.ElementTree as ET
@@ -612,6 +612,10 @@ class PgCursorAdapter:
     def __init__(self, cursor):
         self.cursor = cursor
         self.lastrowid = None
+
+    @property
+    def rowcount(self):
+        return self.cursor.rowcount
 
     def fetchone(self):
         return self.cursor.fetchone()
@@ -4340,14 +4344,14 @@ def hrguru_cv_filename(original_name, upload_folder=None):
         counter += 1
     return candidate
 
-def upload_cv(file_storage, batch_id):
+def upload_cv(file_storage, batch_id, owner_key=None):
     fname = secure_filename(file_storage.filename)
     ext = os.path.splitext(fname)[1].lower()
 
     if ext not in (".pdf", ".doc", ".docx"):
         return fname, None, None, None
 
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "candidates", "bulk", _safe_path_part(batch_id))
+    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", owner_key or current_upload_owner_key(), "candidates", "bulk", _safe_path_part(batch_id))
     os.makedirs(upload_folder, exist_ok=True)
 
     saved_name = f"{batch_id}_{fname}"
@@ -4450,6 +4454,9 @@ def unmatched_cvs(cv_files, matched_ids):
 
 def parse_huggingface(text, api_key=""):
     """Use HuggingFace Inference API for NER-based CV parsing"""
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        # R-11 / BR-4: CV text (name, email, phone) must not go to a cloud AI service.
+        return {"_hf_limited": True, "_hf_error": "Cloud AI is off for candidate data."}
     HF_API_URL = "https://api-inference.huggingface.co/models/dslim/bert-base-NER"
     
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
@@ -6583,9 +6590,9 @@ def suggest_requirement_matches(raw_title, raw_client, requirement_lookup, limit
         out.append({"id": row_value(req, "id"), "requisition_id": requisition_id, "title": row_value(req, "title"), "client_name": row_value(req, "client_name"), "match_score": round(score, 3), "label": label})
     return out
 
-def save_bulk_jd_files(conn, jd_file_list, requirement_lookup, batch_id):
+def save_bulk_jd_files(conn, jd_file_list, requirement_lookup, batch_id, owner_key=None):
     result = {"attached": 0, "warnings": []}
-    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", current_upload_owner_key(), "requirements", "bulk", _safe_path_part(batch_id))
+    upload_folder = os.path.join(app.root_path, "uploads", "recruiters", owner_key or current_upload_owner_key(), "requirements", "bulk", _safe_path_part(batch_id))
     os.makedirs(upload_folder, exist_ok=True)
     requirements = list({row["id"]: row for row in requirement_lookup.values()}.values())
     for jd in jd_file_list or []:
@@ -6688,9 +6695,255 @@ def missing_excel_fields(row):
     return [label for field, label in EXCEL_REQUIRED_FIELDS if not str(row.get(field) or "").strip()]
 
 # â”€â”€ Upload handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, excel_file, cv_file_list, jd_file_list=None):
-    batch_id = hashlib.md5(f"{recruiter_email}{datetime.now().isoformat()}".encode()).hexdigest()[:10]
-    result   = {"added":0,"duplicates":0,"missing":0,"errors":[],"cv_warnings":[],"jd_attached":0,"jd_warnings":[]}
+# ── Background bulk upload jobs (TS-EA-12, NFR-ATS-2) ───────────────────────
+# The upload request only saves the files and creates a job (well under 5 s).
+# Processing runs in the `ats-worker` process (ATS_UPLOAD_WORKER=external, used
+# with PostgreSQL) or in a background thread of the web process (inline, the
+# default and the only option with SQLite).
+UPLOAD_WORKER_MODE = (os.getenv("ATS_UPLOAD_WORKER") or "inline").strip().lower()
+UPLOAD_JOB_MAX_ATTEMPTS = 3
+UPLOAD_JOB_STALE_SECONDS = int(os.getenv("ATS_UPLOAD_JOB_STALE_SECONDS", "600"))  # no progress for this long = interrupted
+UPLOAD_JOB_COLUMNS = ("id", "status", "stage", "recruiter_name", "recruiter_email", "sourcer_id", "role_override",
+                      "owner_key", "batch_id", "excel_name", "file_manifest", "total_rows", "rows_done", "added",
+                      "duplicates", "missing", "failed", "attempts", "result_json", "error", "created_at",
+                      "updated_at", "started_at", "finished_at")
+_UPLOAD_JOB_SCHEMA_READY = False
+
+
+def ensure_upload_jobs_schema(conn=None):
+    global _UPLOAD_JOB_SCHEMA_READY
+    if _UPLOAD_JOB_SCHEMA_READY:
+        return
+    own = conn is None
+    conn = conn or get_db()
+    try:
+        conn.execute("""CREATE TABLE IF NOT EXISTS upload_jobs (
+            id TEXT PRIMARY KEY, status TEXT NOT NULL, stage TEXT, recruiter_name TEXT, recruiter_email TEXT,
+            sourcer_id INTEGER, role_override TEXT, owner_key TEXT, batch_id TEXT, excel_name TEXT,
+            file_manifest TEXT, total_rows INTEGER DEFAULT 0, rows_done INTEGER DEFAULT 0, added INTEGER DEFAULT 0,
+            duplicates INTEGER DEFAULT 0, missing INTEGER DEFAULT 0, failed INTEGER DEFAULT 0,
+            attempts INTEGER DEFAULT 0, result_json TEXT, error TEXT, created_at TEXT, updated_at TEXT,
+            started_at TEXT, finished_at TEXT)""")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_upload_jobs_status ON upload_jobs (status, created_at)")
+        conn.commit()
+        _UPLOAD_JOB_SCHEMA_READY = True
+    finally:
+        if own:
+            conn.close()
+
+
+def _now_iso():
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def get_upload_job(job_id, conn=None):
+    own = conn is None
+    conn = conn or get_db()
+    try:
+        ensure_upload_jobs_schema(conn)
+        row = conn.execute("SELECT * FROM upload_jobs WHERE id=?", (job_id,)).fetchone()
+        return dict(row) if row else None
+    finally:
+        if own:
+            conn.close()
+
+
+def update_upload_job(job_id, conn=None, **fields):
+    """Update job fields. With conn the caller commits (same transaction as the data)."""
+    fields = {k: v for k, v in fields.items() if k in UPLOAD_JOB_COLUMNS and k != "id"}
+    fields.setdefault("updated_at", _now_iso())
+    sets = ", ".join(f"{col}=?" for col in fields)  # column names come from UPLOAD_JOB_COLUMNS only
+    own = conn is None
+    conn = conn or get_db()
+    try:
+        conn.execute(f"UPDATE upload_jobs SET {sets} WHERE id=?", list(fields.values()) + [job_id])
+        if own:
+            conn.commit()
+    finally:
+        if own:
+            conn.close()
+
+
+class StoredUpload:
+    """A saved upload file that behaves like the werkzeug FileStorage the upload code expects."""
+
+    def __init__(self, path, filename):
+        self.path = path
+        self.filename = filename
+
+    def read(self):
+        with open(self.path, "rb") as handle:
+            return handle.read()
+
+    def save(self, dst):
+        shutil.copyfile(self.path, dst)
+
+
+def upload_jobs_root():
+    return os.path.join(app.root_path, "uploads", "jobs")
+
+
+def create_upload_job(recruiter_name, recruiter_email, role_override, sourcer_id, excel_file, cv_files, jd_files):
+    job_id = secrets.token_hex(8)
+    job_dir = path_under(upload_jobs_root(), job_id)
+    manifest = {"excel": None, "cv": [], "jd": []}
+    for kind, files in (("excel", [excel_file]), ("cv", cv_files or []), ("jd", jd_files or [])):
+        for index, storage in enumerate(files):
+            if not storage or not storage.filename:
+                continue
+            folder = path_under(job_dir, kind)
+            os.makedirs(folder, exist_ok=True)
+            dst = path_under(folder, f"{index:04d}_{secure_filename(storage.filename) or 'file'}")
+            storage.save(dst)
+            item = {"path": os.path.relpath(dst, job_dir), "filename": storage.filename}
+            if kind == "excel":
+                manifest["excel"] = item
+            else:
+                manifest[kind].append(item)
+    now = _now_iso()
+    conn = get_db()
+    try:
+        ensure_upload_jobs_schema(conn)
+        conn.execute("""INSERT INTO upload_jobs (id,status,stage,recruiter_name,recruiter_email,sourcer_id,role_override,
+                        owner_key,batch_id,excel_name,file_manifest,created_at,updated_at)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                     (job_id, "queued", "queued", recruiter_name, recruiter_email, sourcer_id, role_override,
+                      current_upload_owner_key(), job_id[:10], excel_file.filename, json.dumps(manifest), now, now))
+        conn.commit()
+    finally:
+        conn.close()
+    return job_id
+
+
+def _claim_upload_job(job_id):
+    conn = get_db()
+    try:
+        cur = conn.execute("""UPDATE upload_jobs SET status='running', stage='reading', attempts=attempts+1,
+                              started_at=?, updated_at=? WHERE id=? AND status='queued'""",
+                           (_now_iso(), _now_iso(), job_id))
+        conn.commit()
+        return bool(getattr(cur, "rowcount", 1))
+    finally:
+        conn.close()
+
+
+def run_upload_job(job_id):
+    """Process one queued job. Safe to call again after a crash: saved rows are skipped."""
+    if not _claim_upload_job(job_id):
+        return
+    job = get_upload_job(job_id)
+    job_dir = path_under(upload_jobs_root(), job_id)
+    try:
+        manifest = json.loads(job["file_manifest"] or "{}")
+
+        def stored(item):
+            return StoredUpload(path_under(job_dir, item["path"]), item["filename"])
+
+        result = process_upload(
+            job["recruiter_name"], job["recruiter_email"], job["role_override"] or "", job["sourcer_id"],
+            stored(manifest["excel"]), [stored(i) for i in manifest.get("cv", [])],
+            [stored(i) for i in manifest.get("jd", [])],
+            owner_key=job["owner_key"], batch_id=job["batch_id"], job_id=job_id)
+        status = "failed" if result.get("error") else "done"
+        update_upload_job(job_id, status=status, stage=status, result_json=json.dumps(result),
+                          error=result.get("error"), finished_at=_now_iso())
+    except Exception as exc:
+        update_upload_job(job_id, status="failed", stage="failed", error=report_error(exc, "Bulk upload"),
+                          finished_at=_now_iso())
+    finally:
+        latest = get_upload_job(job_id) or {}
+        if latest.get("status") in ("done", "failed"):
+            shutil.rmtree(job_dir, ignore_errors=True)  # saved CVs and JDs live in the uploads folders
+
+
+def recover_upload_jobs():
+    """Requeue interrupted jobs (they resume where they stopped) or fail them.
+
+    A job is interrupted when it is 'running' but has made no progress for
+    UPLOAD_JOB_STALE_SECONDS; progress is recorded after every CV and every row.
+    """
+    cutoff = (datetime.now() - timedelta(seconds=UPLOAD_JOB_STALE_SECONDS)).isoformat(timespec="seconds")
+    conn = get_db()
+    try:
+        ensure_upload_jobs_schema(conn)
+        conn.execute("""UPDATE upload_jobs SET status='queued', stage='queued', updated_at=?
+                        WHERE status='running' AND updated_at < ? AND attempts < ?""",
+                     (_now_iso(), cutoff, UPLOAD_JOB_MAX_ATTEMPTS))
+        conn.execute("""UPDATE upload_jobs SET status='failed', stage='failed', finished_at=?, updated_at=?,
+                        error='The upload stopped too many times. Saved rows are kept; upload the remaining rows again.'
+                        WHERE status='running' AND updated_at < ?""", (_now_iso(), _now_iso(), cutoff))
+        conn.commit()
+        return [row["id"] for row in conn.execute(
+            "SELECT id FROM upload_jobs WHERE status='queued' ORDER BY created_at").fetchall()]
+    finally:
+        conn.close()
+
+
+def start_inline_upload_job(job_id):
+    threading.Thread(target=run_upload_job, args=(job_id,), name=f"upload-job-{job_id}", daemon=True).start()
+
+
+def upload_job_public(job):
+    """What the browser may see about a job."""
+    data = {k: job.get(k) for k in ("id", "status", "stage", "total_rows", "rows_done", "added",
+                                     "duplicates", "missing", "failed", "created_at", "finished_at")}
+    if job.get("result_json"):
+        data["result"] = json.loads(job["result_json"])
+    if job.get("error"):
+        data["error"] = job["error"]
+    return data
+
+
+def _save_bulk_row(conn, row, batch_id, recruiter_name, recruiter_email, sourcer_id):
+    """Insert one bulk-upload candidate and its alerts (caller commits)."""
+    cname = row.get("candidate_name", "").strip()
+    cv_orig, cv_url, cv_pub = row.get("_cv", ("", "", ""))
+    is_dup, dup_row, dup_why = check_dup(conn, row)
+    dup_id = (dup_row or {}).get("id")
+    missing = check_missing(row)
+    cid = conn.execute("""INSERT INTO candidates
+        (upload_batch,recruiter_name,recruiter_email,sourcer_id,role_name,candidate_name,
+         email_addr,phone,current_company,current_role,experience_years,key_skills,
+         notice_period,current_salary,expected_salary,current_location,
+         preferred_location,remarks,cv_filename,cv_url,cv_public_id,cv_summary,
+         status,tags,is_duplicate,duplicate_of,missing_info,requirement_id)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (batch_id,recruiter_name,recruiter_email.lower(),sourcer_id,
+         row.get("role_name",""),cname,row.get("email_addr",""),row.get("phone",""),
+         row.get("current_company",""),row.get("current_role",""),
+         row.get("experience_years",""),row.get("key_skills",""),
+         row.get("notice_period",""),row.get("current_salary",""),
+         row.get("expected_salary",""),row.get("current_location",""),
+         row.get("preferred_location",""),row.get("remarks",""),
+         cv_orig,cv_url,cv_pub,row.get("cv_summary",""),"New","",
+         1 if is_dup else 0,dup_id,
+         ",".join(missing) if missing else None,
+         row.get("requirement_id"))).lastrowid
+    if is_dup:
+        conn.execute("INSERT INTO alerts (alert_type,message,candidate_id,recruiter_email) VALUES (?,?,?,?)",
+            ("duplicate",f"Duplicate: {cname or '?'} matched via {dup_why} (original ID #{dup_id})",cid,recruiter_email))
+    if missing:
+        conn.execute("INSERT INTO alerts (alert_type,message,candidate_id,recruiter_email) VALUES (?,?,?,?)",
+            ("missing_info",f"Missing {', '.join(missing)} for {cname or 'unnamed'}",cid,recruiter_email))
+    return cid, is_dup, missing
+
+
+def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, excel_file, cv_file_list, jd_file_list=None,
+                   owner_key=None, batch_id=None, job_id=None):
+    """Validate and save a bulk upload.
+
+    With job_id (TS-EA-12) the upload runs in the background: progress is written to
+    upload_jobs in the same transaction as each candidate row, so a restarted job skips
+    rows that are already saved and never creates duplicates.
+    """
+    batch_id = batch_id or hashlib.md5(f"{recruiter_email}{datetime.now().isoformat()}".encode()).hexdigest()[:10]
+    result   = {"added":0,"duplicates":0,"missing":0,"failed":0,"errors":[],"cv_warnings":[],"jd_attached":0,"jd_warnings":[]}
+    resume_rows = 0
+    if job_id:
+        job = get_upload_job(job_id) or {}
+        resume_rows = int(job.get("rows_done") or 0)
+        for key in ("added", "duplicates", "missing", "failed"):
+            result[key] = int(job.get(key) or 0)
 
     fname = excel_file.filename.lower()
     data  = excel_file.read()
@@ -6709,7 +6962,9 @@ def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, e
     saved_cvs = []
     for cv in cv_file_list:
         if cv and cv.filename:
-            orig, url, pub_id, file_path = upload_cv(cv, batch_id)
+            if job_id:
+                update_upload_job(job_id, stage="reading_cvs")  # heartbeat while CVs are parsed
+            orig, url, pub_id, file_path = upload_cv(cv, batch_id, owner_key)
             parsed_cv = {}
             if file_path:
                 try:
@@ -6723,9 +6978,14 @@ def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, e
     seen = {}
     prepared_rows = []
     matched_ids = set()
+    position = 0
     for idx, row in enumerate(rows, start=2):
         if not any(str(v).strip() for v in row.values()):
             continue
+        row["_row_num"] = idx
+        row["_pos"] = position
+        already_saved = position < resume_rows  # saved by an earlier attempt of this job
+        position += 1
         cname = row.get("candidate_name", "").strip()
         raw_req_title = str(row.get("requirement_title") or row.get("role_name") or row.get("requirement") or "").strip()
         raw_req_client = str(row.get("client_name") or "").strip()
@@ -6757,11 +7017,14 @@ def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, e
         if email:
             duplicate_keys.append(("email", req_id, email))
         for key in duplicate_keys:
+            if already_saved:
+                seen.setdefault(key, idx)
+                continue
             if key in seen:
                 validation_errors.append(f"Row {idx}: Duplicate {key[0]} within this upload for the same Requirement (also row {seen[key]}).")
             else:
                 seen[key] = idx
-        if req_id:
+        if req_id and not already_saved:
             is_dup, dup_row, dup_why = check_dup(conn, row)
             if is_dup:
                 validation_errors.append(f"Row {idx}: {build_duplicate_candidate_message(row, dup_row, dup_why)}")
@@ -6776,57 +7039,49 @@ def process_upload(recruiter_name, recruiter_email, role_override, sourcer_id, e
             "error": "Bulk upload blocked. Fix these issues and upload again:\n" + "\n".join(validation_errors[:20]),
             "errors": validation_errors,
         }
+    conn.close()
+    if job_id:
+        update_upload_job(job_id, total_rows=len(prepared_rows), stage="saving")
+
+    done_positions = set(range(resume_rows))
 
     def _bulk_write():
         conn = get_db()
         try:
-            jd_result = save_bulk_jd_files(conn, jd_file_list or [], requirement_lookup, batch_id)
+            jd_result = save_bulk_jd_files(conn, jd_file_list or [], requirement_lookup, batch_id, owner_key=owner_key)
             result["jd_attached"] = jd_result["attached"]
             result["jd_warnings"] = jd_result["warnings"]
 
             conn.execute("INSERT OR IGNORE INTO team_members (name,email,is_fixed) VALUES (?,?,0)",
                          (recruiter_name, recruiter_email.lower()))
 
+            conn.commit()
             for row in prepared_rows:
-                if not any(str(v).strip() for v in row.values()):
+                if not any(str(v).strip() for k, v in row.items() if not str(k).startswith("_")):
+                    continue
+                if row["_pos"] in done_positions:
                     continue
                 cname = row.get("candidate_name", "").strip()
-                cv_orig, cv_url, cv_pub = row.get("_cv", ("", "", ""))
-                is_dup, dup_row, dup_why = check_dup(conn, row)
-                dup_id = (dup_row or {}).get("id")
-                missing = check_missing(row)
-
-                cid = conn.execute("""INSERT INTO candidates
-                    (upload_batch,recruiter_name,recruiter_email,sourcer_id,role_name,candidate_name,
-                     email_addr,phone,current_company,current_role,experience_years,key_skills,
-                     notice_period,current_salary,expected_salary,current_location,
-                     preferred_location,remarks,cv_filename,cv_url,cv_public_id,cv_summary,
-                     status,tags,is_duplicate,duplicate_of,missing_info,requirement_id)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                    (batch_id,recruiter_name,recruiter_email.lower(),sourcer_id,
-                     row.get("role_name",""),cname,row.get("email_addr",""),row.get("phone",""),
-                     row.get("current_company",""),row.get("current_role",""),
-                     row.get("experience_years",""),row.get("key_skills",""),
-                     row.get("notice_period",""),row.get("current_salary",""),
-                     row.get("expected_salary",""),row.get("current_location",""),
-                     row.get("preferred_location",""),row.get("remarks",""),
-                     cv_orig,cv_url,cv_pub,row.get("cv_summary",""),"New","",
-                     1 if is_dup else 0,dup_id,
-                     ",".join(missing) if missing else None,
-                     row.get("requirement_id"))).lastrowid
+                try:
+                    cid, is_dup, missing = _save_bulk_row(conn, row, batch_id, recruiter_name, recruiter_email, sourcer_id)
+                    if is_dup:
+                        result["duplicates"] += 1
+                    if missing:
+                        result["missing"] += 1
+                    result["added"] += 1
+                except Exception as row_exc:
+                    conn.rollback()
+                    if isinstance(row_exc, sqlite3.OperationalError) and "database is locked" in str(row_exc).lower():
+                        raise
+                    result["failed"] += 1
+                    result["errors"].append(f"Row {row.get('_row_num')}: {cname or 'candidate'} could not be saved. "
+                                            + report_error(row_exc, "Saving the row"))
+                done_positions.add(row["_pos"])
+                if job_id:
+                    update_upload_job(job_id, conn=conn, rows_done=len(done_positions), added=result["added"],
+                                      duplicates=result["duplicates"], missing=result["missing"], failed=result["failed"])
                 conn.commit()
 
-                if is_dup:
-                    conn.execute("INSERT INTO alerts (alert_type,message,candidate_id,recruiter_email) VALUES (?,?,?,?)",
-                        ("duplicate",f"Duplicate: {cname or '?'} matched via {dup_why} (original ID #{dup_id})",cid,recruiter_email))
-                    result["duplicates"] += 1
-                if missing:
-                    conn.execute("INSERT INTO alerts (alert_type,message,candidate_id,recruiter_email) VALUES (?,?,?,?)",
-                        ("missing_info",f"Missing {', '.join(missing)} for {cname or 'unnamed'}",cid,recruiter_email))
-                    result["missing"] += 1
-                result["added"] += 1
-                if row.get("requirement_id") and (cv_url or cv_pub or cv_orig):
-                    queue_candidate_ai_screening(cid, trigger="bulk_upload")
 
             for orig, url, pid in unmatched_cvs(saved_cvs, matched_ids):
                 conn.execute("INSERT INTO alerts (alert_type,message,recruiter_email) VALUES (?,?,?)",
@@ -8249,12 +8504,30 @@ def api_upload():
         email = email.lower()
         role  = request.form.get("role_override","").strip()
         if "excel_file" not in request.files: return jsonify({"error":"No file attached"}),400
-        return jsonify(process_upload(name,email,role,sourcer_id,
-                       request.files["excel_file"],request.files.getlist("cv_files"),request.files.getlist("jd_files")))
+        excel = request.files["excel_file"]
+        if not excel.filename.lower().endswith((".xlsx", ".xls", ".csv")):
+            return jsonify({"error": "Please upload a .xlsx or .csv file"}), 400
+        job_id = create_upload_job(name, email, role, sourcer_id, excel,
+                                   request.files.getlist("cv_files"), request.files.getlist("jd_files"))
+        if UPLOAD_WORKER_MODE != "external":
+            start_inline_upload_job(job_id)
+        return jsonify({"ok": True, "job_id": job_id, "status": "queued",
+                        "status_url": f"/api/upload_jobs/{job_id}"}), 202
     except Exception as exc:
         print("Bulk upload failed:", exc, flush=True)
         traceback.print_exc()
         return jsonify({"error": report_error(exc, "Bulk upload")}), 500
+
+@app.route("/api/upload_jobs/<job_id>")
+@login_required
+def api_upload_job_status(job_id):
+    if not re.fullmatch(r"[0-9a-f]{16}", job_id or ""):
+        return jsonify({"error": "Upload job not found"}), 404
+    job = get_upload_job(job_id)
+    owner = (session.get("recruiter_email") or "").lower()
+    if not job or (not session.get("is_admin") and (job.get("recruiter_email") or "").lower() != owner):
+        return jsonify({"error": "Upload job not found"}), 404
+    return jsonify(upload_job_public(job))
 
 @app.route("/api/template")
 def api_template():
@@ -14324,6 +14597,17 @@ try:
     initialize_app_database()
 except Exception as e:
     print("Database initialization error:", e, flush=True)
+
+def _resume_inline_upload_jobs():
+    try:
+        for queued_job in recover_upload_jobs():
+            run_upload_job(queued_job)
+    except Exception as exc:
+        report_error(exc, "Resuming upload jobs")
+
+
+if UPLOAD_WORKER_MODE != "external" and os.getenv("ATS_PROCESS_ROLE") != "worker":
+    threading.Timer(5.0, _resume_inline_upload_jobs).start()
 
 if __name__=="__main__":
     port = int(os.getenv("PORT", 5001))

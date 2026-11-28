@@ -532,6 +532,36 @@ function handleExcelSelection() {
   showAlert('excelAlert', '', 'ok');
 }
 
+async function readUploadJson(res) {
+  const raw = await res.text();
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch(parseError) {
+    const plain = raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    throw new Error(plain ? plain.slice(0, 220) : `Server returned ${res.status} ${res.statusText}`);
+  }
+}
+
+function uploadProgressText(job) {
+  if (job.stage === 'reading_cvs' || job.stage === 'reading' || job.status === 'queued') {
+    return 'Reading the spreadsheet and CVs...';
+  }
+  const total = job.total_rows || 0;
+  const done = job.rows_done || 0;
+  return `Saving candidates: ${done} of ${total} rows done (${job.added || 0} added, ${job.duplicates || 0} duplicates, ${job.failed || 0} failed)...`;
+}
+
+async function waitForUploadJob(statusUrl) {
+  for (;;) {
+    const res = await fetch(statusUrl, {cache: 'no-store'});
+    const job = await readUploadJson(res);
+    if (!res.ok) throw new Error(job.error || `Status check failed (${res.status})`);
+    if (job.status === 'done' || job.status === 'failed') return job;
+    showAlert('excelAlert', uploadProgressText(job), 'warn');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
+}
+
 async function uploadExcelBatch() {
   if (!excelFile) {
     showAlert('excelAlert', 'Select a candidate spreadsheet first.', 'warn');
@@ -552,25 +582,30 @@ async function uploadExcelBatch() {
   excelCvFiles.forEach(file => fd.append('cv_files', file));
   btn.disabled = true;
   btn.textContent = 'Uploading...';
-  showAlert('excelAlert', 'Checking spreadsheet rows and CV matches...', 'warn');
+  showAlert('excelAlert', 'Sending files...', 'warn');
   try {
     const res = await fetch('/api/upload', {method:'POST', body:fd});
-    const raw = await res.text();
-    let data = {};
-    try {
-      data = raw ? JSON.parse(raw) : {};
-    } catch(parseError) {
-      const plain = raw.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-      throw new Error(plain ? plain.slice(0, 220) : `Server returned ${res.status} ${res.statusText}`);
-    }
+    const data = await readUploadJson(res);
     if (!res.ok || data.error) {
       showAlert('excelAlert', formatUploadError(data.error || 'Upload failed.'), 'error');
       return;
     }
-    const jdMsg = data.jd_warnings && data.jd_warnings.length
-      ? `\nJD warning: ${data.jd_warnings.join(', ')} could not be matched to a Requirement title.`
-      : `\nJD files attached: ${data.jd_attached || 0}.`;
-    showAlert('excelAlert', `Uploaded ${data.added || 0} candidate${(data.added || 0) === 1 ? '' : 's'}.${jdMsg}`, data.jd_warnings && data.jd_warnings.length ? 'warn' : 'ok');
+    // TS-EA-12: the upload is processed in the background; you can keep working.
+    showAlert('excelAlert', 'Files received. Checking rows and CVs in the background... You can keep using the ATS.', 'warn');
+    const job = await waitForUploadJob(data.status_url || `/api/upload_jobs/${data.job_id}`);
+    const summary = job.result || {};
+    if (job.status !== 'done' || summary.error) {
+      showAlert('excelAlert', formatUploadError(summary.error || job.error || 'Upload failed.'), 'error');
+      return;
+    }
+    const jdMsg = summary.jd_warnings && summary.jd_warnings.length
+      ? `\nJD warning: ${summary.jd_warnings.join(', ')} could not be matched to a Requirement title.`
+      : `\nJD files attached: ${summary.jd_attached || 0}.`;
+    const failedMsg = summary.failed
+      ? `\n${summary.failed} row${summary.failed === 1 ? '' : 's'} could not be saved:\n${(summary.errors || []).slice(0, 10).join('\n')}`
+      : '';
+    const level = (summary.failed || (summary.jd_warnings && summary.jd_warnings.length)) ? 'warn' : 'ok';
+    showAlert('excelAlert', `Uploaded ${summary.added || 0} candidate${(summary.added || 0) === 1 ? '' : 's'}.${jdMsg}${failedMsg}`, level);
     excelFile = null;
     excelJdFiles = [];
     excelCvFiles = [];

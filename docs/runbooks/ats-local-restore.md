@@ -89,8 +89,16 @@ docker compose run --rm -v /path/to/old/uploads:/restore:ro ats sh -c 'cp -a /re
 ## D. Start and verify
 
 ```bash
-docker compose up -d ats
+docker compose up -d ats ats-worker
 ```
+
+`ats-worker` processes bulk uploads in the background (TS-EA-12). Without it, bulk uploads wait in the queue: the page keeps showing "Reading the spreadsheet and CVs...". Check it with:
+
+```bash
+docker compose logs --tail 20 ats-worker
+```
+
+You should see `upload worker: started`. A worker restart does not lose or duplicate rows: an interrupted upload resumes where it stopped after 10 minutes without progress.
 
 ```bash
 curl -s http://localhost:5001/healthz
@@ -248,7 +256,7 @@ In Zero Trust → **Notifications** → *Add* → **Tunnel health alert** (or *T
 1. Is the Mac awake and online?
 2. Is Docker Desktop running?
 3. `docker compose ps`
-4. `docker compose logs --tail 50 ats tunnel`
+4. `docker compose logs --tail 50 ats ats-worker tunnel`
 5. `docker compose --profile live up -d`
 
 ## G. Known limits of running on a laptop
