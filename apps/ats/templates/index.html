@@ -817,7 +817,6 @@ th,.candidates-table th,.dashboard-candidate-table th,.req-table th,.search-resu
     <a class="tab-link active" href="#" data-tab="ats-workspace">ATS Workspace</a>
     <a class="tab-link" href="#" data-tab="candidate-search">Search</a>
     <a class="tab-link" href="#" data-tab="power-search">Power Resume Search</a>
-    <a class="tab-link" href="#" data-tab="jd-cv-match">JD/CV Match</a>
     <a class="tab-link" href="#" data-tab="reports">Reports</a>
     <a class="tab-link" href="#" data-tab="admin-setup">Admin Setup</a>
     <a class="tab-link" id="nav-bulk-upload" href="#" data-tab="bulk-upload">Bulk Upload</a>
@@ -837,15 +836,7 @@ th,.candidates-table th,.dashboard-candidate-table th,.req-table th,.search-resu
     <button class="topnav-link" data-top-tab="dashboard" onclick="openCandidateListPage()">Candidates</button>
     <button class="topnav-link daily-only" data-top-tab="candidate-search" onclick="switchTab('candidate-search')">Search</button>
     <button class="topnav-link admin-only" data-top-tab="power-search" onclick="switchTab('power-search')">Power Search</button>
-    <div class="topnav-menu">
-      <button class="topnav-link" data-top-tab="ai-screening" type="button">AI Screening</button>
-      <div class="topnav-menu-panel" id="aiScreeningMenu">
-        <div class="topnav-menu-title">AI Screening</div>
-        <div class="topnav-menu-grid">
-          <button class="topnav-subitem" data-ai-tab="jd-cv-match" onclick="switchTab('jd-cv-match')"><strong>JD vs CV Match</strong><span>Compare one JD against uploaded CVs without changing ATS records.</span></button>
-        </div>
-      </div>
-    </div>
+    <!-- AI Screening menu removed 2026-11-28: screening moves to TalentScout (UC-002) -->
     <button class="topnav-link admin-only" data-top-tab="reports" onclick="switchTab('reports')">Reports</button>
     <button class="topnav-link" data-top-tab="admin-setup" onclick="switchTab('admin-setup')">Setup</button>
   </nav>
@@ -1169,7 +1160,7 @@ HR Guru Placement Services</textarea>
     <div class="ats-shell"><div class="ats-content"><h1 class="ats-title">Power Resume Search</h1><div class="ats-panel pad"><h3>Search Type</h3><label><input type="radio" name="searchType" checked style="width:auto;margin-right:8px">Semantic Search</label><div class="ats-clean-grid" style="margin-top:18px"><div class="form-group"><label>Job Title</label><input id="powerJobTitle" placeholder="Sales, Accountant, Engineer"></div><div class="form-group"><label>Skills/Keywords</label><input id="powerSkills" placeholder="Java, SOX, retail"></div><div class="form-group"><label>Years of Experience</label><input id="powerExperience" placeholder="4, 2-3, 5+"></div><div class="form-group"><label>Location</label><input id="powerLocation"></div></div><button class="btn" onclick="runPowerSearch()">Search Internal Database</button><hr style="margin:22px 0;border:0;border-top:1px solid #2a2f3a"><label><input type="radio" name="searchType" style="width:auto;margin-right:8px">Boolean Search</label><textarea id="powerBoolean" style="margin-top:12px" placeholder="Pentaho AND ETL AND P/SQL"></textarea></div><div id="powerSearchResults" style="margin-top:18px"></div></div></div>
   </div>
   <div class="tab-content" id="tab-admin-setup">
-    <div class="ats-shell"><div class="ats-content"><h1 class="ats-title">Setup</h1><div class="ats-panel pad admin-grid"><div class="admin-group"><h3>Recruiter Setup</h3><a class="admin-link" href="/api/template">Templates (Bulk Upload)</a><a class="admin-link" onclick="openMyClientAccessModal()">My Client Access</a><a class="admin-link" onclick="openTaggdRecruiterManager()">Taggd Recruiters</a><a class="admin-link" onclick="openMyGeminiKeyModal()">My Gemini API Key</a><a class="admin-link" onclick="openAiScreeningLogsModal()">AI Screening Logs</a></div><div class="admin-group admin-setup-only"><h3>Admin Functions</h3><a class="admin-link" onclick="switchTab('user-management')">Users and Roles</a><a class="admin-link" onclick="openTeamClientMappingModal()">Team Client Mapping</a><a class="admin-link" onclick="openTeamLeaderMappingModal()">Team Leader Mapping</a><a class="admin-link" onclick="switchTab('requirements')">Job Posting Setup</a><a class="admin-link" href="/invoices/">Invoices</a></div><div class="admin-group admin-setup-only"><h3>Backup</h3><a class="admin-link" id="backupGoogleDriveLink" onclick="backupAtsToGoogleDrive()">Backup ATS to Google Drive</a><div id="backupGoogleDriveStatus" class="muted" style="font-size:12px;line-height:1.45"></div></div></div></div></div>
+    <div class="ats-shell"><div class="ats-content"><h1 class="ats-title">Setup</h1><div class="ats-panel pad admin-grid"><div class="admin-group"><h3>Recruiter Setup</h3><a class="admin-link" href="/api/template">Templates (Bulk Upload)</a><a class="admin-link" onclick="openMyClientAccessModal()">My Client Access</a><a class="admin-link" onclick="openTaggdRecruiterManager()">Taggd Recruiters</a><a class="admin-link" onclick="openMyGeminiKeyModal()">My Gemini API Key</a></div><div class="admin-group admin-setup-only"><h3>Admin Functions</h3><a class="admin-link" onclick="switchTab('user-management')">Users and Roles</a><a class="admin-link" onclick="openTeamClientMappingModal()">Team Client Mapping</a><a class="admin-link" onclick="openTeamLeaderMappingModal()">Team Leader Mapping</a><a class="admin-link" onclick="switchTab('requirements')">Job Posting Setup</a><a class="admin-link" href="/invoices/">Invoices</a></div><div class="admin-group admin-setup-only"><h3>Backup</h3><a class="admin-link" id="backupGoogleDriveLink" onclick="backupAtsToGoogleDrive()">Backup ATS to Google Drive</a><div id="backupGoogleDriveStatus" class="muted" style="font-size:12px;line-height:1.45"></div></div></div></div></div>
   </div>
   <div class="tab-content {% if initial_app_route == 'reporting' %}active{% endif %}" id="tab-reporting">
     <div class="ats-shell"><div class="ats-content">
@@ -1979,8 +1970,8 @@ HR Guru Placement Services</textarea>
         <div class="detail-field"><label>Company</label><span id="detailCompany">-</span></div>
         <div class="detail-field"><label>Designation</label><span id="detailRole">-</span></div>
         <div class="detail-field"><label>Requirement</label><span id="detailRequirement">-</span></div>
-        <div class="detail-field"><label>AI Screening</label><span id="detailAiScreening">-</span></div>
-        <div class="detail-field"><label>AI Report</label><span id="detailAiReport">-</span></div>
+        <div class="detail-field" hidden><label>AI Screening</label><span id="detailAiScreening">-</span></div>
+        <div class="detail-field" hidden><label>AI Report</label><span id="detailAiReport">-</span></div>
         <div class="detail-field"><label>Experience</label><span id="detailExp">-</span></div>
         <div class="detail-field"><label>Skills</label><span id="detailSkills">-</span></div>
         <div class="detail-field"><label>Status</label><span id="detailStatus">-</span></div>
@@ -2037,7 +2028,7 @@ HR Guru Placement Services</textarea>
     background:#161920;
     flex-shrink:0;">
       <div style="display:flex;gap:12px;">
-        <button class="btn btn-outline" id="runAiScreeningBtn" onclick="runCandidateAiScreening()">Run AI Screening</button>
+        <button class="btn btn-outline" id="runAiScreeningBtn" hidden onclick="runCandidateAiScreening()">Run AI Screening</button>
         <button class="btn" id="editCandidateFromDetailBtn" onclick="editCandidateFromDetail()">Edit</button>
         <button class="btn btn-outline" onclick="closeModal('candidateDetailModal')">Close</button>
       </div>

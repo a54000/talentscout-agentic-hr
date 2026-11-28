@@ -2024,9 +2024,8 @@ def save_candidate_ai_screening_pdf(candidate, requirement, report):
     return f"/uploads/{rel_path}"
 
 def queue_candidate_ai_screening(candidate_id, trigger="candidate_saved", gemini_api_key=None, requester_team_member_id=None):
-    if not CLOUD_AI_FOR_CANDIDATE_DATA:
-        print(f"AI SCREENING: skipped for candidate_id={candidate_id} ({CLOUD_AI_DISABLED_MESSAGE})", flush=True)
-        return False
+    print(f"AI SCREENING: skipped for candidate_id={candidate_id} (removed from the ATS)", flush=True)
+    return False
     if trigger != "manual_trigger" and not AUTO_AI_SCREENING_ON_CV_UPLOAD:
         print(f"AI SCREENING DEBUG: auto screening skipped for candidate_id={candidate_id} trigger={trigger}", flush=True)
         return False
@@ -7917,6 +7916,34 @@ def power_search_page():
         return redirect(url_for("candidate_search_page"))
     return render_template("power_search.html")
 
+# AI screening and JD/CV matching were removed from the ATS on 2026-11-28 (PO decision):
+# screening and submission checks move to TalentScout (UC-002), where CVs stay on the local model.
+RETIRED_AI_SCREENING_MESSAGE = "AI screening has been removed from the ATS. Submission checks move to TalentScout."
+RETIRED_AI_SCREENING_PREFIXES = (
+    "/ai-screening",
+    "/api/ai_screening_logs",
+    "/api/jd_match",
+    "/api/match_jd_cv",
+    "/api/match/",
+    "/api/candidate_resume/analyze",
+)
+RETIRED_AI_SCREENING_RE = re.compile(r"/api/candidate/\d+/ai_screening(?:_report)?")
+
+
+def is_retired_ai_screening_path(path):
+    path = path or ""
+    return path.startswith(RETIRED_AI_SCREENING_PREFIXES) or bool(RETIRED_AI_SCREENING_RE.fullmatch(path))
+
+
+@app.before_request
+def block_retired_ai_screening():
+    if is_retired_ai_screening_path(request.path):
+        if request.path.startswith("/api/"):
+            return jsonify({"error": RETIRED_AI_SCREENING_MESSAGE}), 410
+        return RETIRED_AI_SCREENING_MESSAGE, 410
+    return None
+
+
 @app.route("/ai-screening")
 @login_required
 def ai_screening_page():
@@ -12269,6 +12296,9 @@ def trigger_candidate_ai_screening(cid):
         return jsonify({"error": "AI screening already completed for this candidate. Normal users cannot re-run it."}), 403
     if not session.get("is_admin") and str(row_data.get("ai_screening_status") or "").lower() == "scored":
         return jsonify({"error": "AI screening already completed for this candidate. Normal users cannot re-run it."}), 403
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        print(f"AI SCREENING: skipped for candidate_id={cid} ({CLOUD_AI_DISABLED_MESSAGE})", flush=True)
+        return jsonify({"ok": False, "status": "disabled", "error": CLOUD_AI_DISABLED_MESSAGE, "message": CLOUD_AI_DISABLED_MESSAGE}), 409
     queued = queue_candidate_ai_screening(cid, trigger="manual_trigger")
     return jsonify({
         "ok": True,

@@ -411,6 +411,26 @@
       "jira": "TS-73"
     },
     {
+      "id": "TS-EA-15",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-1",
+        "BR-4"
+      ],
+      "title": "Delete the retired AI screening code from the ATS",
+      "story": "As a tech lead I want the retired AI screening and JD/CV matching code deleted from the ATS so that dead code, the Gemini dependency and its keys are gone.",
+      "ac": [
+        "Given the ATS, then the retired routes, the AI screening queue, services/gemini_screening.py, the JD/CV match and resume-analysis tabs and their JavaScript are deleted",
+        "Given the ATS requirements, then google-genai and other unused AI packages are removed, and GEMINI_* settings are dropped from .env.example",
+        "Given the smoke test and unit tests, then they pass, and candidate, requirement, upload and email flows still work on the live ATS"
+      ],
+      "jira": "TS-95"
+    },
+    {
       "id": "TS-E0-01",
       "epic": "E0",
       "sprint": 0,
