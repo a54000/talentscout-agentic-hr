@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 13 | 2 | 0 | 67 | 1 | 83 |
+| 14 | 1 | 0 | 67 | 1 | 83 |
 
 ## Your actions (outside the backlog)
 
@@ -40,7 +40,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 ## Sprint 1 - ATS stabilisation (2026-12-14 → 2026-12-24)
 
-- [ ] **TS-EA-07 ATS security hardening baseline** **[In progress]**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
+- [x] **TS-EA-07 ATS security hardening baseline**: The most serious ATS weaknesses fixed, so that a live system with candidate PII is safe enough to run. _(5 pts, owner: Claude, Jira TS-15)_
 - [ ] **TS-EA-12 Asynchronous bulk upload with progress**: My bulk upload accepted immediately and processed in the background, so that I can keep working and see progress. _(8 pts, owner: Claude, Jira TS-71)_
 - [ ] **TS-EA-13 ATS performance baseline and load test**: Measured response times under realistic load, so that performance targets are verified, not assumed. _(3 pts, owner: Claude, Jira TS-72)_
 - [ ] **TS-EA-14 Restore scheduled WhatsApp/email reports on the Mac**: The daily and weekly submission reports and recruiter reminders running again, so that the team keeps its routine. _(3 pts, owner: Claude + You, Jira TS-73)_

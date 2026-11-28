@@ -179,7 +179,7 @@ Acceptance criteria:
 - Given launchd at 21:00, then a pg_dump and an uploads archive are written and 14 copies kept, with an off-machine copy
 - Given a backup, when restored into a scratch database, then counts match (drill recorded)
 
-### TS-EA-07: ATS security hardening baseline  (5 pts, Sprint 1, In progress, Jira TS-15)
+### TS-EA-07: ATS security hardening baseline  (5 pts, Sprint 1, Done, Jira TS-15)
 
 *As a security owner I want the most serious ATS weaknesses fixed so that a live system with candidate PII is safe enough to run.*
 
