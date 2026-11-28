@@ -19,6 +19,10 @@ from taxonomy_core import build_taxonomy_bundle
 
 
 GEMINI_API_KEY = (os.getenv("GEMINI_API_KEY") or "").strip()
+# BR-4 / R-11 (PO decision 2026-11-28): real candidate CVs must not go to cloud AI
+# (Gemini, OpenRouter, OpenAI). Off by default; only for synthetic data.
+CLOUD_AI_FOR_CANDIDATE_DATA = (os.getenv("CLOUD_AI_FOR_CANDIDATE_DATA") or "off").strip().lower() in {"1", "true", "on", "yes"}
+CLOUD_AI_DISABLED_MESSAGE = "AI screening is switched off for real candidate data until the local model is ready (Sprint 2)."
 PARSE_LLM_PROVIDER = "gemini" if GEMINI_API_KEY else "deterministic"
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")
@@ -351,6 +355,9 @@ def _gemini_extract(kind, text):
 
 def llm_extract(kind, text):
     global _LLM_PARSE_AVAILABLE, _LLM_PARSE_LAST_FAIL
+    if kind == "resume" and not CLOUD_AI_FOR_CANDIDATE_DATA:
+        debug_match("resume LLM extraction skipped: cloud AI is off for candidate data; deterministic parser is used.")
+        return {}
     provider = (PARSE_LLM_PROVIDER or "").lower()
     if provider == "gemini":
         return _gemini_extract(kind, text)
