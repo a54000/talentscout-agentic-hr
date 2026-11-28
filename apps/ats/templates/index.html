@@ -2324,7 +2324,7 @@ async function handleInitialAppHash(routeOverride) {
     document.body.classList.remove('app-route-pending');
     return;
   }
-  const routes = {
+  const routes = new Map(Object.entries({
     pipeline: () => openAtsWorkspacePage('atsDashboard', 'dashboard'),
     pipelines: () => openAtsWorkspacePage('atsDashboard', 'dashboard'),
     candidates: () => openCandidateListPage(),
@@ -2340,11 +2340,13 @@ async function handleInitialAppHash(routeOverride) {
     'add-candidate': () => openAtsApplicantForm('manual'),
     'add-requirement': () => showAddRequirementModal(),
     profile: () => switchTab('profile')
-  };
-  if (routes[key]) {
+  }));
+  // Only the route names listed above can be dispatched from the URL.
+  const route = [...routes.keys()].includes(key) ? routes.get(key) : null;
+  if (route) {
     const isModalLaunch = ['add-candidate', 'add-requirement'].includes(key);
     suppressWorkspaceForModalLaunch = isModalLaunch;
-    await routes[key]();
+    await route();
     suppressWorkspaceForModalLaunch = false;
     if (isModalLaunch) {
       setTimeout(() => document.body.classList.remove('modal-launch-pending'), 0);
@@ -2692,7 +2694,9 @@ function showAddCandidateModal() {
 
 function addCustomField() {
   const label = valueOf('newCustomFieldLabel').trim();
-  const type = valueOf('newCustomFieldType');
+  const allowedTypes = ['text', 'number', 'date', 'email', 'tel', 'url', 'checkbox'];
+  const rawType = valueOf('newCustomFieldType');
+  const type = allowedTypes.includes(rawType) ? rawType : 'text';
   if (!label) return;
   const wrap = document.getElementById('atsCustomFields');
   const div = document.createElement('div');
@@ -4629,7 +4633,7 @@ function renderActiveFilterChips() {
     const el = document.getElementById(id);
     if (!el || !el.value) return;
     const text = el.tagName === 'SELECT' ? el.options[el.selectedIndex].text : el.value;
-    chips.push(`<span class="filter-chip">${label}: ${text}<button type="button" onclick="clearCandidateFilter('${id}')">x</button></span>`);
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}: ${escapeHtml(text)}<button type="button" onclick="clearCandidateFilter('${escapeHtml(id)}')">x</button></span>`);
   });
   const wrap = document.getElementById('activeFilterChips');
   if (wrap) wrap.innerHTML = chips.join('');
