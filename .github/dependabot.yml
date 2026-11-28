@@ -3,14 +3,18 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: pip
     directory: /services/agents
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases
   - package-ecosystem: docker
     directories: [/apps/api, /apps/web, /services/agents]
     schedule: { interval: weekly }
+    cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases

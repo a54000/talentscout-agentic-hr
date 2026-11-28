@@ -5,7 +5,8 @@ const config = loadConfig();
 const app = createApp(config);
 
 const server = app.listen(config.PORT, () => {
-  console.log(`api listening on :${config.PORT}`);
+  // Do not log configuration values (they come from the environment): CodeQL js/clear-text-logging.
+  console.log("api listening");
 });
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
