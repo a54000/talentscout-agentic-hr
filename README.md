@@ -30,6 +30,8 @@ Read the [HLD](docs/03-architecture/HLD.md) for diagrams and flows.
 | [BRD](docs/01-business/BRD.md) | [FRD](docs/02-product/FRD.md) | [LLD](docs/03-architecture/LLD.md) | [Backlog](docs/04-delivery/backlog.md), [Task checklist](docs/04-delivery/task-checklist.md) | [Threat model](docs/03-architecture/threat-model.md) |
 | [Technical scope and budget](docs/01-business/technical-scope-and-budget.md) | | [ADRs](docs/03-architecture/adr/) | [Sprint plan](docs/04-delivery/sprint-plan.md), [RAID log](docs/04-delivery/RAID-log.md) | |
 
+**New here?** Start with [How we build TalentScout](docs/06-guides/how-we-build-talentscout.md): design, build, testing, deployment and the main issues we faced.
+
 ## Getting started (macOS, Apple Silicon)
 
 Prerequisites: Node 22, Python 3.12, Docker Desktop (cap it at 6 GB RAM), [Ollama](https://ollama.com).
