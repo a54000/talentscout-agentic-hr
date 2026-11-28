@@ -26,7 +26,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-04 | Recover production ATS data | 3 | Done |
 | TS-EA-05 | Expose the local ATS to 25 recruiters securely | 3 | Done |
 | TS-EA-06 | ATS backups and restore drill | 3 | Done |
-| TS-EA-09 | ATS health monitoring | 2 | In progress |
+| TS-EA-09 | ATS health monitoring | 2 | Done |
 | TS-EA-10 | Close the post-May 2026 data gap and the missing CV/JD files | 2 | To do |
 | TS-E0-01 | Monorepo structure and tooling | 2 | Done |
 | TS-E0-02 | CI pipeline: lint, test, build | 3 | In progress |

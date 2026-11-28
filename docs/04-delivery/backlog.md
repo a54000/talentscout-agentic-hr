@@ -198,7 +198,7 @@ Acceptance criteria:
 - Given a candidate deleted in the ATS, then its profile, chunks and embeddings are removed at the next sync
 - Given a write attempt through the connector role, then the database refuses it
 
-### TS-EA-09: ATS health monitoring  (2 pts, Sprint 0, In progress, Jira TS-17)
+### TS-EA-09: ATS health monitoring  (2 pts, Sprint 0, Done, Jira TS-17)
 
 *As a delivery lead I want to know within minutes if the ATS is down so that recruiters are not blocked.*
 
