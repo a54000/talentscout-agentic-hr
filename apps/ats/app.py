@@ -3468,6 +3468,11 @@ def approve_registration(token):
 
 @app.route("/login/google")
 def login_google():
+    if not (os.getenv("GOOGLE_CLIENT_ID") or "").strip() or not (os.getenv("GOOGLE_CLIENT_SECRET") or "").strip():
+        return render_template(
+            "login.html",
+            error="Google login is not configured on this server yet. Please sign in with your username and password.",
+        ), 503
     public_base_url = (os.getenv("PUBLIC_BASE_URL") or "").strip().rstrip("/")
     request_host = (request.host or "").lower()
     is_local_request = (

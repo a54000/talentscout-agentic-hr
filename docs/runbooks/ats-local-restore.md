@@ -98,6 +98,33 @@ curl -s http://localhost:5001/healthz
 
 Then log in at http://localhost:5001 as `admin` and check the candidate and requirement counts.
 
+## D2. Logins
+
+**Password login (works immediately).** Accounts and passwords come from the restored data. To see them, or to reset a password (it is asked for with a hidden prompt):
+
+```bash
+docker compose run --rm ats python scripts/manage_users.py list
+```
+
+```bash
+docker compose run --rm ats python scripts/manage_users.py set-password admin
+```
+
+**Google login.** On first Google sign-in, the ATS creates an account automatically for any team member whose email is in Team Members. That is why the restore has only a few accounts. To enable it:
+
+1. In Google Cloud Console → APIs & Services → Credentials, open the existing **OAuth 2.0 Client ID** used for `ats.hrgp.in`, or create one of type *Web application*. This is free.
+2. Under **Authorised redirect URIs**, add both:
+   - `http://localhost:5001/login/callback` (local use)
+   - `https://ats.hrgp.in/login/callback` (recruiters, after section E)
+3. Put the client ID and secret into `apps/ats/.env` (`GOOGLE_CLIENT_ID=`, `GOOGLE_CLIENT_SECRET=`).
+4. Recreate the container so it reads the new values:
+
+```bash
+docker compose up -d --force-recreate ats
+```
+
+Until this is done, the Google button shows *"Google login is not configured"* instead of Google's error page.
+
 ## E. Make it reachable for recruiters (no public IP needed, free)
 Use a **Cloudflare Tunnel**. The domain `hrgp.in` is already on Cloudflare, and a tunnel was used before (`hireflow.hrgp.in`).
 
