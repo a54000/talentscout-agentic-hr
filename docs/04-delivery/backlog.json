@@ -399,7 +399,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 3,
-      "status": "todo",
+      "status": "in_progress",
       "owner": "Claude + You",
       "fr": [],
       "title": "Restore scheduled WhatsApp/email reports on the Mac",
@@ -415,7 +415,7 @@
       "epic": "EA",
       "sprint": 1,
       "points": 3,
-      "status": "todo",
+      "status": "in_progress",
       "owner": "Claude",
       "fr": [
         "NFR-1",
@@ -596,7 +596,7 @@
         "Given 3 candidate 8B-class models, when each analyses 5 sample JDs, then quality notes, tokens/sec and RAM use are recorded",
         "Given the results, when the spike ends, then ADR-0004 records the chosen model"
       ],
-      "status": "todo",
+      "status": "in_progress",
       "owner": "You",
       "jira": "TS-23"
     },
@@ -632,7 +632,7 @@
         "Given 3 recruiters, when they log 5 requirements each, then minutes per sourcing phase and acceptance rate are recorded",
         "Given the baseline, when published, then it states sample size and limitations"
       ],
-      "status": "todo",
+      "status": "in_progress",
       "owner": "You",
       "jira": "TS-25"
     },
