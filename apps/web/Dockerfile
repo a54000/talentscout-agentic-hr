@@ -14,6 +14,7 @@ FROM alpine:3.24 AS runtime
 RUN apk upgrade --no-cache \
  && apk add --no-cache nginx \
  && rm -f /etc/nginx/http.d/default.conf \
+ && sed -i '/^user /d' /etc/nginx/nginx.conf \
  && mkdir -p /run/nginx /usr/share/nginx/html \
  && chown -R nginx:nginx /run/nginx /var/lib/nginx /var/log/nginx \
  && ln -sf /dev/stdout /var/log/nginx/access.log \

@@ -59,7 +59,7 @@ jobs:
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
       - name: Check web server config
         if: matrix.name == 'web'
-        run: docker run --rm "$IMAGE:${GITHUB_SHA}" nginx -t
+        run: docker run --rm --add-host api:127.0.0.1 "$IMAGE:${GITHUB_SHA}" nginx -t  # api only resolves inside Compose
       - name: Scan image (block on CRITICAL, report HIGH)
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
