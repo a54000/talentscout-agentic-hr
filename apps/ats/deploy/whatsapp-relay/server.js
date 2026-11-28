@@ -1,0 +1,238 @@
+const express = require("express");
+const qrcodeTerminal = require("qrcode-terminal");
+const qrcode = require("qrcode");
+const { Client, LocalAuth } = require("whatsapp-web.js");
+
+const PORT = process.env.PORT || 8090;
+const TOKEN = process.env.WHATSAPP_RELAY_TOKEN || "";
+const DEFAULT_GROUP_ID = process.env.WHATSAPP_GROUP_ID || "";
+
+const app = express();
+app.use(express.json({ limit: "2mb" }));
+
+let isReady = false;
+let latestQr = "";
+let latestQrDataUrl = "";
+let latestQrAt = null;
+const recentGroups = new Map();
+
+const client = new Client({
+  authStrategy: new LocalAuth({
+    dataPath: "/opt/hrguru-whatsapp-relay/.wwebjs_auth"
+  }),
+  puppeteer: {
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-extensions",
+      "--disable-background-networking",
+      "--disable-sync",
+      "--disable-default-apps",
+      "--no-first-run"
+    ]
+  }
+});
+
+client.on("qr", async qr => {
+  isReady = false;
+  latestQr = qr;
+  latestQrAt = new Date();
+  try {
+    latestQrDataUrl = await qrcode.toDataURL(qr, { margin: 1, width: 280 });
+  } catch (error) {
+    latestQrDataUrl = "";
+    console.error("Failed to generate QR data URL:", error);
+  }
+  console.log("Scan this QR using WhatsApp -> Settings -> Linked devices -> Link a device:");
+  qrcodeTerminal.generate(qr, { small: true });
+});
+
+client.on("authenticated", () => {
+  console.log("WhatsApp authenticated.");
+});
+
+client.on("ready", () => {
+  isReady = true;
+  latestQr = "";
+  latestQrDataUrl = "";
+  latestQrAt = null;
+  console.log("WhatsApp relay ready.");
+});
+
+client.on("auth_failure", msg => {
+  isReady = false;
+  console.error("WhatsApp authentication failed:", msg);
+});
+
+client.on("disconnected", reason => {
+  isReady = false;
+  console.error("WhatsApp disconnected:", reason);
+});
+
+async function rememberGroupFromMessage(message, source) {
+  const groupId = message && message.from && String(message.from).endsWith("@g.us") ? message.from : "";
+  if (!groupId) return;
+  let name = "";
+  try {
+    const chat = await message.getChat();
+    name = chat && chat.name ? chat.name : "";
+  } catch (error) {
+    console.error(`Failed to read group chat metadata from ${source}:`, error);
+  }
+  const record = {
+    name: name || groupId,
+    id: groupId,
+    source,
+    seen_at: new Date().toISOString()
+  };
+  recentGroups.set(groupId, record);
+  console.log(`GROUP seen source=${source} name="${record.name}" id=${groupId}`);
+}
+
+client.on("message", message => {
+  rememberGroupFromMessage(message, "message").catch(error => {
+    console.error("Failed to remember group from message:", error);
+  });
+});
+
+client.on("message_create", message => {
+  rememberGroupFromMessage(message, "message_create").catch(error => {
+    console.error("Failed to remember group from message_create:", error);
+  });
+});
+
+process.on("unhandledRejection", error => {
+  console.error("Unhandled rejection:", error);
+});
+
+process.on("uncaughtException", error => {
+  console.error("Uncaught exception:", error);
+});
+
+client.initialize().catch(error => {
+  console.error("Client initialize failed:", error);
+});
+
+function checkToken(req, res) {
+  if (!TOKEN) return true;
+  const auth = req.headers.authorization || "";
+  if (auth === `Bearer ${TOKEN}`) return true;
+  res.status(401).json({ ok: false, error: "Unauthorized" });
+  return false;
+}
+
+app.get("/healthz", (req, res) => {
+  res.json({ ok: true, ready: isReady });
+});
+
+app.get("/qr", (req, res) => {
+  if (!checkToken(req, res)) return;
+  if (isReady) return res.json({ ok: true, ready: true, message: "WhatsApp relay is already ready." });
+  if (!latestQrDataUrl) {
+    return res.status(404).json({
+      ok: false,
+      ready: false,
+      error: "QR is not available yet. Restart the relay or wait for WhatsApp Web to request a new QR."
+    });
+  }
+  const ageSeconds = latestQrAt ? Math.max(0, Math.round((Date.now() - latestQrAt.getTime()) / 1000)) : null;
+  res.json({
+    ok: true,
+    ready: false,
+    qr: latestQr,
+    qr_data_url: latestQrDataUrl,
+    age_seconds: ageSeconds
+  });
+});
+
+app.get("/groups", async (req, res) => {
+  if (!checkToken(req, res)) return;
+  if (!isReady) return res.status(503).json({ ok: false, error: "WhatsApp client not ready" });
+
+  const mergeRecentGroups = groups => {
+    const byId = new Map();
+    (groups || []).forEach(group => {
+      if (group && group.id) byId.set(group.id, group);
+    });
+    recentGroups.forEach(group => {
+      if (group && group.id && !byId.has(group.id)) byId.set(group.id, group);
+    });
+    return Array.from(byId.values()).sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+  };
+
+  try {
+    const chats = await client.getChats();
+    const groups = chats
+      .filter(c => c.isGroup)
+      .map(c => ({ name: c.name, id: c.id._serialized }));
+    res.json({ ok: true, groups: mergeRecentGroups(groups) });
+  } catch (error) {
+    console.error("Failed to load groups via client.getChats, trying Store fallback:", error);
+    try {
+      const groups = await client.pupPage.evaluate(() => {
+        const chatStore = window.Store && window.Store.Chat;
+        const models = chatStore && typeof chatStore.getModelsArray === "function"
+          ? chatStore.getModelsArray()
+          : [];
+        return models
+          .filter(chat => chat && (chat.isGroup || (chat.id && chat.id.server === "g.us")))
+          .map(chat => {
+            const id = chat.id && (chat.id._serialized || (chat.id.user && chat.id.server ? `${chat.id.user}@${chat.id.server}` : ""));
+            const name = chat.name || chat.formattedTitle || chat.__x_name || chat.__x_formattedTitle || "";
+            return { name, id };
+          })
+          .filter(group => group.id);
+      });
+      res.json({ ok: true, groups: mergeRecentGroups(groups), fallback: true });
+    } catch (fallbackError) {
+      console.error("Failed to load groups via Store fallback:", fallbackError);
+      const groups = mergeRecentGroups([]);
+      if (groups.length) return res.json({ ok: true, groups, fallback: true, recent_only: true });
+      res.status(500).json({ ok: false, error: "Failed to load groups" });
+    }
+  }
+});
+
+app.post("/send", async (req, res) => {
+  if (!checkToken(req, res)) return;
+  if (!isReady) {
+    console.error("SEND rejected: WhatsApp client not ready");
+    return res.status(503).json({ ok: false, error: "WhatsApp client not ready" });
+  }
+
+  const groupId = req.body.group_id || DEFAULT_GROUP_ID;
+  const message = req.body.text || req.body.message || "";
+
+  if (!groupId) return res.status(400).json({ ok: false, error: "Missing group_id" });
+  if (!message.trim()) return res.status(400).json({ ok: false, error: "Missing message" });
+
+  try {
+    const preview = message.replace(/\s+/g, " ").trim().slice(0, 120);
+    console.log(`SEND requested group=${groupId} chars=${message.length} preview="${preview}"`);
+    let sent = null;
+    try {
+      const chat = await client.getChatById(groupId);
+      console.log(`SEND chat resolved group=${groupId} name="${chat.name || chat.formattedTitle || ""}" isGroup=${!!chat.isGroup}`);
+      sent = await chat.sendMessage(message);
+    } catch (chatError) {
+      console.error("SEND chat.sendMessage failed, trying client.sendMessage fallback:", chatError);
+      sent = await client.sendMessage(groupId, message);
+    }
+    const messageId = sent && sent.id ? sent.id._serialized || sent.id.id || "" : "";
+    if (!messageId) {
+      console.error(`SEND warning group=${groupId} returned no message id; WhatsApp may have rejected or queued the message.`);
+    }
+    console.log(`SEND success group=${groupId} message_id=${messageId}`);
+    res.json({ ok: true, message_id: messageId, warning: messageId ? "" : "WhatsApp returned no message id. Check group permissions and relay phone delivery." });
+  } catch (error) {
+    console.error("Failed to send message:", error);
+    res.status(500).json({ ok: false, error: "Failed to send message" });
+  }
+});
+
+app.listen(PORT, "127.0.0.1", () => {
+  console.log(`WhatsApp relay listening on http://127.0.0.1:${PORT}`);
+});

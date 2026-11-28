@@ -7,7 +7,7 @@ updates:
     groups:
       npm-minor-patch: { update-types: [minor, patch] }
   - package-ecosystem: pip
-    directory: /services/agents
+    directories: [/services/agents, /apps/ats]
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases
   - package-ecosystem: github-actions
@@ -15,6 +15,6 @@ updates:
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases
   - package-ecosystem: docker
-    directories: [/apps/api, /apps/web, /services/agents]
+    directories: [/apps/api, /apps/web, /services/agents, /apps/ats]
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # wait a week before proposing brand-new releases

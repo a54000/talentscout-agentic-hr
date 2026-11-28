@@ -60,6 +60,55 @@ jobs:
       - name: Tests
         run: pytest -q
 
+  ats:
+    name: HR Guru ATS smoke test (SQLite + PostgreSQL)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: hrguru_ats
+          POSTGRES_USER: hrguru
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hrguru -d hrguru_ats"
+          --health-interval 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/ats
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: apps/ats/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Syntax check
+        run: python -m compileall -q .
+      - name: Smoke test (SQLite)
+        run: tests/smoke_test.sh "$(command -v python)"
+      - name: Bootstrap empty PostgreSQL schema
+        env:
+          DATABASE_URL: postgresql://hrguru:ci-only-password@127.0.0.1:5432/hrguru_ats
+          SECRET_KEY: ci-only
+          ADMIN_PASSWORD: smoke-admin-pw
+          PYTHON: python
+        run: scripts/bootstrap_empty_postgres.sh
+      - name: Smoke test (PostgreSQL)
+        env:
+          DATABASE_URL: postgresql://hrguru:ci-only-password@127.0.0.1:5432/hrguru_ats
+        run: tests/smoke_test.sh "$(command -v python)"
+      - name: Smoke test (PostgreSQL, gunicorn multi-process as in the Docker image)
+        env:
+          DATABASE_URL: postgresql://hrguru:ci-only-password@127.0.0.1:5432/hrguru_ats
+          ATS_SMOKE_SERVER: gunicorn
+        run: tests/smoke_test.sh "$(command -v python)"
+
   docs:
     name: backlog docs are in sync
     runs-on: ubuntu-24.04

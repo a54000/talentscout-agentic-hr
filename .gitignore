@@ -13,3 +13,4 @@ __pycache__/
 # Real candidate data never enters git (ADR-0005)
 data/real/
 *.real.json
+ops/backup/backup.env

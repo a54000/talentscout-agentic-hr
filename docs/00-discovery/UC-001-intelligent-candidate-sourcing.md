@@ -2,6 +2,8 @@
 
 This is the reference business use case. It is carried through every sprint: each new capability must work on this scenario, and it is the first end-to-end acceptance test.
 
+> **In plain words:** the client wants 5 AWS Cloud Architects. We apply the hiring rules one by one to the CVs in the ATS, and most people drop out at the notice-period rule, leaving only 2. A normal search stops there. The agent should notice *where* people dropped out and try other legitimate ways to find more, such as people already serving notice or people with a different job title. It must not change the rules itself. If it still can't reach 5, it asks the recruiter what to do. **The numbers are illustrative.** We generate fake CVs that reproduce them so the behaviour can be tested.
+
 ## 1. Requirement
 
 | Field | Value |
@@ -18,7 +20,7 @@ This is the reference business use case. It is carried through every sprint: eac
 
 ## 2. Scenario data (synthetic)
 
-The synthetic dataset for UC-001 (story TS-E2-01) contains 500 resumes and is generated to reproduce this funnel on the first search:
+The synthetic dataset for UC-001 (story TS-E2-01) contains 500 resumes. It is generated **into the ATS schema** (a development copy of the ATS database, never the live one), so it flows through the same connector as real data. It reproduces this funnel on the first search:
 
 | Stage | Candidates remaining |
 |---|---|
@@ -40,7 +42,7 @@ This lets the replanning step find more qualifying candidates, while still stopp
 |---|---|---|
 | 1 | Understand the goal: 5 candidates, 7 mandatory skills, budget, notice, experience, location | Goal understanding, structured output |
 | 2 | Plan which tools and searches to use | Planning |
-| 3 | Search the candidate database | Tool calling |
+| 3 | Search the candidates synced from the ATS | Tool calling |
 | 4 | Observe that only 2 candidates qualify, so the objective is not met | Observation |
 | 5 | Diagnose the bottleneck: the **notice period** (12 → 2) | Reasoning over the funnel |
 | 6 | Generate an alternative strategy: serving-notice candidates and alternative job titles | Replanning |

@@ -19,6 +19,7 @@ The LLD is written **just in time**. Each sprint's section is completed during t
 ```
 talentscout-agentic-hr/
 ├── apps/
+│   ├── ats/              HR Guru ATS (Flask + PostgreSQL), live system of record
 │   ├── web/              React SPA (Vite, TS)
 │   └── api/              Express API / BFF (TS)
 ├── services/
@@ -59,12 +60,30 @@ Layering inside `services/agents`: `api/ (FastAPI routers) → graph/ (LangGraph
 ```
 Indexes: `{ownerId:1,status:1}`, `{clientId:1,status:1,updatedAt:-1}`.
 
-### candidates (synthetic in dev)
+### ATS → TalentScout mapping (connector, Sprint 2)
+
+| ATS `candidates` column | TalentScout field | Notes |
+|---|---|---|
+| `id` | `externalRef` (`ats:<id>`) | Stable key; deletes propagate |
+| `current_role`, `current_company` | `currentTitle`, `currentCompany` | |
+| `experience_years` (text) | `totalExperienceYears` (number) | Parsed; unparseable values become `null` and are flagged |
+| `key_skills` + parsed CV + `candidate_skills` | `skills[]` | Normalised with ATS `skill_aliases.py` |
+| `notice_period` (text) | `noticeDays` (number) + `servingNotice` (bool) + `lastWorkingDay` | "Serving notice, LWD 15 Dec" is parsed for UC-001 replanning |
+| `current_salary`, `expected_salary` (text) | `currentCtcLpa`, `expectedCtcLpa` | Unit normalisation (LPA, lakhs, ₹) |
+| `current_location`, `preferred_location` | `location`, `preferredLocations[]` | |
+| `cv_filename` / `cv_url` | resume source → parse → `resume_chunks` | Read-only from the uploads volume |
+| `candidate_name`, `email_addr`, `phone` | `pii.*` | Never sent to LLMs or traces |
+| `status`, submissions, `candidate_feedback` | feedback signals for memory | Read-only |
+| `updated_at` | sync watermark | Incremental sync |
+
+ATS `requirements` (`title`, `description`, `client_name`, JD file) map to TalentScout requirement snapshots. Recruiters still create requirements in the ATS. TalentScout adds constraints and analysis on top.
+
+### candidates (derived from the ATS; synthetic in dev)
 ```json
 { "_id": "ObjectId", "externalRef": "string", "headline": "string", "currentTitle": "string",
   "totalExperienceYears": 12, "skills": ["AWS","Terraform"], "location": "Pune",
   "noticeDays": 60, "currentCtcLpa": 38, "expectedCtcLpa": 46,
-  "source": "internal_db | licensed_export | direct_apply", "consent": {"status":"granted","at":"Date"},
+  "source": "ats", "externalRef": "ats:1234", "servingNotice": false, "lastWorkingDay": null, "consent": {"status":"granted","at":"Date"},
   "pii": { "name": "string", "email": "string", "phone": "string" },
   "retentionUntil": "Date", "updatedAt": "Date" }
 ```

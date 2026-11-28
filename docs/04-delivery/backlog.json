@@ -1,94 +1,383 @@
 {
-  "project": "HR Guru: Agentic AI Recruitment Command Centre (TalentScout)",
+  "project": "TalentScout: Agentic AI Recruitment Command Centre (for HR Guru)",
   "sprints": [
     {
       "id": 0,
-      "name": "Sprint 0 - Inception and walking skeleton",
+      "name": "Sprint 0 - Inception, walking skeleton and ATS restore",
       "start": "2026-11-30",
       "end": "2026-12-11",
-      "goal": "Documents baselined, backlog ready, and a walking skeleton that builds, tests, scans and ships through CI/CD."
+      "goal": "Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts."
     },
     {
       "id": 1,
-      "name": "Sprint 1 - Single-agent foundation",
+      "name": "Sprint 1 - ATS stabilisation",
       "start": "2026-12-14",
       "end": "2026-12-24",
-      "goal": "A recruiter can create the UC-001 requirement and get a validated, structured JD analysis (existing parser plus a bounded single agent) with clarification questions."
+      "goal": "The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured."
     },
     {
       "id": 2,
-      "name": "Sprint 2 - RAG and intelligent retrieval",
+      "name": "Sprint 2 - Product foundation and ATS connector",
       "start": "2027-01-04",
       "end": "2027-01-15",
-      "goal": "Resumes are parsed and indexed; the Sourcing agent runs hybrid search with funnel counts on the UC-001 dataset and beats keyword search on golden queries."
+      "goal": "TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS."
     },
     {
       "id": 3,
-      "name": "Sprint 3 - Multi-agent orchestration",
+      "name": "Sprint 3 - Single-agent completion and data",
       "start": "2027-01-18",
       "end": "2027-01-29",
-      "goal": "UC-001 end to end: the supervisor diagnoses the notice-period bottleneck, replans without relaxing constraints, verifies evidence per mandatory skill, and pauses for recruiter approval or escalates."
+      "goal": "The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists."
     },
     {
       "id": 4,
-      "name": "Sprint 4 - MCP and agent memory",
+      "name": "Sprint 4 - RAG and intelligent retrieval",
       "start": "2027-02-01",
       "end": "2027-02-12",
-      "goal": "Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live."
+      "goal": "Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists."
     },
     {
       "id": 5,
-      "name": "Sprint 5 - Responsible AI and LLMOps",
+      "name": "Sprint 5 - Multi-agent orchestration (UC-001 end to end)",
       "start": "2027-02-15",
       "end": "2027-02-26",
-      "goal": "The platform is controlled and observable: guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI."
+      "goal": "UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation."
     },
     {
       "id": 6,
-      "name": "Sprint 6 - Interoperability, delivery and pilot",
+      "name": "Sprint 6 - MCP, memory and durable execution",
       "start": "2027-03-01",
       "end": "2027-03-12",
-      "goal": "Enterprise-style MVP: multi-provider routing, agent execution dashboard, performance testing, demo deployment and a recruiter pilot report (A2A as stretch)."
+      "goal": "Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live."
+    },
+    {
+      "id": 7,
+      "name": "Sprint 7 - Responsible AI and LLMOps",
+      "start": "2027-03-15",
+      "end": "2027-03-26",
+      "goal": "Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI."
+    },
+    {
+      "id": 8,
+      "name": "Sprint 8 - Routing, dashboard, performance and pilot",
+      "start": "2027-03-29",
+      "end": "2027-04-09",
+      "goal": "Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch)."
     }
   ],
   "epics": [
     {
       "id": "E0",
       "name": "Inception and platform",
-      "summary": "Documents, repo, CI/CD, security scanning, local stack, free-tier accounts."
+      "summary": "Documents, repo, CI/CD, security scanning, local stack, free-tier accounts.",
+      "jira": "TS-1"
+    },
+    {
+      "id": "EA",
+      "name": "HR Guru ATS restore and integration",
+      "summary": "Bring the live ATS back (local Docker + Cloudflare Tunnel), protect it (backups, security), and connect TalentScout to it read-only.",
+      "jira": "TS-2"
     },
     {
       "id": "E1",
       "name": "Requirement agent",
-      "summary": "Auth, requirements, existing JD parser reuse, LLM router v0 and a bounded single agent with structured output."
+      "summary": "Auth, requirements, existing JD parser reuse, LLM router v0 and a bounded single agent with structured output.",
+      "jira": "TS-3"
     },
     {
       "id": "E2",
       "name": "Intelligent retrieval",
-      "summary": "Synthetic data (incl. UC-001), resume parsing, embeddings, hybrid search, funnel analysis and the Sourcing agent."
+      "summary": "Synthetic data (incl. UC-001), resume parsing, embeddings, hybrid search, funnel analysis and the Sourcing agent.",
+      "jira": "TS-4"
     },
     {
       "id": "E3",
       "name": "Multi-agent orchestration",
-      "summary": "LangGraph supervisor, bottleneck diagnosis, replanning with frozen constraints, escalation, evidence-based matching, approval gate."
+      "summary": "LangGraph supervisor, bottleneck diagnosis, replanning with frozen constraints, escalation, evidence-based matching, approval gate.",
+      "jira": "TS-5"
     },
     {
       "id": "E4",
       "name": "MCP and memory",
-      "summary": "MCP tool server, scopes, durable execution, long-term memory, live run view."
+      "summary": "MCP tool server, scopes, durable execution, long-term memory, live run view.",
+      "jira": "TS-6"
     },
     {
       "id": "E5",
       "name": "Responsible AI and LLMOps",
-      "summary": "Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP."
+      "summary": "Guardrails, PII routing, limits, tracing, evaluations, audit integrity, DPDP.",
+      "jira": "TS-7"
     },
     {
       "id": "E6",
       "name": "Interoperability, delivery and pilot",
-      "summary": "LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch)."
+      "summary": "LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch).",
+      "jira": "TS-8"
     }
   ],
   "stories": [
+    {
+      "id": "TS-EA-01",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 2,
+      "status": "done",
+      "owner": "Claude",
+      "fr": [
+        "ADR-0006"
+      ],
+      "title": "Import ATS into the monorepo",
+      "story": "As a tech lead I want the ATS code in this repository so that one pipeline builds, tests and scans everything.",
+      "ac": [
+        "Given hireflow@990f832, then it is in apps/ats without git history and without real candidate data or backup files"
+      ],
+      "jira": "TS-9"
+    },
+    {
+      "id": "TS-EA-02",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "done",
+      "owner": "Claude + You",
+      "fr": [
+        "FR-ATS-1"
+      ],
+      "title": "Make the ATS run locally on macOS",
+      "story": "As a recruiter I want the ATS available again so that I can keep uploading candidates and managing requirements.",
+      "ac": [
+        "Given Docker on the Mac, when docker compose up ats-db ats runs, then /healthz is ok and admin login works",
+        "Given macOS/Linux, then the single-instance lock works (Windows-only msvcrt replaced)",
+        "Given an empty PostgreSQL, then bootstrap_empty_postgres.sh creates the schema and refuses to touch a database that has data"
+      ],
+      "jira": "TS-10"
+    },
+    {
+      "id": "TS-EA-03",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 2,
+      "status": "done",
+      "owner": "Claude",
+      "fr": [
+        "NFR-8"
+      ],
+      "title": "Patch vulnerable ATS dependencies",
+      "story": "As a security owner I want known CVEs fixed so that the live ATS is not exposed through old libraries.",
+      "ac": [
+        "Given pip-audit and Trivy, then apps/ats/requirements.txt has 0 known vulnerabilities (was 61, 7 critical)",
+        "Given the upgrade, then SQLite and PostgreSQL smoke tests pass"
+      ],
+      "jira": "TS-11"
+    },
+    {
+      "id": "TS-EA-04",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "done",
+      "owner": "You (script: Claude)",
+      "fr": [
+        "FR-ATS-1"
+      ],
+      "title": "Recover production ATS data",
+      "story": "As a director I want the production candidates, requirements and CVs back so that recruiters do not start from zero.",
+      "ac": [
+        "Given the legacy ats.db on the MacBook, when scripts/restore_from_sqlite.sh runs, then the copy is upgraded to the current schema, migrated, and counts and newest dates are printed (tested on a synthetic legacy-schema file)",
+        "Given a pg_dump, EBS snapshot or legacy ats.db, when restored by the runbook, then candidate and requirement counts match the last known values (about 3,600 and 400)",
+        "Given no backup exists, then the loss is recorded and the ATS starts fresh (procedure B3)",
+        "Result 2026-11-27: restored 9,988 candidates, 1,685 requirements, 41 team members, 5 app users from ats.db (sha256 0eb4a831...). Newest records 2026-05-26; data entered on the AWS PostgreSQL after that date is not in this file (gap tracked as R-13 and TS-EA-10)"
+      ],
+      "jira": "TS-12"
+    },
+    {
+      "id": "TS-EA-05",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "done",
+      "owner": "You + Claude",
+      "fr": [
+        "NFR-1"
+      ],
+      "title": "Expose the local ATS to 25 recruiters securely",
+      "story": "As a recruiter I want to reach the ATS from my own laptop so that I can work as before.",
+      "ac": [
+        "Given a Cloudflare Tunnel, then https://ats.hrgp.in serves the local ATS over HTTPS with no open router ports",
+        "Given Google login, then the OAuth redirect URI works on the new host"
+      ],
+      "jira": "TS-13"
+    },
+    {
+      "id": "TS-EA-06",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "done",
+      "owner": "Claude + You",
+      "fr": [
+        "NFR-4"
+      ],
+      "title": "ATS backups and restore drill",
+      "story": "As a director I want nightly backups and a tested restore so that losing the host never loses data again.",
+      "ac": [
+        "Given launchd at 21:00, then a pg_dump and an uploads archive are written and 14 copies kept, with an off-machine copy",
+        "Given a backup, when restored into a scratch database, then counts match (drill recorded)"
+      ],
+      "jira": "TS-14"
+    },
+    {
+      "id": "TS-EA-07",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-1",
+        "BR-4"
+      ],
+      "title": "ATS security hardening baseline",
+      "story": "As a security owner I want the most serious ATS weaknesses fixed so that a live system with candidate PII is safe enough to run.",
+      "ac": [
+        "Given an API error, then clients receive a generic message and details go only to logs",
+        "Given CodeQL and Semgrep findings for apps/ats, then all high and critical are fixed or risk-accepted in a tracked list",
+        "Given AI screening, then the owner's decision on Gemini and PII (R-11) is implemented"
+      ],
+      "jira": "TS-15"
+    },
+    {
+      "id": "TS-EA-08",
+      "epic": "EA",
+      "sprint": 2,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-ATS-2",
+        "FR-ATS-3",
+        "FR-ATS-4"
+      ],
+      "title": "Read-only ATS connector",
+      "story": "As a recruiter I want TalentScout to see the candidates I upload to the ATS so that agents search real, current profiles.",
+      "ac": [
+        "Given a SELECT-only DB role, when the connector syncs, then new or changed candidates appear in TalentScout within 10 minutes",
+        "Given a candidate deleted in the ATS, then its profile, chunks and embeddings are removed at the next sync",
+        "Given a write attempt through the connector role, then the database refuses it"
+      ],
+      "jira": "TS-16"
+    },
+    {
+      "id": "TS-EA-09",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 2,
+      "status": "done",
+      "owner": "Claude",
+      "fr": [
+        "NFR-4"
+      ],
+      "title": "ATS health monitoring",
+      "story": "As a delivery lead I want to know within minutes if the ATS is down so that recruiters are not blocked.",
+      "ac": [
+        "Given the ATS stops responding, then an alert is sent within 5 minutes (existing monitor_health script or a free uptime monitor)"
+      ],
+      "jira": "TS-17"
+    },
+    {
+      "id": "TS-EA-10",
+      "epic": "EA",
+      "sprint": null,
+      "points": 2,
+      "status": "deferred",
+      "owner": "You",
+      "fr": [
+        "FR-ATS-1"
+      ],
+      "title": "Close the post-May 2026 data gap and the missing CV/JD files",
+      "story": "As a director I want candidates and requirements added after 26 May 2026 recovered or re-entered so that recruiters work from complete data.",
+      "ac": [
+        "Given any remaining AWS artefact (EBS snapshot, RDS or pg_dump, S3 backup, recruiter Excel uploads), when found, then the missing records are imported with the runbook B1 procedure",
+        "Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded",
+        "Findings 2026-11-28: CV/JD files were only on the EC2 disk; no ATS zip backups found in Google Drive. Remaining source: AWS detached EBS volumes / snapshots / AMIs / AWS Backup in the old region; otherwise recruiters re-upload CVs for active candidates",
+        "Deferred by the PO 2026-11-28: no EBS volume/snapshot found in AWS so far; PO will check other places later. Until then recruiters re-upload CVs for active candidates as they work them"
+      ],
+      "jira": "TS-69"
+    },
+    {
+      "id": "TS-EA-11",
+      "epic": "EA",
+      "sprint": 0,
+      "points": 3,
+      "status": "done",
+      "owner": "Claude + You",
+      "fr": [
+        "NFR-ATS-1"
+      ],
+      "title": "ATS performance quick wins: PostgreSQL indexes and multi-process serving",
+      "story": "As a recruiter I want the ATS to stay responsive while colleagues upload candidates so that my work is not blocked.",
+      "ac": [
+        "Given PostgreSQL mode, when the ATS starts, then the 24 query indexes exist (log: Performance indexes ensured: 24/24); duplicate-check lookups use an index (measured 12-26x faster on 10k candidates)",
+        "Given 4 concurrent CV parses, then /healthz average latency stays under 50 ms (measured: 129 ms with 1 process, 24 ms with 3 workers)",
+        "Given SQLite mode, then the image falls back to 1 worker (file lock)",
+        "Verified on the Mac 2026-11-28: 3 gunicorn workers booted; 24/24 indexes present in PostgreSQL. Concurrent worker startup serialized with an advisory lock (all workers report 24/24)"
+      ],
+      "jira": "TS-70"
+    },
+    {
+      "id": "TS-EA-12",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 8,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-2"
+      ],
+      "title": "Asynchronous bulk upload with progress",
+      "story": "As a recruiter I want my bulk upload accepted immediately and processed in the background so that I can keep working and see progress.",
+      "ac": [
+        "Given an upload of up to 100 rows with CVs, when submitted, then the request returns a job id in under 5 s and a worker processes it in a separate process",
+        "Given a running job, then the UI shows rows done / failed / duplicates and the final summary matches today's synchronous result",
+        "Given one bad row or CV, then other rows are still saved and the error is reported per row",
+        "Given the worker restarts mid-job, then the job resumes or is marked failed with no duplicate rows"
+      ],
+      "jira": "TS-71"
+    },
+    {
+      "id": "TS-EA-13",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-1"
+      ],
+      "title": "ATS performance baseline and load test",
+      "story": "As a tech lead I want measured response times under realistic load so that performance targets are verified, not assumed.",
+      "ac": [
+        "Given the existing load-test scripts (apps/ats/scripts/*load_test*), when run against a staging copy with 25 simulated recruiters, then p50/p95 per key page and the bulk-upload duration are recorded",
+        "Given the results, then gaps against NFR-ATS-1 are listed with the top 3 slow endpoints"
+      ],
+      "jira": "TS-72"
+    },
+    {
+      "id": "TS-EA-14",
+      "epic": "EA",
+      "sprint": 1,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude + You",
+      "fr": [],
+      "title": "Restore scheduled WhatsApp/email reports on the Mac",
+      "story": "As a delivery lead I want the daily and weekly submission reports and recruiter reminders running again so that the team keeps its routine.",
+      "ac": [
+        "Given the old systemd timers (apps/ats/deploy/systemd), when ported to launchd or a compose scheduler, then each report runs at its old time against the local ATS",
+        "Given a report fails, then it is logged and does not affect the ATS"
+      ],
+      "jira": "TS-73"
+    },
     {
       "id": "TS-E0-01",
       "epic": "E0",
@@ -102,7 +391,10 @@
       "ac": [
         "Given a fresh clone, when I run the documented setup, then web, api and agents install and their tests pass",
         "Given an unformatted file, when lint runs, then it fails with a clear message"
-      ]
+      ],
+      "status": "done",
+      "owner": "Claude",
+      "jira": "TS-18"
     },
     {
       "id": "TS-E0-02",
@@ -117,7 +409,10 @@
       "ac": [
         "Given a PR, when CI runs, then Node and Python lint, unit tests and builds run and report status",
         "Given a failing test, when CI runs, then the PR check is red and merge is blocked"
-      ]
+      ],
+      "status": "in_progress",
+      "owner": "Claude",
+      "jira": "TS-19"
     },
     {
       "id": "TS-E0-03",
@@ -134,7 +429,10 @@
         "Given a PR, when security CI runs, then CodeQL, Semgrep, gitleaks, npm audit, pip-audit and Trivy run",
         "Given a committed fake secret, when gitleaks runs, then the job fails",
         "Given a high-severity dependency vulnerability, when audit runs, then the job fails"
-      ]
+      ],
+      "status": "in_progress",
+      "owner": "Claude",
+      "jira": "TS-20"
     },
     {
       "id": "TS-E0-04",
@@ -150,7 +448,10 @@
         "Given a merge to main, when CD runs, then images for web, api and agents are pushed to GHCR tagged with the commit SHA",
         "Given a critical vulnerability in an image, when Trivy scans it, then the image is not pushed",
         "Given demo secrets are absent, when CD runs, then deploy is skipped with a notice instead of failing"
-      ]
+      ],
+      "status": "in_progress",
+      "owner": "Claude",
+      "jira": "TS-21"
     },
     {
       "id": "TS-E0-05",
@@ -165,12 +466,15 @@
       "ac": [
         "Given Docker is running, when I run docker compose up, then web, api, agents, mongo and redis start and health checks pass",
         "Given Ollama runs natively, when the agents service starts, then it reaches Ollama via host.docker.internal"
-      ]
+      ],
+      "status": "in_progress",
+      "owner": "Claude",
+      "jira": "TS-22"
     },
     {
       "id": "TS-E0-06",
       "epic": "E0",
-      "sprint": 0,
+      "sprint": 1,
       "points": 3,
       "fr": [
         "NFR-3"
@@ -180,7 +484,10 @@
       "ac": [
         "Given 3 candidate 8B-class models, when each analyses 5 sample JDs, then quality notes, tokens/sec and RAM use are recorded",
         "Given the results, when the spike ends, then ADR-0004 records the chosen model"
-      ]
+      ],
+      "status": "todo",
+      "owner": "You",
+      "jira": "TS-23"
     },
     {
       "id": "TS-E0-07",
@@ -195,12 +502,15 @@
       "ac": [
         "Given the setup guide, when followed, then Atlas, Langfuse and one free LLM key are configured in a local .env that git ignores",
         "Given .env.example, when compared with code, then every required variable is documented"
-      ]
+      ],
+      "status": "todo",
+      "owner": "You",
+      "jira": "TS-24"
     },
     {
       "id": "TS-E0-08",
       "epic": "E0",
-      "sprint": 0,
+      "sprint": 1,
       "points": 3,
       "fr": [
         "BO-1"
@@ -210,7 +520,10 @@
       "ac": [
         "Given 3 recruiters, when they log 5 requirements each, then minutes per sourcing phase and acceptance rate are recorded",
         "Given the baseline, when published, then it states sample size and limitations"
-      ]
+      ],
+      "status": "todo",
+      "owner": "You",
+      "jira": "TS-25"
     },
     {
       "id": "TS-E0-09",
@@ -223,12 +536,15 @@
       "ac": [
         "Given backlog.json, when imported, then every epic and story exists in Jira with points and sprint",
         "Given the board, when Sprint 0 starts, then its committed stories are in the sprint"
-      ]
+      ],
+      "status": "done",
+      "owner": "Claude",
+      "jira": "TS-26"
     },
     {
       "id": "TS-E1-01",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 2,
       "points": 5,
       "fr": [
         "FR-REQ-1",
@@ -240,12 +556,15 @@
         "Given the UC-001 values (12-18 yrs, Gurgaon, 45 LPA, notice <= 30 days, 7 mandatory skills), when I create the requirement, then all constraints are stored as mandatory",
         "Given valid input, when I create a requirement, then it is saved with status draft and returned",
         "Given a budget below 0 or a missing title, when I submit, then I get a 400 problem+json response naming the field"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-27"
     },
     {
       "id": "TS-E1-02",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 2,
       "points": 5,
       "fr": [
         "FR-AUTH-1",
@@ -258,12 +577,15 @@
         "Given valid credentials, when I log in, then I receive a 15-minute access token and a refresh cookie",
         "Given a recruiter token, when I call an admin route, then I get 403",
         "Given a reused refresh token, when I refresh, then all sessions for that user are revoked"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-28"
     },
     {
       "id": "TS-E1-03",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 2,
       "points": 3,
       "fr": [
         "NFR-3",
@@ -274,12 +596,15 @@
       "ac": [
         "Given pii=true, when a cloud route is configured, then the router raises PolicyViolation",
         "Given a 429 from the free tier, when pii=false, then the router falls back to Ollama"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-29"
     },
     {
       "id": "TS-E1-04",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 2,
       "points": 5,
       "fr": [
         "FR-REQ-2"
@@ -290,12 +615,15 @@
         "Given the UC-001 JD and 9 other golden JDs, when analysed, then output validates against RequirementAnalysis and lists all 7 UC-001 mandatory skills",
         "Given a malformed model reply, when parsing fails, then the agent repairs at most 2 times and otherwise marks needs_human",
         "Given a JD containing an injection instruction, when analysed, then behaviour and schema are unchanged"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-30"
     },
     {
       "id": "TS-E1-05",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 3,
       "points": 3,
       "fr": [
         "FR-REQ-3"
@@ -305,12 +633,15 @@
       "ac": [
         "Given analysis questions, when I answer one, then the requirement version increments and the answer is stored",
         "Given I dismiss a question, then it is hidden and recorded as dismissed"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-31"
     },
     {
       "id": "TS-E1-06",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 3,
       "points": 2,
       "fr": [
         "FR-OBS-1"
@@ -320,12 +651,15 @@
       "ac": [
         "Given an analysis run, when it completes, then model_call and observation events exist with model, tokens and latency",
         "Given the app database user, when it tries to update an audit event, then it is denied"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-32"
     },
     {
       "id": "TS-E1-07",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 3,
       "points": 3,
       "fr": [
         "NFR-7"
@@ -335,28 +669,34 @@
       "ac": [
         "Given the golden set, when the eval runs, then must-have recall and precision are reported",
         "Given recall drops more than 10 points versus baseline, then the eval exits non-zero"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-33"
     },
     {
       "id": "TS-E1-08",
       "epic": "E1",
-      "sprint": 1,
+      "sprint": 2,
       "points": 2,
       "fr": [
         "FR-REQ-0",
         "FR-CAND-0"
       ],
-      "title": "Review existing JD and resume parsers and decide reuse",
-      "story": "As an architect I want the existing HR Guru parsers reviewed so that we reuse them safely instead of rebuilding them, without modifying the existing platform.",
+      "title": "Review ATS JD and CV parsers and decide reuse",
+      "story": "As an architect I want the ATS parsing code reviewed so that TalentScout reuses it through a stable wrapper instead of rebuilding it.",
       "ac": [
         "Given the parser code, when reviewed, then an ADR records reuse approach (library, service or rewrite), interfaces, quality on 10 sample documents and security findings",
         "Given the decision, then jd.parse and resume.parse tool contracts are defined in the LLD"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-34"
     },
     {
       "id": "TS-E2-01",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 3,
       "points": 5,
       "fr": [
         "FR-CAND-4",
@@ -366,29 +706,35 @@
       "story": "As a developer I want 2,000 realistic fictional candidates so that we can build and demo without real PII.",
       "ac": [
         "Given a seed, when the generator runs, then the output is deterministic",
-        "Given the UC-001 profile, when generated, then 500 resumes reproduce the funnel 500 -> 80 -> 25 -> 12 -> 2 and include serving-notice and alternative-title candidates that qualify",
+        "Given the UC-001 profile, when generated into a development ATS database (never the live one), then 500 resumes reproduce the funnel 500 -> 80 -> 25 -> 12 -> 2 and include serving-notice and alternative-title candidates that qualify",
         "Given generated data, when checked, then no protected attributes are present in searchable fields"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-35"
     },
     {
       "id": "TS-E2-07",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 3,
       "points": 3,
       "fr": [
         "FR-CAND-0"
       ],
-      "title": "Resume parsing in the ingestion pipeline",
-      "story": "As a recruiter I want resumes parsed into structured fields so that matching uses reliable experience, notice and skills data.",
+      "title": "Resume parsing of ATS CVs",
+      "story": "As a recruiter I want CVs from the ATS parsed into structured fields so that matching uses reliable experience, notice and skills data.",
       "ac": [
-        "Given a resume, when ingested, then the existing parser (via resume.parse) produces structured fields and sections before chunking",
+        "Given a CV synced from the ATS, when ingested, then the ATS parser (via resume.parse) produces structured fields and sections before chunking",
         "Given a resume the parser cannot handle, then it is flagged for review and not silently dropped"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-36"
     },
     {
       "id": "TS-E2-02",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 3,
       "points": 5,
       "fr": [
         "FR-CAND-1"
@@ -398,12 +744,15 @@
       "ac": [
         "Given a resume, when processed, then chunks by section exist with 768-dim local embeddings",
         "Given a chunk containing an email or phone number, when masked, then neither appears in the stored text"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-37"
     },
     {
       "id": "TS-E2-03",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 3,
       "points": 2,
       "fr": [
         "FR-CAND-2"
@@ -413,12 +762,15 @@
       "ac": [
         "Given atlas-local, when the setup script runs, then vector_index and text_index exist",
         "Given the script runs twice, then it is idempotent"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-38"
     },
     {
       "id": "TS-E2-04",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 4,
       "points": 5,
       "fr": [
         "FR-CAND-2",
@@ -429,12 +781,15 @@
       "ac": [
         "Given a query and filters, when searched, then results honour notice and CTC filters",
         "Given 50k profiles, when searched, then p95 latency is under 1 s locally"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-39"
     },
     {
       "id": "TS-E2-05",
       "epic": "E2",
-      "sprint": 2,
+      "sprint": 4,
       "points": 5,
       "fr": [
         "FR-AGT-6",
@@ -445,7 +800,10 @@
       "ac": [
         "Given an analysed requirement, when the agent runs, then it issues at most 5 tool calls and returns candidates with retrieved evidence",
         "Given the UC-001 dataset, when the agent searches, then it reports funnel counts per stage (experience, skills, budget, notice)"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-40"
     },
     {
       "id": "TS-E2-06",
@@ -460,12 +818,15 @@
       "ac": [
         "Given 20 golden queries, when the eval runs, then hybrid and keyword scores are reported side by side",
         "Given results, then they are recorded in the sprint review notes"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-41"
     },
     {
       "id": "TS-E3-01",
       "epic": "E3",
-      "sprint": 3,
+      "sprint": 4,
       "points": 5,
       "fr": [
         "FR-AGT-1",
@@ -476,12 +837,15 @@
       "ac": [
         "Given a requirement, when a run starts, then a plan with steps and success criteria is stored",
         "Given the graph, when visualised, then nodes and conditional edges match the LLD"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-42"
     },
     {
       "id": "TS-E3-02",
       "epic": "E3",
-      "sprint": 3,
+      "sprint": 5,
       "points": 8,
       "fr": [
         "FR-AGT-3",
@@ -496,12 +860,15 @@
         "Given the bottleneck, then it replans with at least serving-notice and alternative-title strategies",
         "Given any replan, then the mandatory constraints in run state equal the original requirement (budget, skills, experience, location, notice)",
         "Given fewer than 5 qualify after 3 replans, then the run ends escalated with the funnel, strategies tried and decision options, not failed"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-43"
     },
     {
       "id": "TS-E3-03",
       "epic": "E3",
-      "sprint": 3,
+      "sprint": 5,
       "points": 5,
       "fr": [
         "FR-AGT-6"
@@ -511,12 +878,15 @@
       "ac": [
         "Given a candidate, when screened, then each of the 7 UC-001 mandatory skills has a verdict with an evidence quote, or the verdict unknown",
         "Given a resume without the skill, then the verdict is not_met or unknown, never met"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-44"
     },
     {
       "id": "TS-E3-04",
       "epic": "E3",
-      "sprint": 3,
+      "sprint": 5,
       "points": 5,
       "fr": [
         "FR-AGT-7"
@@ -526,12 +896,15 @@
       "ac": [
         "Given a screening with a fabricated quote, when verified, then it is flagged unsupported and removed from facts",
         "Given a clean screening, then no flags are raised"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-45"
     },
     {
       "id": "TS-E3-05",
       "epic": "E3",
-      "sprint": 4,
+      "sprint": 6,
       "points": 3,
       "fr": [
         "FR-AGT-10",
@@ -542,12 +915,15 @@
       "ac": [
         "Given a running workflow, when I open the run page, then plan, tool_call, observation and replan events appear in order",
         "Given the connection drops, when it reconnects, then missed events are replayed"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-46"
     },
     {
       "id": "TS-E3-06",
       "epic": "E3",
-      "sprint": 3,
+      "sprint": 5,
       "points": 6,
       "fr": [
         "FR-AGT-8",
@@ -559,12 +935,15 @@
         "Given a shortlist or an escalation, when the run reaches the gate, then status is awaiting_approval and the graph is interrupted",
         "Given my decisions, when submitted, then the run resumes and an approval record with user and time is stored",
         "Given a delivery_lead token, when submitting decisions, then 403"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-47"
     },
     {
       "id": "TS-E4-01",
       "epic": "E4",
-      "sprint": 4,
+      "sprint": 6,
       "points": 5,
       "fr": [],
       "title": "MCP server with recruitment tools",
@@ -572,12 +951,15 @@
       "ac": [
         "Given the MCP server, when a client lists tools, then the catalogue in the LLD is returned with JSON Schemas",
         "Given invalid tool arguments, then a structured error is returned and nothing is written"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-48"
     },
     {
       "id": "TS-E4-02",
       "epic": "E4",
-      "sprint": 4,
+      "sprint": 6,
       "points": 3,
       "fr": [],
       "title": "Agents consume tools via MCP client",
@@ -585,12 +967,15 @@
       "ac": [
         "Given the agent service, when it starts, then it discovers tools from the MCP server",
         "Given the MCP server is down, then the run pauses with a clear error instead of crashing"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-49"
     },
     {
       "id": "TS-E4-03",
       "epic": "E4",
-      "sprint": 4,
+      "sprint": 6,
       "points": 3,
       "fr": [
         "NFR-1"
@@ -599,12 +984,15 @@
       "story": "As a security owner I want each agent limited to its tools so that a compromised agent cannot act beyond its role.",
       "ac": [
         "Given the Sourcing agent session, when it calls shortlist.finalise, then the call is denied and a guardrail_block audit event is written"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-50"
     },
     {
       "id": "TS-E4-04",
       "epic": "E4",
-      "sprint": 4,
+      "sprint": 6,
       "points": 5,
       "fr": [
         "FR-AGT-9",
@@ -615,12 +1003,15 @@
       "ac": [
         "Given the agent process is killed mid-run, when restarted, then the run resumes from the last checkpoint",
         "Given a resumed run, then no tool call with the same idempotency key is executed twice"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-51"
     },
     {
       "id": "TS-E4-05",
       "epic": "E4",
-      "sprint": 4,
+      "sprint": 6,
       "points": 5,
       "fr": [
         "FR-MEM-2",
@@ -631,12 +1022,15 @@
       "ac": [
         "Given recruiter feedback approved at the gate, when saved via memory.save_feedback with an approvalId, then it is embedded and tagged by role family",
         "Given a new similar requirement, when the Sourcing agent plans, then relevant feedback is retrieved and shown in the trace"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-52"
     },
     {
       "id": "TS-E5-01",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 5,
       "fr": [
         "NFR-1"
@@ -646,12 +1040,15 @@
       "ac": [
         "Given the injection corpus (20 cases), when evaluated, then no case changes scores or triggers tools",
         "Given a detected injection, then a guardrail_block event is recorded"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-53"
     },
     {
       "id": "TS-E5-02",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "NFR-2",
@@ -662,12 +1059,15 @@
       "ac": [
         "Given any cloud-bound prompt, when inspected in tests, then no email, phone or name from the candidate store appears",
         "Given pii=true, then only the local route is ever used"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-54"
     },
     {
       "id": "TS-E5-03",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "FR-OBS-2"
@@ -677,12 +1077,15 @@
       "ac": [
         "Given a run, then a Langfuse trace exists with spans per node and tool, with PII masked",
         "Given a prompt change, then the new version id is recorded on each call"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-55"
     },
     {
       "id": "TS-E5-04",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "FR-AGT-5"
@@ -691,12 +1094,15 @@
       "story": "As an engineering manager I want hard limits so that runaway agents cannot burn quota or time.",
       "ac": [
         "Given a graph that never satisfies its goal, when run, then it stops at 12 iterations with status stopped_limit and a partial result"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-56"
     },
     {
       "id": "TS-E5-05",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "BR-5"
@@ -706,12 +1112,15 @@
       "ac": [
         "Given no approvalId, when shortlist.finalise or memory.save_feedback is called, then it is refused and audited",
         "Given an approval for a different run or candidate, then it is refused"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-57"
     },
     {
       "id": "TS-E5-06",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "FR-AUTH-1"
@@ -720,12 +1129,15 @@
       "story": "As a security owner I want recent authentication before approvals so that a stolen session cannot approve a shortlist or constraint relaxation.",
       "ac": [
         "Given a session older than 10 minutes, when approving a shortlist or a constraint relaxation, then password re-entry is required"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-58"
     },
     {
       "id": "TS-E5-07",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "FR-OBS-1",
@@ -736,12 +1148,15 @@
       "ac": [
         "Given a run's events, when one is modified directly in the DB, then the verification endpoint reports the broken hash chain",
         "Given a completed run, when the completeness check runs, then every graph step has a matching audit event (traceability 100%)"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-59"
     },
     {
       "id": "TS-E5-08",
       "epic": "E5",
-      "sprint": 5,
+      "sprint": 7,
       "points": 5,
       "fr": [
         "NFR-7"
@@ -751,12 +1166,15 @@
       "ac": [
         "Given a PR touching prompts or agents, when CI runs, then golden, hallucination and fairness (name-swap) evals run on synthetic data",
         "Given a regression beyond threshold, then the check fails"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-60"
     },
     {
       "id": "TS-E5-10",
       "epic": "E5",
-      "sprint": 6,
+      "sprint": 8,
       "points": 3,
       "fr": [
         "NFR-2"
@@ -766,12 +1184,15 @@
       "ac": [
         "Given an erasure request, when executed, then the candidate, chunks, embeddings and memory references are deleted and logged",
         "Given retentionUntil has passed, when the job runs, then records are purged"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-61"
     },
     {
       "id": "TS-E6-01",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 5,
       "fr": [
         "NFR-3",
@@ -782,12 +1203,15 @@
       "ac": [
         "Given provider A returns 429, when called, then provider B is used, then Ollama",
         "Given routing policy tests, then pii=true never reaches a cloud provider"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-62"
     },
     {
       "id": "TS-E6-02",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 3,
       "fr": [
         "NFR-5"
@@ -796,12 +1220,15 @@
       "story": "As a recruiter I want candidates screened in parallel so that shortlists arrive faster.",
       "ac": [
         "Given 20 candidates, when screened, then concurrency is bounded and total time drops versus sequential, recorded in the review"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-63"
     },
     {
       "id": "TS-E6-03",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 5,
       "fr": [
         "FR-DASH-1",
@@ -814,12 +1241,15 @@
         "Given completed runs, then the dashboard shows status, replans, duration, tokens, model routes and notional cost per run",
         "Given a period, then completion rate, acceptance rate, evidence accuracy, escalations and guardrail blocks are shown",
         "Given any run, then it links to its full timeline and trace"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-64"
     },
     {
       "id": "TS-E6-04",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 5,
       "fr": [],
       "title": "A2A Talent Intelligence agent (stretch)",
@@ -827,24 +1257,30 @@
       "ac": [
         "Given the agent card, when the supervisor discovers it, then it can delegate a salary-benchmark task and receive a result",
         "Given the A2A agent is unavailable, then the run continues without it and logs a warning"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-65"
     },
     {
       "id": "TS-E6-05",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 3,
       "fr": [],
       "title": "Demo deployment",
       "story": "As a candidate in interviews I want a running demo on synthetic data so that I can show the system live.",
       "ac": [
         "Given a merge to main with demo secrets, when CD runs, then the demo host serves the latest images and health checks pass"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-66"
     },
     {
       "id": "TS-E6-07",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 3,
       "fr": [
         "NFR-5",
@@ -855,12 +1291,15 @@
       "ac": [
         "Given k6 load on API and search, then p95 targets in NFR-5 are met or the gap is reported",
         "Given the agent process is killed or a provider is down during a UC-001 run, then the run recovers and the drill result is recorded"
-      ]
+      ],
+      "status": "todo",
+      "owner": "Claude",
+      "jira": "TS-67"
     },
     {
       "id": "TS-E6-06",
       "epic": "E6",
-      "sprint": 6,
+      "sprint": 8,
       "points": 3,
       "fr": [
         "BO-1",
@@ -870,7 +1309,83 @@
       "story": "As a director I want a pilot report against the baseline so that the decision to scale is evidence-based.",
       "ac": [
         "Given 2 weeks of pilot use, then the report compares effort, acceptance, evidence accuracy and incidents against the baseline, with limitations stated"
-      ]
+      ],
+      "status": "todo",
+      "owner": "You + recruiters",
+      "jira": "TS-68"
     }
-  ]
+  ],
+  "owner_actions": [
+    {
+      "task": "Refresh the Cloudflare tunnel token",
+      "why": "Done 2026-11-28.",
+      "status": "done"
+    },
+    {
+      "task": "Turn on Cloudflare Access for ats.hrgp.in",
+      "why": "Deferred by the PO 2026-11-28 (not required at this stage). Risk R-15 accepted until ATS hardening TS-EA-07 (Sprint 1); revisit before wider rollout. Steps kept in runbook E8.",
+      "status": "deferred"
+    },
+    {
+      "task": "Make a54000/hireflow private",
+      "why": "Done 2026-11-28 (hireflow private). Also review a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app, which are still public.",
+      "status": "done"
+    },
+    {
+      "task": "Run the ATS restore from ats.db on the Mac",
+      "why": "Done 2026-11-27: 9,988 candidates, 1,685 requirements restored; newest 2026-05-26.",
+      "status": "done"
+    },
+    {
+      "task": "Create the Jira project (Scrum, key TS, name TalentScout)",
+      "why": "The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.",
+      "status": "done"
+    },
+    {
+      "task": "Decide on Gemini AI screening in the ATS (R-11)",
+      "why": "It sends real CVs to Gemini; options: disable, paid tier with no-training terms, or local model.",
+      "status": "todo"
+    },
+    {
+      "task": "Review and merge the Sprint 0 and ATS pull requests",
+      "why": "Runs CI and all security scans on GitHub for the first time.",
+      "status": "todo"
+    },
+    {
+      "task": "Protect main and enable secret scanning push protection",
+      "why": "Repo Settings → Branches and → Code security; leave CodeQL default setup off (the workflow runs it).",
+      "status": "todo"
+    },
+    {
+      "task": "Create free accounts: MongoDB Atlas, Langfuse, Google AI Studio or Groq",
+      "why": "Story TS-E0-07; keys go only into the git-ignored .env.",
+      "status": "todo"
+    },
+    {
+      "task": "Install Docker Desktop, Ollama and cloudflared on the Mac",
+      "why": "Docker done (ATS running). Ollama still needed for TalentScout agents (Sprint 1 spike).",
+      "status": "todo"
+    },
+    {
+      "task": "Sign off the BRD, PRD and UC-001 (phase 1 gate)",
+      "why": "Approval table in the BRD.",
+      "status": "todo"
+    }
+  ],
+  "jira": {
+    "site": "https://a440564.atlassian.net",
+    "project": "TS",
+    "board": "https://a440564.atlassian.net/jira/software/projects/TS/boards/2",
+    "sprint_ids": {
+      "0": 4,
+      "1": 5,
+      "2": 6,
+      "3": 7,
+      "4": 8,
+      "5": 9,
+      "6": 10,
+      "7": 11,
+      "8": 12
+    }
+  }
 }

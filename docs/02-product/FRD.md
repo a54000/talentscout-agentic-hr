@@ -23,7 +23,7 @@ Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 ### FR-CAND: Candidate store and search
 | ID | Requirement | Feature |
 |---|---|---|
-| FR-CAND-0 | Resumes are parsed by the **existing HR Guru resume parser**, wrapped as `resume.parse`, into structured profile fields and sections before chunking. | F-03 |
+| FR-CAND-0 | Resumes come from the **ATS** and are parsed by the **existing ATS resume parser**, wrapped as `resume.parse`, into structured profile fields and sections before chunking. | F-03 |
 | FR-CAND-1 | Candidates hold: profile fields, parsed resume, resume chunks with embeddings, source, consent status, created/updated dates. | F-03 |
 | FR-CAND-2 | Hybrid search combines vector similarity and keyword (BM25) scores with reciprocal rank fusion, and supports filters (notice, CTC, location). | F-03 |
 | FR-CAND-3 | Protected attributes are never stored in searchable fields or sent to LLMs. | F-03, F-11 |
@@ -61,7 +61,15 @@ Version 0.2. Requirements trace back to the [PRD](PRD.md) features (F-xx) and fo
 | FR-DASH-3 | Every run links to its full timeline and its trace (KPI-6). | F-14 |
 
 ### Future phase (not in MVP)
-Automated candidate outreach (former FR-OUT), the delivery monitoring agent (former FR-DEL), voice screening, ATS integration and Naukri API integration (subject to authorised access).
+Automated candidate outreach (former FR-OUT), the delivery monitoring agent (former FR-DEL), voice screening, and writing results back to the ATS. Naukri has no profile API, so Naukri-sourced candidates arrive through ATS uploads.
+
+### FR-ATS: HR Guru ATS integration
+| ID | Requirement | Feature |
+|---|---|---|
+| FR-ATS-1 | The ATS is the system of record for candidates, CVs and requirements. TalentScout never writes to ATS tables in the MVP. | F-00 |
+| FR-ATS-2 | The connector reads through a `SELECT`-only PostgreSQL role and syncs changes incrementally (by `updated_at`) into TalentScout's store within 10 minutes. | F-00 |
+| FR-ATS-3 | CV files are read from the ATS uploads storage, read-only. A candidate deleted in the ATS is deleted from TalentScout's index at the next sync, including chunks and embeddings. | F-00, NFR-2 |
+| FR-ATS-4 | Connector contract tests run in CI against a bootstrapped ATS schema. | F-00 |
 
 ### FR-OBS: Audit and observability
 | ID | Requirement | Feature |
@@ -84,6 +92,9 @@ Automated candidate outreach (former FR-OUT), the delivery monitoring agent (for
 | NFR-8 | Supply chain | Dependencies pinned via lockfiles; Dependabot; SCA (software composition analysis), SAST, secret and container scans in CI. |
 | NFR-9 | Accessibility | WCAG 2.1 AA for core screens. |
 | NFR-10 | Portability | Whole stack runs with `docker compose up`. Ollama runs natively on macOS for GPU (Metal) acceleration. |
+| NFR-ATS-1 | ATS performance | With 25 recruiters active: page and API p95 < 1 s; no request slows others by more than 2× while a bulk upload runs. Measured with the load-test scripts (TS-EA-13) |
+| NFR-ATS-2 | ATS bulk upload | Upload of up to 100 rows + CVs is accepted in < 5 s and processed in the background with visible progress (TS-EA-12); a failure in one row never loses the others |
+| NFR-ATS-3 | ATS availability | Detect downtime within 10 min (uptime monitor); restore from last night's backup within 1 h (runbook F) |
 
 ## 3. Traceability
 

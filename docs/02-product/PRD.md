@@ -2,7 +2,7 @@
 
 | Item | Value |
 |---|---|
-| Product | HR Guru: Agentic AI Recruitment Command Centre (codename TalentScout) |
+| Product | TalentScout: Agentic AI Recruitment Command Centre (for HR Guru) |
 | Version | 0.2 |
 | Owner | Product Owner |
 | Related | [BRD](../01-business/BRD.md), [FRD](FRD.md), [UC-001](../00-discovery/UC-001-intelligent-candidate-sourcing.md), [HLD](../03-architecture/HLD.md) |
@@ -17,7 +17,7 @@ Recruiters lose time to manual search strings, repetitive resume screening and l
 
 ## 3. Target users
 
-Recruiter (primary), Delivery Lead (secondary), Admin (configuration and audit).
+Recruiter (primary; MVP rollout to 25 recruiters), Delivery Lead (secondary), Admin (configuration and audit).
 
 ## 4. What makes it agentic (product principles)
 
@@ -38,31 +38,34 @@ Recruiter (primary), Delivery Lead (secondary), Admin (configuration and audit).
 | Screening | Validate each mandatory skill against parsed resume evidence | `candidates.get_resume_chunks`, `resume.parse` | None |
 | Quality | Verify evidence, detect unsupported claims, check policy and bias | `evidence.verify`, `policy.check` | None |
 
-**Future phase:** Outreach agent (automated candidate outreach), Delivery agent (delivery monitoring), voice screening, ATS and Naukri integrations.
+**Input source:** the HR Guru ATS. Recruiters upload sourced candidates and CVs into it, including candidates found on Naukri (Naukri has no profile API). TalentScout reads the ATS read-only (ADR-0007).
+
+**Future phase:** Outreach agent (automated candidate outreach), Delivery agent (delivery monitoring), voice screening, writing approved shortlists back to the ATS.
 
 ## 6. MVP features and priority (MoSCoW)
 
 | ID | Feature | Priority | Sprint |
 |---|---|---|---|
-| F-01 | Authentication and RBAC (Recruiter, Delivery Lead, Admin) | Must | 1 |
-| F-02 | Requirement intake, JD parsing and analysis with clarification questions | Must | 1 |
-| F-03 | Resume parsing and candidate store (synthetic data, embeddings, hybrid search) | Must | 2 |
-| F-04 | Sourcing agent with funnel analysis | Must | 2 |
-| F-05 | Multi-agent workflow: supervisor, replanning, escalation | Must | 3 |
-| F-06 | Evidence-based candidate matching (Screening and Quality) | Must | 3 |
-| F-07 | MCP server exposing recruitment tools | Must | 4 |
-| F-08 | Durable execution (checkpointing, resume) | Must | 4 |
-| F-09 | Agent memory: short-term state and long-term feedback | Must | 4 |
-| F-10 | Human approval workflow | Must | 3 (basic), 5 (hardened) |
-| F-11 | AI guardrails: PII masking, injection defence, tool scopes, limits | Must | 5 |
-| F-12 | Observability (tracing) and audit trail | Must | 1 (audit), 5 (tracing) |
-| F-13 | Evaluation suite and CI evaluation gate | Must | 5 |
-| F-14 | Agent execution dashboard: live run view, run history, KPIs, cost | Must | 4 (live view), 6 (dashboard) |
-| F-15 | Model routing (local / free cloud / fallback) | Should | 1 (v0), 6 (multi-provider) |
-| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 6 (stretch) |
+| F-00 | HR Guru ATS restored locally and used as the source of candidates, CVs and requirements (read-only connector) | Must | 0 (restore), 1 (stabilise), 2 (connector) |
+| F-01 | Authentication and RBAC (Recruiter, Delivery Lead, Admin) | Must | 2 |
+| F-02 | Requirement intake, JD parsing and analysis with clarification questions | Must | 2–3 |
+| F-03 | Resume parsing and candidate store (synthetic data, embeddings, hybrid search) | Must | 3–4 |
+| F-04 | Sourcing agent with funnel analysis | Must | 4 |
+| F-05 | Multi-agent workflow: supervisor, replanning, escalation | Must | 5 |
+| F-06 | Evidence-based candidate matching (Screening and Quality) | Must | 5 |
+| F-07 | MCP server exposing recruitment tools | Must | 6 |
+| F-08 | Durable execution (checkpointing, resume) | Must | 6 |
+| F-09 | Agent memory: short-term state and long-term feedback | Must | 6 |
+| F-10 | Human approval workflow | Must | 5 (basic), 7 (hardened) |
+| F-11 | AI guardrails: PII masking, injection defence, tool scopes, limits | Must | 7 |
+| F-12 | Observability (tracing) and audit trail | Must | 3 (audit), 7 (tracing) |
+| F-13 | Evaluation suite and CI evaluation gate | Must | 7 |
+| F-14 | Agent execution dashboard: live run view, run history, KPIs, cost | Must | 6 (live view), 8 (dashboard) |
+| F-15 | Model routing (local / free cloud / fallback) | Should | 2 (v0), 8 (multi-provider) |
+| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 8 (stretch) |
 | F-17 | Automated candidate outreach | Won't (future) | — |
 | F-18 | Delivery monitoring agent | Won't (future) | — |
-| F-19 | Voice screening; ATS integration; Naukri API | Won't (future / subject to access) | — |
+| F-19 | Voice screening; ATS write-back; Naukri API (not available) | Won't (future) | — |
 
 ## 7. Key user journeys
 
@@ -99,11 +102,11 @@ Recruiter (primary), Delivery Lead (secondary), Admin (configuration and audit).
 | 1 Discovery and requirements | Business problem, BRD, FRD, PRD, success criteria, UC-001 | 0 | BRD/PRD sign-off |
 | 2 Solution and architecture | HLD, LLD (Sprint 1 scope), technology selection, data flow, ADRs | 0 | Architecture sign-off |
 | 3 Engineering planning | Epics, stories, acceptance criteria, estimates, sprint backlog | 0 | Backlog ready (DoR) |
-| 4 Incremental development | Agent fundamentals → RAG → LangGraph → MCP, memory → A2A | 1–4, 6 | Sprint reviews |
-| 5 AI engineering and governance | Guardrails, evaluations, observability, security, failure handling | 5 (and every sprint) | Governance review |
-| 6 Deployment and pilot | CI/CD (from Sprint 0), infrastructure, performance testing, recruiter feedback | 6 | Pilot report |
+| 4 Incremental development | ATS restore and stabilisation → connector → agent fundamentals → RAG → LangGraph → MCP, memory → A2A | 0–6, 8 | Sprint reviews |
+| 5 AI engineering and governance | Guardrails, evaluations, observability, security, failure handling | 7 (and every sprint) | Governance review |
+| 6 Deployment and pilot | CI/CD (from Sprint 0), ATS hosting (Sprint 0), performance testing, recruiter feedback | 8 | Pilot report |
 
-Sprint 0 contains **no feature code**. It sets up the repository, CI/CD and security scanning so that every later sprint is built, tested and scanned from its first commit.
+Sprint 0 contains **no TalentScout feature code**. It sets up the repository, CI/CD and security scanning, and restores the live ATS that recruiters depend on.
 
 ## 10. Open questions
 

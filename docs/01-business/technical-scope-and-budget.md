@@ -13,24 +13,26 @@
 | Tools and memory | MCP server, tool scopes, MongoDB checkpointer, feedback memory | E4 |
 | Safety and governance | Guardrails, PII routing, limits, threat model, DPDP pack, tamper-evident audit | E5 |
 | Observability and evaluation | Langfuse, evaluation datasets, CI evaluation gate, cost dashboard | E5 |
-| Agent execution dashboard | Live run view (SSE), run history, KPI aggregation, notional cost | E4, E6 |
+| Agent execution dashboard | Live run view (SSE), run history, KPI aggregation, notional cost | E3, E6 |
+| HR Guru ATS | Import, local Docker run, dependency patching, data recovery, Cloudflare Tunnel, backups, monitoring, hardening, read-only connector | EA |
 | Interoperability and pilot | LiteLLM gateway, A2A agent (stretch), performance testing, demo deployment, pilot | E6 |
 | Platform | Monorepo, Docker Compose, CI, security scans, CD, environments | E0 |
 
 ## 2. Sizing
 
-| Epic | Stories | Story points | Sprint |
+| Epic | Stories | Story points | Sprints |
 |---|---|---|---|
-| E0 Inception and platform | 9 | 24 | 0 |
-| E1 Requirement agent | 8 | 28 | 1 |
-| E2 Intelligent retrieval | 7 | 29 | 2 (retrieval eval in 4) |
-| E3 Multi-agent orchestration | 6 | 32 | 3 (live view in 4) |
-| E4 MCP and memory | 5 | 21 | 4 |
-| E5 Responsible AI and LLMOps | 9 | 31 | 5 (DPDP pack in 6) |
-| E6 Interop, dashboard and pilot | 7 | 27 | 6 |
-| **Total** | **51** | **192** | 7 sprints × 2 weeks |
+| EA HR Guru ATS restore and integration | 14 | 47 | 0, 1, 2 |
+| E0 Inception and platform | 9 | 24 | 0, 1 |
+| E1 Requirement agent | 8 | 28 | 2, 3 |
+| E2 Intelligent retrieval | 7 | 29 | 3, 4 |
+| E3 Multi-agent orchestration | 6 | 32 | 4, 5, 6 |
+| E4 MCP and memory | 5 | 21 | 6 |
+| E5 Responsible AI and LLMOps | 9 | 31 | 7, 8 |
+| E6 Interop, dashboard and pilot | 7 | 27 | 8 |
+| **Total** | **65** | **239** | 9 sprints × 2 weeks (to 2027-04-09) |
 
-**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. TS-E5-10 (DPDP pack) is planned into Sprint 6. The A2A agent (TS-E6-04) is a stretch item and is the first to drop if capacity is short.
+**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. Sprint 0 is over capacity by design (ATS restore was urgent) but was largely completed during inception. Sprint 1 is an ATS stabilisation sprint (re-planned 2026-11-28 at the PO's decision): TalentScout feature work starts in Sprint 2 and the plan ends 2027-04-09. TS-E5-10 (DPDP pack) is in Sprint 8; the A2A agent (TS-E6-04) is a stretch item and the first to drop if capacity is short.
 
 ## 3. Budget
 
@@ -45,6 +47,7 @@
 | Cloud LLM | Gemini / Groq / OpenRouter free tiers (synthetic or masked data only) | $0 |
 | Observability | Langfuse Cloud Hobby (50k units/month, 2 users) | $0 |
 | Demo hosting (optional) | OCI Always Free ARM (2 OCPU / 12 GB) | $0 |
+| Live ATS hosting | Existing Mac + Docker + Cloudflare Tunnel (free) | $0 (risk R-12) |
 | AI coding assistants | Existing Claude and ChatGPT Plus subscriptions | Already paid, not project spend |
 | Security tools | Trivy, gitleaks, Semgrep CE, pip-audit, npm audit | $0 |
 
@@ -65,7 +68,7 @@ This is used for interview discussions and for any future commercial proposal. R
 | **Total** | **77** | | **≈ ₹22.5 lakh** |
 
 **Run cost at production scale** (if moved from free tiers to paid APIs). Assumptions:
-- 200 requirements/month (A-02 planning figure for ~40 recruitment professionals).
+- 200 requirements/month (A-02 planning figure for 25 recruiters, about 8 each).
 - About 150k input and 20k output tokens per end-to-end run, including replans and evaluations.
 - Example pricing: Anthropic list prices as of Nov 2026 (Sonnet 5.5 at $2 / $10 per million tokens; Haiku 5.5 at $0.10 / $0.50). Re-verify before quoting.
 
