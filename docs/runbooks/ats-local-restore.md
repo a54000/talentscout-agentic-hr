@@ -259,5 +259,85 @@ In Zero Trust → **Notifications** → *Add* → **Tunnel health alert** (or *T
 4. `docker compose logs --tail 50 ats ats-worker tunnel`
 5. `docker compose --profile live up -d`
 
+## I. Scheduled WhatsApp reports (TS-EA-14)
+
+On EC2, six systemd timers sent the team reminders and submission reports. On the Mac they run in two Docker services under the `reports` profile:
+- **`whatsapp-relay`:** WhatsApp Web in headless Chromium, logged in with a QR scan.
+- **`ats-scheduler`:** runs each report at its old time (IST).
+
+| Time (IST) | Days | Report |
+|---|---|---|
+| 10:00 / 14:30 / 18:00 | Mon–Sat | Team reminders: morning, afternoon, evening |
+| 16:00 | Mon–Sat | Recruiters with no submission yet |
+| 19:00 | Mon–Sat | Daily submission report |
+| 19:10 | Sat | Weekly submission report |
+
+**I1. One-time setup**
+
+1. Put a long random token in the root `.env`, as `WHATSAPP_RELAY_TOKEN=<token>`. Generate one with:
+
+```bash
+openssl rand -hex 24
+```
+
+2. Start the relay:
+
+```bash
+docker compose --profile reports up -d --build whatsapp-relay
+```
+
+3. Save the login QR as an image and open it. Run this from the repository folder, after `export WHATSAPP_RELAY_TOKEN=<token>`:
+
+```bash
+curl -s -H "Authorization: Bearer $WHATSAPP_RELAY_TOKEN" http://localhost:8090/qr | python3 -c "import sys,json,base64; d=json.load(sys.stdin); open('/tmp/wa-qr.png','wb').write(base64.b64decode(d['qr_data_url'].split(',')[1])); print('saved /tmp/wa-qr.png')" && open /tmp/wa-qr.png
+```
+
+4. On the phone whose WhatsApp account sends the reports, open **WhatsApp → Settings → Linked devices → Link a device** and scan the QR. The QR expires within a minute or so; if it does, run step 3 again.
+5. Find the group the reports go to and copy its `id` (it ends in `@g.us`):
+
+```bash
+curl -s -H "Authorization: Bearer $WHATSAPP_RELAY_TOKEN" http://localhost:8090/groups | python3 -m json.tool
+```
+
+6. Put it in the root `.env` as `WHATSAPP_GROUP_ID=<id>`.
+
+**I2. Test, then start the schedule**
+
+Preview a message without sending it:
+
+```bash
+docker compose --profile reports run --rm ats-scheduler python report_scheduler.py --run-now daily-submission-report --dry-run
+```
+
+Send one real message to the group:
+
+```bash
+docker compose --profile reports run --rm ats-scheduler python report_scheduler.py --run-now team-morning-reminder
+```
+
+Start the schedule:
+
+```bash
+docker compose --profile reports up -d --build ats-scheduler
+```
+
+See the schedule and the next run of each report:
+
+```bash
+docker compose --profile reports exec ats-scheduler python report_scheduler.py --list
+```
+
+**I3. Day to day**
+- **Logs:** each run writes `ok` or `FAILED` with the script's last lines. Check them with:
+
+```bash
+docker compose logs --tail 50 ats-scheduler
+```
+
+- **A failed report** is logged and not retried that day, so nobody gets duplicate messages. It never affects the ATS.
+- **If the Mac was asleep:** a report is still sent if the Mac wakes within 60 minutes of its time. Later than that, it's logged as `MISSED` and skipped.
+- **The WhatsApp login** is kept in the `whatsapp-session` volume. If WhatsApp logs the device out, repeat I1 steps 3–4.
+- **Risk R-17:** the relay uses an unofficial WhatsApp Web library, so keep volumes low and send only to the team group.
+
 ## G. Known limits of running on a laptop
 Single point of failure (sleep, reboot, travel, power). RAM is shared with TalentScout's local LLM, so avoid heavy model runs during working hours. Logged as risk R-12. Revisit hosting when budget allows.

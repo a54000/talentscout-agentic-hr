@@ -60,6 +60,41 @@ services:
       ats-db: { condition: service_healthy }
     restart: unless-stopped
 
+  # Scheduled WhatsApp reports (TS-EA-14). Start with:  docker compose --profile reports up -d
+  # WhatsApp Web session for the reports; scan the QR once (runbook section I).
+  whatsapp-relay:
+    build: ./apps/ats/deploy/whatsapp-relay
+    environment:
+      WHATSAPP_RELAY_TOKEN: ${WHATSAPP_RELAY_TOKEN:-}   # required: the relay refuses to start without it
+      WHATSAPP_GROUP_ID: ${WHATSAPP_GROUP_ID:-}
+    volumes: [whatsapp-session:/data]
+    ports: ["127.0.0.1:8090:8090"]   # only for scanning the QR on this Mac
+    shm_size: 1gb                    # Chromium needs more shared memory than Docker's default
+    restart: unless-stopped
+    profiles: ["reports"]
+
+  # Runs the six reports at their old EC2 times (IST), separate from the web app.
+  ats-scheduler:
+    build: ./apps/ats
+    command: ["python", "report_scheduler.py"]
+    env_file:
+      - path: apps/ats/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://hrguru:${ATS_DB_PASSWORD}@ats-db:5432/hrguru_ats
+      ATS_UPLOAD_WORKER: external
+      ATS_PROCESS_ROLE: worker
+      ATS_REPORT_STATE_FILE: /app/uploads/.scheduler/state.json
+      TEAM_SUBMISSION_WHATSAPP_WEBHOOK_URL: http://whatsapp-relay:8090/send
+      TEAM_SUBMISSION_WHATSAPP_TOKEN: ${WHATSAPP_RELAY_TOKEN:-}
+      TEAM_SUBMISSION_WHATSAPP_GROUP_ID: ${WHATSAPP_GROUP_ID:-}
+    volumes: [ats-uploads:/app/uploads]
+    depends_on:
+      ats-db: { condition: service_healthy }
+      whatsapp-relay: { condition: service_started }
+    restart: unless-stopped
+    profiles: ["reports"]
+
   # Cloudflare Tunnel: publishes the ATS at https://ats.hrgp.in with no open ports on the Mac.
   # Only starts with the "live" profile:  docker compose --profile live up -d tunnel
   tunnel:
@@ -108,3 +143,4 @@ volumes:
   mongo-data:
   ats-pgdata:
   ats-uploads:
+  whatsapp-session:
