@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 15 | 2 | 0 | 66 | 1 | 84 |
+| 15 | 2 | 0 | 69 | 1 | 87 |
 
 ## Your actions (outside the backlog)
 
@@ -51,6 +51,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 ## Sprint 2 - Product foundation and ATS connector (2027-01-04 → 2027-01-15)
 
 - [ ] **TS-EA-08 Read-only ATS connector**: TalentScout to see the candidates I upload to the ATS, so that agents search real, current profiles. _(5 pts, owner: Claude, Jira TS-16)_
+- [ ] **TS-EA-16 Run the live ATS from the scanned GHCR images**: The Mac to run the exact images that CD built and scanned, so that what is live is what passed the security gate. _(3 pts, owner: Claude, Jira TS-96)_
 - [ ] **TS-E1-01 Requirement CRUD API and UI**: To create and view requirements with constraints, so that the agents know the hiring goal. _(5 pts, owner: Claude, Jira TS-27)_
 - [ ] **TS-E1-02 Authentication and RBAC**: Role-based access, so that each user sees only what they should. _(5 pts, owner: Claude, Jira TS-28)_
 - [ ] **TS-E1-03 LLM router v0 with PII flag**: Every model call to go through a router that knows data sensitivity, so that PII never reaches a cloud tier. _(3 pts, owner: Claude, Jira TS-29)_
@@ -59,6 +60,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 ## Sprint 3 - Single-agent completion and data (2027-01-18 → 2027-01-29)
 
+- [ ] **TS-EA-17 One-command ATS deploy with backup, health check and rollback**: One command that backs up, deploys and checks the ATS, and rolls back on failure,, so that updates are safe and repeatable. _(5 pts, owner: Claude, Jira TS-97)_
 - [ ] **TS-E1-05 Clarification questions UI**: To answer or dismiss clarification questions, so that the brief improves before sourcing. _(3 pts, owner: Claude, Jira TS-31)_
 - [ ] **TS-E1-06 Audit events v0**: Every agent call recorded, so that decisions are traceable. _(2 pts, owner: Claude, Jira TS-32)_
 - [ ] **TS-E1-07 Golden JD dataset and test**: 10 golden JDs with expected must-haves, so that prompt changes are measurable. _(3 pts, owner: Claude, Jira TS-33)_
@@ -130,6 +132,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 ## Sprint 10 - Dashboard, performance and pilot (2027-04-26 → 2027-05-07)
 
+- [ ] **TS-EA-18 Staging copy of the ATS for testing releases**: A staging ATS on the Mac with a masked copy of live data, so that releases are tried on realistic data before recruiters see them. _(3 pts, owner: Claude, Jira TS-98)_
 - [ ] **TS-E6-03 Agent execution dashboard (dashboard part 2)**: Run history and KPIs in one place, so that I can see whether the agents are working and what they cost. _(5 pts, owner: Claude, Jira TS-64)_
 - [ ] **TS-E6-04 A2A Talent Intelligence agent (stretch)**: An independently deployed agent reachable over A2A, so that we prove interoperability. _(5 pts, owner: Claude, Jira TS-65)_
 - [ ] **TS-E6-05 Demo deployment**: A running demo on synthetic data, so that I can show the system live. _(3 pts, owner: Claude, Jira TS-66)_

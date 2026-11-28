@@ -6,15 +6,15 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 |---|---|---|---|---|
 | 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts. | 39 | +13 over (stretch items flagged in planning) |
 | 1 | 2026-12-14 → 2026-12-24 | The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured. | 28 | +2 over (stretch items flagged in planning) |
-| 2 | 2027-01-04 → 2027-01-15 | TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS. | 25 | OK |
-| 3 | 2027-01-18 → 2027-01-29 | The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists. | 23 | OK |
+| 2 | 2027-01-04 → 2027-01-15 | TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS. | 28 | +2 over (stretch items flagged in planning) |
+| 3 | 2027-01-18 → 2027-01-29 | The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists. | 28 | +2 over (stretch items flagged in planning) |
 | 4 | 2027-02-01 → 2027-02-12 | Every new ATS submission is audited within 1 hour: must-have evidence, detail accuracy, constraint fit, duplicates and completeness, with a quality score, a lead review queue and recruiter scorecards. | 29 | +3 over (stretch items flagged in planning) |
 | 5 | 2027-02-15 → 2027-02-26 | Audit flags are evidence-checked and approved by leads, audit precision is measured on a golden set, and the WhatsApp relay and opt-out registry are ready for verification. | 28 | +2 over (stretch items flagged in planning) |
 | 6 | 2027-03-01 → 2027-03-12 | Agents use tools only through the MCP server with per-agent scopes; runs survive restarts; side-effecting tools need an approval token and step-up re-authentication. | 30 | +4 over (stretch items flagged in planning) |
 | 7 | 2027-03-15 → 2027-03-26 | Leads approve verification batches; WhatsApp and email messages go out within rate limits; replies are classified locally and compared with recruiter entries; follow-ups and escalations work; DPDP pack ready for sign-off. | 29 | +3 over (stretch items flagged in planning) |
 | 8 | 2027-03-29 → 2027-04-09 | Hybrid search over the ATS pool beats keyword search; the UC-001 replan and escalation works end to end; prompt-injection defence and tracing are in place. | 30 | +4 over (stretch items flagged in planning) |
 | 9 | 2027-04-12 → 2027-04-23 | Anonymised pitch packs and drive summaries are built from audited, verified candidates; evaluation gate in CI; tamper-evident audit trail; LiteLLM routing. | 29 | +3 over (stretch items flagged in planning) |
-| 10 | 2027-04-26 → 2027-05-07 | Agent execution dashboard with audit, verification and pitch KPIs; performance targets met; 2-week recruiter pilot report against the baseline. | 19 | OK |
+| 10 | 2027-04-26 → 2027-05-07 | Agent execution dashboard with audit, verification and pitch KPIs; performance targets met; 2-week recruiter pilot report against the baseline. | 22 | OK |
 | None | - → - | Deferred items; re-planned when the PO brings them back. | 2 | - |
 
 ## Sprint 0 - Inception, walking skeleton and ATS restore
@@ -63,6 +63,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | Story | Title | Points | Status |
 |---|---|---|---|
 | TS-EA-08 | Read-only ATS connector | 5 | To do |
+| TS-EA-16 | Run the live ATS from the scanned GHCR images | 3 | To do |
 | TS-E1-01 | Requirement CRUD API and UI | 5 | To do |
 | TS-E1-02 | Authentication and RBAC | 5 | To do |
 | TS-E1-03 | LLM router v0 with PII flag | 3 | To do |
@@ -76,6 +77,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Story | Title | Points | Status |
 |---|---|---|---|
+| TS-EA-17 | One-command ATS deploy with backup, health check and rollback | 5 | To do |
 | TS-E1-05 | Clarification questions UI | 3 | To do |
 | TS-E1-06 | Audit events v0 | 2 | To do |
 | TS-E1-07 | Golden JD dataset and test | 3 | To do |
@@ -182,6 +184,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Story | Title | Points | Status |
 |---|---|---|---|
+| TS-EA-18 | Staging copy of the ATS for testing releases | 3 | To do |
 | TS-E6-03 | Agent execution dashboard (dashboard part 2) | 5 | To do |
 | TS-E6-04 | A2A Talent Intelligence agent (stretch) | 5 | To do |
 | TS-E6-05 | Demo deployment | 3 | To do |

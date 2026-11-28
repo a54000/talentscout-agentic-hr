@@ -431,6 +431,65 @@
       "jira": "TS-95"
     },
     {
+      "id": "TS-EA-16",
+      "epic": "EA",
+      "sprint": 2,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-8",
+        "NFR-ATS-3"
+      ],
+      "title": "Run the live ATS from the scanned GHCR images",
+      "story": "As a tech lead I want the Mac to run the exact images that CD built and scanned so that what is live is what passed the security gate.",
+      "ac": [
+        "Given a merge to main, then docker-compose can pull ghcr.io/a54000/talentscout-ats:<commit> and run ats and ats-worker from it without building locally",
+        "Given the live ATS, then the running image digest matches the GHCR image of the deployed commit and is shown in /healthz",
+        "Given GHCR is unreachable, then the runbook documents the fallback of building from source"
+      ],
+      "jira": "TS-96"
+    },
+    {
+      "id": "TS-EA-17",
+      "epic": "EA",
+      "sprint": 3,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-3"
+      ],
+      "title": "One-command ATS deploy with backup, health check and rollback",
+      "story": "As the ATS owner I want one command that backs up, deploys and checks the ATS, and rolls back on failure, so that updates are safe and repeatable.",
+      "ac": [
+        "Given ops/deploy/deploy_ats.sh <commit>, then it takes a fresh backup, pulls that commit's images, restarts ats and ats-worker and waits for /healthz",
+        "Given /healthz or the smoke checks fail after deploy, then it automatically returns to the previous images and reports why",
+        "Given a database migration in the release, then the deploy stops before restarting if the backup failed",
+        "Given every deploy, then the commit, time, result and backup file are logged"
+      ],
+      "jira": "TS-97"
+    },
+    {
+      "id": "TS-EA-18",
+      "epic": "EA",
+      "sprint": 10,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "NFR-ATS-3"
+      ],
+      "title": "Staging copy of the ATS for testing releases",
+      "story": "As a tech lead I want a staging ATS on the Mac with a masked copy of live data so that releases are tried on realistic data before recruiters see them.",
+      "ac": [
+        "Given docker compose --profile staging, then ats-staging, ats-worker-staging and ats-db-staging start on a different port with no tunnel",
+        "Given last night's backup, then a script restores it into staging with names, emails and phones masked",
+        "Given TS-EA-17, then the deploy script can target staging first and live only after staging passes"
+      ],
+      "jira": "TS-98"
+    },
+    {
       "id": "TS-E0-01",
       "epic": "E0",
       "sprint": 0,
