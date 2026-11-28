@@ -447,7 +447,8 @@
         "Given a merge to main, then docker-compose can pull ghcr.io/a54000/talentscout-ats:<commit> and run ats and ats-worker from it without building locally",
         "Given the live ATS, then the running image digest matches the GHCR image of the deployed commit and is shown in /healthz",
         "Given GHCR is unreachable, then the runbook documents the fallback of building from source"
-      ]
+      ],
+      "jira": "TS-96"
     },
     {
       "id": "TS-EA-17",
@@ -466,7 +467,8 @@
         "Given /healthz or the smoke checks fail after deploy, then it automatically returns to the previous images and reports why",
         "Given a database migration in the release, then the deploy stops before restarting if the backup failed",
         "Given every deploy, then the commit, time, result and backup file are logged"
-      ]
+      ],
+      "jira": "TS-97"
     },
     {
       "id": "TS-EA-18",
@@ -484,7 +486,8 @@
         "Given docker compose --profile staging, then ats-staging, ats-worker-staging and ats-db-staging start on a different port with no tunnel",
         "Given last night's backup, then a script restores it into staging with names, emails and phones masked",
         "Given TS-EA-17, then the deploy script can target staging first and live only after staging passes"
-      ]
+      ],
+      "jira": "TS-98"
     },
     {
       "id": "TS-E0-01",

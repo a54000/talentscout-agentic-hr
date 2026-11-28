@@ -277,7 +277,7 @@ Acceptance criteria:
 - Given the ATS requirements, then google-genai and other unused AI packages are removed, and GEMINI_* settings are dropped from .env.example
 - Given the smoke test and unit tests, then they pass, and candidate, requirement, upload and email flows still work on the live ATS
 
-### TS-EA-16: Run the live ATS from the scanned GHCR images  (3 pts, Sprint 2, To do)
+### TS-EA-16: Run the live ATS from the scanned GHCR images  (3 pts, Sprint 2, To do, Jira TS-96)
 
 *As a tech lead I want the Mac to run the exact images that CD built and scanned so that what is live is what passed the security gate.*
 
@@ -288,7 +288,7 @@ Acceptance criteria:
 - Given the live ATS, then the running image digest matches the GHCR image of the deployed commit and is shown in /healthz
 - Given GHCR is unreachable, then the runbook documents the fallback of building from source
 
-### TS-EA-17: One-command ATS deploy with backup, health check and rollback  (5 pts, Sprint 3, To do)
+### TS-EA-17: One-command ATS deploy with backup, health check and rollback  (5 pts, Sprint 3, To do, Jira TS-97)
 
 *As the ATS owner I want one command that backs up, deploys and checks the ATS, and rolls back on failure, so that updates are safe and repeatable.*
 
@@ -300,7 +300,7 @@ Acceptance criteria:
 - Given a database migration in the release, then the deploy stops before restarting if the backup failed
 - Given every deploy, then the commit, time, result and backup file are logged
 
-### TS-EA-18: Staging copy of the ATS for testing releases  (3 pts, Sprint 10, To do)
+### TS-EA-18: Staging copy of the ATS for testing releases  (3 pts, Sprint 10, To do, Jira TS-98)
 
 *As a tech lead I want a staging ATS on the Mac with a masked copy of live data so that releases are tried on realistic data before recruiters see them.*
 
