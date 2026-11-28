@@ -166,7 +166,7 @@ Acceptance criteria:
 - Given a Cloudflare Tunnel, then https://ats.hrgp.in serves the local ATS over HTTPS with no open router ports
 - Given Google login, then the OAuth redirect URI works on the new host
 
-### TS-EA-06: ATS backups and restore drill  (3 pts, Sprint 0, To do, Jira TS-14)
+### TS-EA-06: ATS backups and restore drill  (3 pts, Sprint 0, In progress, Jira TS-14)
 
 *As a director I want nightly backups and a tested restore so that losing the host never loses data again.*
 

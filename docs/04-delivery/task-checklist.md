@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Total |
 |---|---|---|---|---|
-| 7 | 4 | 0 | 50 | 61 |
+| 7 | 5 | 0 | 49 | 61 |
 
 ## Your actions (outside the backlog)
 
@@ -27,7 +27,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-03 Patch vulnerable ATS dependencies**: Known CVEs fixed, so that the live ATS is not exposed through old libraries. _(2 pts, owner: Claude, Jira TS-11)_
 - [x] **TS-EA-04 Recover production ATS data**: The production candidates, requirements and CVs back, so that recruiters do not start from zero. _(3 pts, owner: You (script: Claude), Jira TS-12)_
 - [x] **TS-EA-05 Expose the local ATS to 25 recruiters securely**: To reach the ATS from my own laptop, so that I can work as before. _(3 pts, owner: You + Claude, Jira TS-13)_
-- [ ] **TS-EA-06 ATS backups and restore drill**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
+- [ ] **TS-EA-06 ATS backups and restore drill** **[In progress]**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
 - [ ] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_
 - [ ] **TS-EA-10 Close the post-May 2026 data gap**: Candidates and requirements added after 26 May 2026 recovered or re-entered, so that recruiters work from complete data. _(2 pts, owner: You, Jira TS-69)_
 - [x] **TS-E0-01 Monorepo structure and tooling**: A monorepo with web, api and agents projects, so that all tiers build and test the same way. _(2 pts, owner: Claude, Jira TS-18)_

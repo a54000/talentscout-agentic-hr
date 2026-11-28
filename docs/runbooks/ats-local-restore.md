@@ -174,7 +174,45 @@ Look for `Registered tunnel connection` (normally 4 lines). The tunnel then show
 - All ATS containers use `restart: unless-stopped`, so they come back after a reboot once Docker starts.
 
 ## F. Backups (do not skip: the last outage lost the host)
-Nightly at 21:00 via launchd (TS-EA-06): `pg_dump -Fc` plus a tar of `ats-uploads`. Keep 14 copies locally and copy them to a second location (external disk or Google Drive). Do a restore drill monthly using procedure B1 into a scratch database.
+
+Scripts are in `ops/backup/`:
+- **`backup_ats.sh`** writes three files to `BACKUP_DIR`, then optionally copies them to `OFFSITE_DIR` and deletes copies older than `KEEP_DAYS`:
+  - `pg_dump` of the database (compressed);
+  - an archive of the uploaded CVs and JDs;
+  - SHA-256 checksums.
+
+  If the database dump is empty or the off-Mac folder is missing, it fails loudly and shows a macOS notification.
+- **`restore_drill.sh`** restores the newest backup into a **scratch** database, compares row counts with the live database, and drops the scratch copy. The live database is only read.
+- **`install_schedule.sh`** installs a launchd job that runs the backup every day at 21:00. If the Mac is asleep then, the job runs when it wakes.
+
+**Setup (once):**
+1. Create a settings file and set `OFFSITE_DIR` to a folder that is **not only on this Mac**: a Google Drive or iCloud Drive folder that syncs to the cloud, or an external disk.
+
+```bash
+cp ops/backup/backup.env.example ops/backup/backup.env
+```
+
+2. Run a backup now and check the result:
+
+```bash
+ops/backup/backup_ats.sh
+```
+
+3. Prove that the backup restores:
+
+```bash
+ops/backup/restore_drill.sh
+```
+
+4. Schedule it nightly:
+
+```bash
+ops/backup/install_schedule.sh
+```
+
+**Monthly:** run `restore_drill.sh` and note the result in Jira (TS-14).
+
+To restore for real after a disaster, use procedure **B1** with the newest `hrguru_ats-*.dump`, then procedure **C** with the matching `uploads-*.tgz` (extract it first).
 
 ## G. Known limits of running on a laptop
 Single point of failure (sleep, reboot, travel, power). RAM is shared with TalentScout's local LLM, so avoid heavy model runs during working hours. Logged as risk R-12. Revisit hosting when budget allows.
