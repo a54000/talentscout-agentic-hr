@@ -8,29 +8,21 @@ from datetime import date
 import requests
 
 from domain_taxonomy import infer_domain_taxonomy, primary_domain
-from embedding_engine import cosine_similarity, generate_embedding
-from explainability import build_explainability
-from hard_filters import evaluate_hard_filters
 from role_taxonomy import infer_role_taxonomy, infer_seniority, normalize_role_title, primary_role_category
 from role_profiles import detect_role_profile
-from scoring_engine import deterministic_structured_score
 from skill_aliases import canonical_skill, extract_skills, unique_list, weighted_skills
 from taxonomy_core import build_taxonomy_bundle
 
 
-GEMINI_API_KEY = (os.getenv("GEMINI_API_KEY") or "").strip()
 # BR-4 / R-11 (PO decision 2026-11-28): real candidate CVs must not go to cloud AI
 # (Gemini, OpenRouter, OpenAI). Off by default; only for synthetic data.
 CLOUD_AI_FOR_CANDIDATE_DATA = (os.getenv("CLOUD_AI_FOR_CANDIDATE_DATA") or "off").strip().lower() in {"1", "true", "on", "yes"}
-CLOUD_AI_DISABLED_MESSAGE = "AI screening is switched off for real candidate data until the local model is ready (Sprint 2)."
-PARSE_LLM_PROVIDER = "gemini" if GEMINI_API_KEY else "deterministic"
+# JD/CV extraction: deterministic by default; "local" uses Ollama on this machine. No cloud AI (BR-4).
+PARSE_LLM_PROVIDER = (os.getenv("PARSE_LLM_PROVIDER") or "deterministic").strip().lower()
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:7b")
 LLM_API_BASE = os.getenv("LLM_API_BASE", "http://localhost:11434").rstrip("/")
-GEMINI_PARSE_MODEL = os.getenv("GEMINI_PARSE_MODEL", "gemini-2.5-flash")
 MATCH_PIPELINE_VERSION = "hybrid-v10-gemini-scoring"
-GEMINI_PARSE_TIMEOUT = float(os.getenv("GEMINI_PARSE_TIMEOUT", "20"))
-GEMINI_PARSE_RETRY_ATTEMPTS = int(os.getenv("GEMINI_PARSE_RETRY_ATTEMPTS", "3") or 3)
 LLM_PARSE_TIMEOUT = float(os.getenv("LLM_PARSE_TIMEOUT", "8"))
 _LLM_PARSE_AVAILABLE = None
 _LLM_PARSE_LAST_FAIL = 0
@@ -285,83 +277,13 @@ def clean_jd_skill_list(skills, limit=12):
     return unique_list(output, limit)
 
 
-def _sleep_llm_backoff(attempt, base_delay=1.5, max_delay=8.0):
-    delay = min(max_delay, base_delay * (2 ** max(0, attempt - 1)))
-    time.sleep(delay)
-
-
-def _is_retryable_llm_error(exc):
-    message = f"{type(exc).__name__}: {exc}".lower()
-    retry_signals = ("503", "429", "unavailable", "resource_exhausted", "deadline_exceeded", "timeout", "connect", "temporarily unavailable", "high demand")
-    return any(signal in message for signal in retry_signals)
-
-
-def _gemini_extract(kind, text):
-    global _LLM_PARSE_AVAILABLE, _LLM_PARSE_LAST_FAIL
-    if not GEMINI_API_KEY:
-        debug_match(f"{kind} Gemini extraction skipped because GEMINI_API_KEY is missing; deterministic parser fallback is being used.")
-        return {}
-    if _LLM_PARSE_AVAILABLE is False and time.time() - _LLM_PARSE_LAST_FAIL > 60:
-        _LLM_PARSE_AVAILABLE = None
-    if _LLM_PARSE_AVAILABLE is False:
-        debug_match(f"{kind} Gemini extraction unavailable from previous failure; deterministic parser fallback is being used.")
-        return {}
-    schema_hint = "job title, must skills, nice skills, experience range, location, domain" if kind == "jd" else "name, email, phone, links, roles, companies, date ranges, experience years, skills, education"
-    prompt = (
-        f"Extract only factual {kind} fields as compact JSON. No scoring, no recommendation, no ranking. "
-        f"Fields to extract: {schema_hint}. Use empty values when absent.\n\n{text[:7000]}"
-    )
-    try:
-        from google import genai
-        from google.genai import types
-    except Exception as e:
-        debug_match(f"{kind} Gemini import failed ({type(e).__name__}: {e}); deterministic parser fallback is being used.")
-        return {}
-    try:
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        config = types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.1,
-        )
-        response = None
-        last_error = None
-        for attempt in range(1, max(1, GEMINI_PARSE_RETRY_ATTEMPTS) + 1):
-            try:
-                response = client.models.generate_content(
-                    model=GEMINI_PARSE_MODEL,
-                    contents=prompt,
-                    config=config,
-                )
-                last_error = None
-                break
-            except Exception as exc:
-                last_error = exc
-                if attempt >= max(1, GEMINI_PARSE_RETRY_ATTEMPTS) or not _is_retryable_llm_error(exc):
-                    raise
-                debug_match(f"{kind} Gemini extraction retry {attempt}/{GEMINI_PARSE_RETRY_ATTEMPTS} after error: {exc}")
-                _sleep_llm_backoff(attempt)
-        if last_error is not None and response is None:
-            raise last_error
-        raw = getattr(response, "text", "") or "{}"
-        parsed = json.loads(raw)
-        _LLM_PARSE_AVAILABLE = True
-        return parsed if isinstance(parsed, dict) else {}
-    except Exception as exc:
-        debug_match(f"{kind} Gemini extraction failed ({type(exc).__name__}: {exc}); deterministic parser fallback is being used.")
-        _LLM_PARSE_AVAILABLE = False
-        _LLM_PARSE_LAST_FAIL = time.time()
-        return {}
-
-
 def llm_extract(kind, text):
     global _LLM_PARSE_AVAILABLE, _LLM_PARSE_LAST_FAIL
     if kind == "resume" and not CLOUD_AI_FOR_CANDIDATE_DATA:
         debug_match("resume LLM extraction skipped: cloud AI is off for candidate data; deterministic parser is used.")
         return {}
     provider = (PARSE_LLM_PROVIDER or "").lower()
-    if provider == "gemini":
-        return _gemini_extract(kind, text)
-    if provider not in {"gemini", "openrouter", "local", "api"}:
+    if provider not in {"local", "api"}:
         debug_match(f"{kind} parser extraction skipped because PARSE_LLM_PROVIDER={PARSE_LLM_PROVIDER}; deterministic parser fallback is being used.")
         return {}
     if _LLM_PARSE_AVAILABLE is False and time.time() - _LLM_PARSE_LAST_FAIL > 60:
@@ -1163,155 +1085,3 @@ def extract_ownership(text):
             signals.append(phrase.title())
     return unique_list(signals, 8)
 
-
-def semantic_score(jd_text, cv_text, jd, candidate, cache_get=None, cache_set=None):
-    jd_embedding = generate_embedding(
-        "\n".join([jd_text or "", " ".join(jd.get("embedding_keywords", []))]),
-        cache_get=cache_get,
-        cache_set=cache_set
-    )
-    summary_text = "\n".join([
-        candidate.get("current_role", ""),
-        str((candidate.get("experience_metrics") or {}).get("total_years_experience", "")),
-        " ".join(candidate.get("domain_experience", [])),
-    ])
-    experience_bullets = []
-    for role in candidate.get("role_history", []) or []:
-        experience_bullets.extend(role.get("responsibilities", []) or [])
-    skill_text = " ".join(candidate.get("normalized_skills", []))
-    component_texts = {
-        "resume_summary": summary_text or cv_text[:1000],
-        "experience_bullets": "\n".join(experience_bullets) or cv_text[:1600],
-        "skills": skill_text,
-    }
-    component_weights = {
-        "resume_summary": 0.25,
-        "experience_bullets": 0.45,
-        "skills": 0.30,
-    }
-    weighted_similarity = 0
-    total_weight = 0
-    for key, text in component_texts.items():
-        if not str(text or "").strip():
-            continue
-        embedding = generate_embedding(text, cache_get=cache_get, cache_set=cache_set)
-        weight = component_weights[key]
-        weighted_similarity += cosine_similarity(jd_embedding, embedding) * weight
-        total_weight += weight
-    if not total_weight:
-        return 0
-    embedding_score = int(round((weighted_similarity / total_weight) * 100))
-    return max(embedding_score, lexical_semantic_floor(jd, candidate))
-
-
-def lexical_semantic_floor(jd, candidate):
-    required = [item.get("skill") for item in jd.get("must_have_skills_weighted", []) if item.get("skill")]
-    candidate_skills = {canonical_skill(skill).lower() for skill in candidate.get("normalized_skills", [])}
-    if required:
-        exact = sum(1 for skill in required if canonical_skill(skill).lower() in candidate_skills)
-        skill_score = exact / len(required)
-    else:
-        skill_score = 0
-    jd_roles = {item.get("role") for item in jd.get("role_taxonomy", []) if item.get("role")}
-    candidate_roles = set(candidate.get("normalized_roles", []))
-    role_score = 1 if jd_roles & candidate_roles else 0
-    if not role_score and {"Product Management", "Platform Product Management"} & jd_roles and {"Product Management", "Platform Product Management"} & candidate_roles:
-        role_score = 0.85
-    jd_domains = {item.get("domain") for item in jd.get("domain_taxonomy", []) if item.get("domain")}
-    candidate_domains = {item.get("domain") for item in candidate.get("domain_confidence_scores", []) if item.get("domain")}
-    domain_score = 1 if jd_domains & candidate_domains else 0
-    infra = {"Cloud Infrastructure", "Hyperconverged Infrastructure", "SaaS", "Observability"}
-    if not domain_score and jd_domains & infra and candidate_domains & infra:
-        domain_score = 0.72
-    ownership_score = 1 if candidate.get("ownership_signals") else 0
-    complexity_score = 1 if candidate.get("project_complexity_indicators") else 0
-    floor = (
-        42 +
-        skill_score * 26 +
-        role_score * 14 +
-        domain_score * 9 +
-        ownership_score * 5 +
-        complexity_score * 4
-    )
-    return int(max(0, min(88, round(floor))))
-
-
-def run_hybrid_match(
-    jd_text,
-    cv_text,
-    parsed_cv=None,
-    cache_get=None,
-    cache_set=None,
-    custom_hard_filters="",
-    parsed_jd=None,
-    parsed_candidate=None,
-):
-    parsed_jd = parsed_jd or parse_jd(jd_text)
-    parsed_candidate = parsed_candidate or parse_resume(cv_text, parsed_cv)
-    structured_result = deterministic_structured_score(parsed_jd, parsed_candidate)
-    hard_filter_result = evaluate_hard_filters(parsed_jd, parsed_candidate, custom_hard_filters)
-    semantic = semantic_score(jd_text, cv_text, parsed_jd, parsed_candidate, cache_get=cache_get, cache_set=cache_set)
-    structured_score = structured_result["structured_score"]
-    hard_filter_score = hard_filter_result["hard_filter_score"]
-    final_score = int(round(0.50 * structured_score + 0.30 * semantic + 0.20 * hard_filter_score))
-    if not hard_filter_result["passed"]:
-        final_score = min(final_score, 40)
-    breakdown = structured_result.get("score_breakdown") or {}
-    if (
-        (breakdown.get("must_have_skills") or {}).get("score", 0) == 0
-        and (breakdown.get("role_alignment") or {}).get("score", 100) < 45
-        and (breakdown.get("domain_fit") or {}).get("score", 100) < 45
-    ):
-        final_score = min(final_score, 30)
-    explainability = build_explainability(parsed_jd, parsed_candidate, structured_result, semantic)
-    for item in hard_filter_result.get("filters", []):
-        if not item.get("passed"):
-            impact = 25 if item.get("severity") == "blocker" else 6
-            explainability["penalties_applied"].append({"reason": item.get("reason", item.get("name", "Hard filter failed")), "impact": impact})
-    verdict = "Strong Match" if final_score >= 80 else "Moderate Match" if final_score >= 65 else "Weak Match" if final_score >= 45 else "Reject / Not Recommended"
-    response = {
-        "final_score": final_score,
-        "structured_score": structured_score,
-        "semantic_score": semantic,
-        "hard_filter_score": hard_filter_score,
-        "hard_filters": hard_filter_result,
-        "custom_hard_filters": custom_hard_filters,
-        "semantic_similarity_score": semantic,
-        "score_breakdown": structured_result["score_breakdown"],
-        "strengths": explainability["strengths"],
-        "concerns": explainability["concerns"],
-        "penalties_applied": explainability["penalties_applied"],
-        "matched_must_have_skills": structured_result["matched_must_have_skills"],
-        "missing_must_have_skills": structured_result["missing_must_have_skills"],
-        "parsed_jd": parsed_jd,
-        "parsed_candidate": parsed_candidate,
-        "explainability": explainability,
-        "semantic_match_insights": explainability.get("semantic_match_insights", []),
-        "role_alignment_reasoning": explainability.get("role_alignment_reasoning", []),
-        "verdict": verdict,
-    }
-    # Backward-compatible fields used by the existing screen.
-    response.update({
-        "score": final_score,
-        "summary": "; ".join(explainability["concerns"][:2]) if explainability["concerns"] else "Core hiring signals are aligned.",
-        "gaps": explainability["concerns"],
-        "jd_json": parsed_jd,
-        "cv_json": parsed_candidate,
-        "score_json": {
-            "final_score": final_score,
-            "verdict": verdict,
-            "structured_score": structured_score,
-            "semantic_score": semantic,
-            "hard_filter_score": hard_filter_score,
-            "score_breakdown": {k: v["score"] for k, v in structured_result["score_breakdown"].items()},
-            "matched_must_have_skills": structured_result["matched_must_have_skills"],
-            "missing_must_have_skills": structured_result["missing_must_have_skills"],
-            "strengths": explainability["strengths"],
-            "concerns": explainability["concerns"],
-            "red_flags": parsed_candidate.get("red_flags", []),
-            "penalties_applied": explainability["penalties_applied"],
-            "explanation_summary": "; ".join(explainability["concerns"][:2]) if explainability["concerns"] else "Core hiring signals are aligned.",
-        },
-        "mode": "hybrid_deterministic",
-    })
-    return response

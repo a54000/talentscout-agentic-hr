@@ -28,6 +28,9 @@ done
 code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -X POST "http://127.0.0.1:$PORT/api/jd_match")
 [ "$code" = "410" ] || fail "/api/jd_match returned $code, expected 410"
 if curl -fsS -b "$JAR" "http://127.0.0.1:$PORT/app" | grep -q 'data-top-tab="ai-screening"'; then fail "AI Screening menu still on /app"; fi
+# JD parsing for new requirements still works after the AI code was removed (TS-EA-15)
+curl -fsS -b "$JAR" -H 'Content-Type: application/json' -d '{"jd_text":"Senior Java Developer. 5-8 years. Must have Java, Spring Boot, SQL. Location: Pune."}' \
+  "http://127.0.0.1:$PORT/api/parse_jd" | grep -qi '"java"' || fail "/api/parse_jd did not return Java as a skill"
 # Background bulk upload (TS-EA-12); ATS_SMOKE_RESUME=1 also tests resume after a crash (PostgreSQL)
 "$PY" tests/bulk_upload_check.py "http://127.0.0.1:$PORT" "$ADMIN_PASSWORD" ${ATS_SMOKE_RESUME:+--resume} || fail "bulk upload check"
 if [ -n "${DATABASE_URL:-}" ]; then MODE=postgres; else MODE=sqlite; fi
