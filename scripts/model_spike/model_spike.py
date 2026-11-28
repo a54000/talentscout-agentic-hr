@@ -18,6 +18,7 @@ import re
 import statistics
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -32,11 +33,18 @@ Job description:
 """
 
 
+# Only HTTP(S): unlike urllib.request.urlopen, this opener has no file:// or ftp:// handlers.
+_OPENER = urllib.request.OpenerDirector()
+for _handler in (urllib.request.HTTPHandler(), urllib.request.HTTPSHandler(),
+                 urllib.request.HTTPDefaultErrorHandler(), urllib.request.HTTPErrorProcessor()):
+    _OPENER.add_handler(_handler)
+
+
 def call(base, path, payload=None, timeout=600):
     data = json.dumps(payload).encode() if payload is not None else None
     req = urllib.request.Request(base + path, data=data, headers={"Content-Type": "application/json"},
                                  method="POST" if data else "GET")
-    with urllib.request.urlopen(req, timeout=timeout) as res:
+    with _OPENER.open(req, timeout=timeout) as res:
         return json.loads(res.read().decode())
 
 
@@ -119,6 +127,8 @@ def main():
     parser.add_argument("--label", default="Docker stopped", help="conditions, e.g. 'Docker running'")
     args = parser.parse_args()
     base = args.ollama.rstrip("/")
+    if urllib.parse.urlparse(base).scheme not in ("http", "https"):
+        raise SystemExit(f"--ollama must be an http(s) URL, got {base!r}")
     try:
         version = call(base, "/api/version").get("version")
     except (urllib.error.URLError, OSError) as exc:
