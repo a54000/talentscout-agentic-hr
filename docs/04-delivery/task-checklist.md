@@ -8,9 +8,9 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 ## Your actions (outside the backlog)
 
-- [ ] **Refresh the Cloudflare tunnel token**: The token was pasted into a chat; refresh it in Zero Trust → Tunnels → hrguru-ats, update CLOUDFLARE_TUNNEL_TOKEN in .env, recreate the tunnel service.
+- [x] **Refresh the Cloudflare tunnel token**: Done 2026-11-28.
 - [ ] **Turn on Cloudflare Access for ats.hrgp.in**: Staff-only gate in front of the legacy ATS (runbook E8, risk R-15). Free up to 50 users.
-- [ ] **Make a54000/hireflow private**: Its git history contains real candidate name, email and phone (tools/case_001). Also consider a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app.
+- [x] **Make a54000/hireflow private**: Done 2026-11-28 (hireflow private). Also review a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app, which are still public.
 - [x] **Run the ATS restore from ats.db on the Mac**: Done 2026-11-27: 9,988 candidates, 1,685 requirements restored; newest 2026-05-26.
 - [x] **Create the Jira project (Scrum, key TS, name TalentScout)**: The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.
 - [ ] **Decide on Gemini AI screening in the ATS (R-11)**: It sends real CVs to Gemini; options: disable, paid tier with no-training terms, or local model.

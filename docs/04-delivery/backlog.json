@@ -1317,8 +1317,8 @@
   "owner_actions": [
     {
       "task": "Refresh the Cloudflare tunnel token",
-      "why": "The token was pasted into a chat; refresh it in Zero Trust → Tunnels → hrguru-ats, update CLOUDFLARE_TUNNEL_TOKEN in .env, recreate the tunnel service.",
-      "status": "todo"
+      "why": "Done 2026-11-28.",
+      "status": "done"
     },
     {
       "task": "Turn on Cloudflare Access for ats.hrgp.in",
@@ -1327,8 +1327,8 @@
     },
     {
       "task": "Make a54000/hireflow private",
-      "why": "Its git history contains real candidate name, email and phone (tools/case_001). Also consider a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app.",
-      "status": "todo"
+      "why": "Done 2026-11-28 (hireflow private). Also review a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app, which are still public.",
+      "status": "done"
     },
     {
       "task": "Run the ATS restore from ats.db on the Mac",
