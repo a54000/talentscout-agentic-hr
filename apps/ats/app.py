@@ -7894,7 +7894,8 @@ def health():
     except Exception as exc:
         payload["ok"] = False
         payload["database"] = "error"
-        payload["error"] = f"{type(exc).__name__}: {exc}"
+        # Details go to the server log only: /healthz is public (uptime monitor), so do not leak internals.
+        print(f"healthz: database check failed: {type(exc).__name__}: {exc}", flush=True)
     payload["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 1)
     status = 200 if payload["ok"] else 503
     return jsonify(payload), status

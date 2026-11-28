@@ -224,5 +224,32 @@ launchctl kickstart gui/$(id -u)/in.hrgp.ats-backup && sleep 30 && tail -n 10 ~/
 
 To restore for real after a disaster, use procedure **B1** with the newest `hrguru_ats-*.dump`, then procedure **C** with the matching `uploads-*.tgz` (extract it first).
 
+## H. Down alerts (TS-EA-09)
+
+Monitoring must run **outside the Mac**: if the Mac sleeps, loses power or loses internet, nothing on it can send an alert. Two free layers:
+
+**H1. Uptime monitor on `/healthz` (catches everything: Mac off, Docker stopped, ATS crashed, database down, tunnel down, internet down).**
+1. Create a free account at **UptimeRobot** (uptimerobot.com; the free plan has 50 monitors and 5-minute checks). Better Stack's free plan works the same way.
+2. Add a monitor:
+   - Type **HTTP(s) – Keyword**
+   - URL `https://ats.hrgp.in/healthz`
+   - Keyword `"ok":true`, alert when the keyword **does not exist**
+   - Interval 5 minutes
+   - `/healthz` returns HTTP 503 and `"ok": false` when the database is unreachable, so this catches database failures too.
+3. Alert contacts: your email, plus the **UptimeRobot mobile app** for push notifications. Add the Delivery Lead too, if they should know.
+4. Optional: create a free **status page** from the monitor and share it with recruiters ("Is the ATS down, or is it just me?").
+
+**H2. Cloudflare tunnel alert (says *why*: the tunnel lost its connection).**
+In Zero Trust → **Notifications** → *Add* → **Tunnel health alert** (or *Tunnel creation/deletion* plus *health*), for tunnel `hrguru-ats`, delivered to your email.
+
+**If you add Cloudflare Access (E8):** the monitor cannot log in, so it would see the Access login page and report "down". Add a second Access application for `ats.hrgp.in/healthz` with a **Bypass** policy for *Everyone*. That path only returns `{"ok": true, ...}` with no data.
+
+**When an alert fires:** check, in order:
+1. Is the Mac awake and online?
+2. Is Docker Desktop running?
+3. `docker compose ps`
+4. `docker compose logs --tail 50 ats tunnel`
+5. `docker compose --profile live up -d`
+
 ## G. Known limits of running on a laptop
 Single point of failure (sleep, reboot, travel, power). RAM is shared with TalentScout's local LLM, so avoid heavy model runs during working hours. Logged as risk R-12. Revisit hosting when budget allows.

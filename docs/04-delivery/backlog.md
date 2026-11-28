@@ -198,7 +198,7 @@ Acceptance criteria:
 - Given a candidate deleted in the ATS, then its profile, chunks and embeddings are removed at the next sync
 - Given a write attempt through the connector role, then the database refuses it
 
-### TS-EA-09: ATS health monitoring  (2 pts, Sprint 0, To do, Jira TS-17)
+### TS-EA-09: ATS health monitoring  (2 pts, Sprint 0, In progress, Jira TS-17)
 
 *As a delivery lead I want to know within minutes if the ATS is down so that recruiters are not blocked.*
 
@@ -207,7 +207,7 @@ Traces to: NFR-4
 Acceptance criteria:
 - Given the ATS stops responding, then an alert is sent within 5 minutes (existing monitor_health script or a free uptime monitor)
 
-### TS-EA-10: Close the post-May 2026 data gap  (2 pts, Sprint 0, To do, Jira TS-69)
+### TS-EA-10: Close the post-May 2026 data gap and the missing CV/JD files  (2 pts, Sprint 0, To do, Jira TS-69)
 
 *As a director I want candidates and requirements added after 26 May 2026 recovered or re-entered so that recruiters work from complete data.*
 
@@ -216,6 +216,7 @@ Traces to: FR-ATS-1
 Acceptance criteria:
 - Given any remaining AWS artefact (EBS snapshot, RDS or pg_dump, S3 backup, recruiter Excel uploads), when found, then the missing records are imported with the runbook B1 procedure
 - Given nothing remains, then recruiters re-upload active candidates and open requirements through bulk upload, and the gap is recorded
+- Findings 2026-11-28: CV/JD files were only on the EC2 disk; no ATS zip backups found in Google Drive. Remaining source: AWS detached EBS volumes / snapshots / AMIs / AWS Backup in the old region; otherwise recruiters re-upload CVs for active candidates
 
 ## E1: Requirement agent
 
