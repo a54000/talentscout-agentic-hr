@@ -28,7 +28,7 @@ Acceptance criteria:
 - Given a fresh clone, when I run the documented setup, then web, api and agents install and their tests pass
 - Given an unformatted file, when lint runs, then it fails with a clear message
 
-### TS-E0-02: CI pipeline: lint, test, build  (3 pts, Sprint 0, In progress, Jira TS-19)
+### TS-E0-02: CI pipeline: lint, test, build  (3 pts, Sprint 0, Done, Jira TS-19)
 
 *As a tech lead I want every PR linted, tested and built so that broken code never reaches main.*
 
@@ -38,7 +38,7 @@ Acceptance criteria:
 - Given a PR, when CI runs, then Node and Python lint, unit tests and builds run and report status
 - Given a failing test, when CI runs, then the PR check is red and merge is blocked
 
-### TS-E0-03: Security scanning pipeline  (3 pts, Sprint 0, In progress, Jira TS-20)
+### TS-E0-03: Security scanning pipeline  (3 pts, Sprint 0, Done, Jira TS-20)
 
 *As a security owner I want SAST, SCA, secret and container scans on every PR so that vulnerabilities are caught early.*
 

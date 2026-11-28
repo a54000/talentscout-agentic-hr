@@ -4,7 +4,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Deferred | Total |
 |---|---|---|---|---|---|
-| 10 | 4 | 0 | 50 | 1 | 65 |
+| 12 | 2 | 0 | 50 | 1 | 65 |
 
 ## Your actions (outside the backlog)
 
@@ -31,8 +31,8 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [x] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_
 - [x] **TS-EA-11 ATS performance quick wins: PostgreSQL indexes and multi-process serving**: The ATS to stay responsive while colleagues upload candidates, so that my work is not blocked. _(3 pts, owner: Claude + You, Jira TS-70)_
 - [x] **TS-E0-01 Monorepo structure and tooling**: A monorepo with web, api and agents projects, so that all tiers build and test the same way. _(2 pts, owner: Claude, Jira TS-18)_
-- [ ] **TS-E0-02 CI pipeline: lint, test, build** **[In progress]**: Every PR linted, tested and built, so that broken code never reaches main. _(3 pts, owner: Claude, Jira TS-19)_
-- [ ] **TS-E0-03 Security scanning pipeline** **[In progress]**: SAST, SCA, secret and container scans on every PR, so that vulnerabilities are caught early. _(3 pts, owner: Claude, Jira TS-20)_
+- [x] **TS-E0-02 CI pipeline: lint, test, build**: Every PR linted, tested and built, so that broken code never reaches main. _(3 pts, owner: Claude, Jira TS-19)_
+- [x] **TS-E0-03 Security scanning pipeline**: SAST, SCA, secret and container scans on every PR, so that vulnerabilities are caught early. _(3 pts, owner: Claude, Jira TS-20)_
 - [ ] **TS-E0-04 CD pipeline to GHCR and demo host** **[In progress]**: Images built, scanned and published on merge, so that every main commit is deployable. _(3 pts, owner: Claude, Jira TS-21)_
 - [ ] **TS-E0-05 Docker Compose local stack** **[In progress]**: One command to start the stack, so that I can work offline on my Mac. _(2 pts, owner: Claude, Jira TS-22)_
 - [ ] **TS-E0-07 Free-tier accounts and secrets handling**: Free-tier accounts set up and secrets kept out of git, so that we spend $0 and leak nothing. _(2 pts, owner: You, Jira TS-24)_

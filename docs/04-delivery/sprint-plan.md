@@ -31,8 +31,8 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-09 | ATS health monitoring | 2 | Done |
 | TS-EA-11 | ATS performance quick wins: PostgreSQL indexes and multi-process serving | 3 | Done |
 | TS-E0-01 | Monorepo structure and tooling | 2 | Done |
-| TS-E0-02 | CI pipeline: lint, test, build | 3 | In progress |
-| TS-E0-03 | Security scanning pipeline | 3 | In progress |
+| TS-E0-02 | CI pipeline: lint, test, build | 3 | Done |
+| TS-E0-03 | Security scanning pipeline | 3 | Done |
 | TS-E0-04 | CD pipeline to GHCR and demo host | 3 | In progress |
 | TS-E0-05 | Docker Compose local stack | 2 | In progress |
 | TS-E0-07 | Free-tier accounts and secrets handling | 2 | To do |

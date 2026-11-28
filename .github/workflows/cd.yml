@@ -1,18 +1,28 @@
 # Continuous delivery: on every merge to main, build each image, scan it, publish an SBOM,
 # push to GHCR, then deploy to the optional demo host (skipped when not configured).
+# On pull requests it only builds and scans, so a failing image gate is caught before merge.
 name: cd
 
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - "**/Dockerfile"
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/requirements*.txt"
+      - "**/pyproject.toml"
+      - "**/uv.lock"
+      - ".github/workflows/cd.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: cd-main
-  cancel-in-progress: false
+  group: cd-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   TRIVY_IMAGE: aquasec/trivy:0.76.2
@@ -27,7 +37,7 @@ jobs:
       contents: read
       packages: write
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - { name: api, context: ., dockerfile: apps/api/Dockerfile }
@@ -47,6 +57,9 @@ jobs:
             --label org.opencontainers.image.revision="${GITHUB_SHA}" \
             -t "$IMAGE:${GITHUB_SHA}" -t "$IMAGE:main" "${{ matrix.context }}"
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+      - name: Check web server config
+        if: matrix.name == 'web'
+        run: docker run --rm --add-host api:127.0.0.1 "$IMAGE:${GITHUB_SHA}" nginx -t  # api only resolves inside Compose
       - name: Scan image (block on CRITICAL, report HIGH)
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
@@ -64,6 +77,7 @@ jobs:
           path: sbom/${{ matrix.name }}.cdx.json
           retention-days: 90
       - name: Push to GHCR
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -74,6 +88,7 @@ jobs:
   deploy-demo:
     name: deploy demo (optional)
     needs: images
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: demo
