@@ -15,6 +15,9 @@
 | Observability and evaluation | Langfuse, evaluation datasets, CI evaluation gate, cost dashboard | E5 |
 | Agent execution dashboard | Live run view (SSE), run history, KPI aggregation, notional cost | E3, E6 |
 | HR Guru ATS | Import, local Docker run, dependency patching, data recovery, Cloudflare Tunnel, backups, monitoring, hardening, read-only connector | EA |
+| Submission quality audit (UC-002) | Detail-accuracy extraction, rule engine, duplicate detection, audit records on sync, review queue, scorecard, golden audit set | E7 |
+| Candidate verification (UC-003) | Relay hardening and inbound endpoint, opt-out registry, templates and drafting, `message.send` with approval token and rate limits, reply capture, local classification, follow-up and escalation, reply evaluation set | E8 |
+| Client pitches and drives (UC-004) | Trust-ranked pool search, anonymised pitch pack, drive summary, leak scan | E9 |
 | Interoperability and pilot | LiteLLM gateway, A2A agent (stretch), performance testing, demo deployment, pilot | E6 |
 | Platform | Monorepo, Docker Compose, CI, security scans, CD, environments | E0 |
 
@@ -25,14 +28,17 @@
 | EA HR Guru ATS restore and integration | 14 | 47 | 0, 1, 2 |
 | E0 Inception and platform | 9 | 24 | 0, 1 |
 | E1 Requirement agent | 8 | 28 | 2, 3 |
-| E2 Intelligent retrieval | 7 | 29 | 3, 4 |
-| E3 Multi-agent orchestration | 6 | 32 | 4, 5, 6 |
+| E2 Intelligent retrieval | 7 | 29 | 3, 8 |
+| E3 Multi-agent orchestration | 6 | 32 | 4, 5, 8 |
 | E4 MCP and memory | 5 | 21 | 6 |
-| E5 Responsible AI and LLMOps | 9 | 31 | 7, 8 |
-| E6 Interop, dashboard and pilot | 7 | 27 | 8 |
-| **Total** | **65** | **239** | 9 sprints × 2 weeks (to 2027-04-09) |
+| E5 Responsible AI and LLMOps | 9 | 31 | 5–9 |
+| E7 Submission quality audit | 6 | 22 | 4, 5 |
+| E8 Candidate verification | 8 | 34 | 5, 7 |
+| E9 Client pitches and drives | 4 | 13 | 9 |
+| E6 Interop, dashboard and pilot | 7 | 27 | 9, 10 |
+| **Total** | **83** | **308** | 11 sprints × 2 weeks (to 2027-05-07; +2 sprints for the 2026-11-28 scope change) |
 
-**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. Sprint 0 is over capacity by design (ATS restore was urgent) but was largely completed during inception. Sprint 1 is an ATS stabilisation sprint (re-planned 2026-11-28 at the PO's decision): TalentScout feature work starts in Sprint 2 and the plan ends 2027-04-09. TS-E5-10 (DPDP pack) is in Sprint 8; the A2A agent (TS-E6-04) is a stretch item and the first to drop if capacity is short.
+**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. Sprint 0 is over capacity by design (ATS restore was urgent) but was largely completed during inception. Sprint 1 is an ATS stabilisation sprint (re-planned 2026-11-28 at the PO's decision): TalentScout feature work starts in Sprint 2. The 2026-11-28 scope change (audit, verification, pitches: +18 stories, +69 points) adds Sprints 9 and 10, so the plan ends 2027-05-07 at about 28 points per sprint. TS-E5-10 (DPDP pack) is in Sprint 7, before the first real verification message; the A2A agent (TS-E6-04) is a stretch item and the first to drop if capacity is short.
 
 ## 3. Budget
 

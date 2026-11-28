@@ -2,9 +2,9 @@
 
 _For HR Guru. This repository also contains the HR Guru ATS (`apps/ats`)._
 
-A goal-driven platform of supervised AI agents for HR Guru's recruiters (MVP: 25 recruiters). It turns a job requirement into an evidence-backed, recruiter-approved shortlist. When the objective isn't met, it diagnoses the bottleneck and replans. It escalates instead of relaxing hiring constraints, and it learns from recruiter feedback. Recruiters stay responsible for every hiring decision.
+A goal-driven platform of supervised AI agents for HR Guru (MVP: 25 recruiters). It checks the candidates recruiters submit, confirms with the candidates that the submissions are genuine, and turns the trusted pool into client pitches. When an objective isn't met it diagnoses why and replans; it escalates instead of lowering the bar, and every message to a candidate is approved by a lead. People stay responsible for every decision.
 
-The reference scenario is [UC-001: Intelligent Candidate Sourcing](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md). The whole MVP runs on a **$0 cash budget**.
+TalentScout is the **quality and trust layer over the HR Guru ATS**: it audits every submitted candidate ([UC-002](docs/00-discovery/UC-002-submission-quality-audit.md)), verifies submissions with the candidates by WhatsApp and email ([UC-003](docs/00-discovery/UC-003-candidate-verification.md)), and reuses the trusted pool for client pitches and drives ([UC-004](docs/00-discovery/UC-004-client-pitches-and-drives.md)). The search-and-replan reference scenario is [UC-001](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md). The whole MVP runs on a **$0 cash budget**.
 
 > **Status:** Sprint 0 (inception, walking skeleton). See the [sprint plan](docs/04-delivery/sprint-plan.md).
 
@@ -26,7 +26,7 @@ Read the [HLD](docs/03-architecture/HLD.md) for diagrams and flows.
 
 | Discovery and business | Product | Architecture | Delivery | Quality |
 |---|---|---|---|---|
-| [Requirements gathering](docs/00-discovery/requirements-gathering.md), [UC-001](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md) | [PRD](docs/02-product/PRD.md) | [HLD](docs/03-architecture/HLD.md) | [Ways of working](docs/04-delivery/ways-of-working.md) | [Test and security strategy](docs/05-quality/test-and-security-strategy.md) |
+| [Requirements gathering](docs/00-discovery/requirements-gathering.md), [UC-001](docs/00-discovery/UC-001-intelligent-candidate-sourcing.md)–[UC-004](docs/00-discovery/UC-004-client-pitches-and-drives.md) | [PRD](docs/02-product/PRD.md) | [HLD](docs/03-architecture/HLD.md) | [Ways of working](docs/04-delivery/ways-of-working.md) | [Test and security strategy](docs/05-quality/test-and-security-strategy.md) |
 | [BRD](docs/01-business/BRD.md) | [FRD](docs/02-product/FRD.md) | [LLD](docs/03-architecture/LLD.md) | [Backlog](docs/04-delivery/backlog.md), [Task checklist](docs/04-delivery/task-checklist.md) | [Threat model](docs/03-architecture/threat-model.md) |
 | [Technical scope and budget](docs/01-business/technical-scope-and-budget.md) | | [ADRs](docs/03-architecture/adr/) | [Sprint plan](docs/04-delivery/sprint-plan.md), [RAID log](docs/04-delivery/RAID-log.md) | |
 

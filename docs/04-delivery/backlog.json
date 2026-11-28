@@ -31,38 +31,52 @@
     },
     {
       "id": 4,
-      "name": "Sprint 4 - RAG and intelligent retrieval",
+      "name": "Sprint 4 - Submission quality audit (UC-002)",
       "start": "2027-02-01",
       "end": "2027-02-12",
-      "goal": "Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists."
+      "goal": "Every new ATS submission is audited within 1 hour: must-have evidence, detail accuracy, constraint fit, duplicates and completeness, with a quality score, a lead review queue and recruiter scorecards."
     },
     {
       "id": 5,
-      "name": "Sprint 5 - Multi-agent orchestration (UC-001 end to end)",
+      "name": "Sprint 5 - Audit quality and verification groundwork",
       "start": "2027-02-15",
       "end": "2027-02-26",
-      "goal": "UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation."
+      "goal": "Audit flags are evidence-checked and approved by leads, audit precision is measured on a golden set, and the WhatsApp relay and opt-out registry are ready for verification."
     },
     {
       "id": 6,
-      "name": "Sprint 6 - MCP, memory and durable execution",
+      "name": "Sprint 6 - MCP, memory, durable execution and approval controls",
       "start": "2027-03-01",
       "end": "2027-03-12",
-      "goal": "Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live."
+      "goal": "Agents use tools only through the MCP server with per-agent scopes; runs survive restarts; side-effecting tools need an approval token and step-up re-authentication."
     },
     {
       "id": 7,
-      "name": "Sprint 7 - Responsible AI and LLMOps",
+      "name": "Sprint 7 - Candidate verification (UC-003)",
       "start": "2027-03-15",
       "end": "2027-03-26",
-      "goal": "Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI."
+      "goal": "Leads approve verification batches; WhatsApp and email messages go out within rate limits; replies are classified locally and compared with recruiter entries; follow-ups and escalations work; DPDP pack ready for sign-off."
     },
     {
       "id": 8,
-      "name": "Sprint 8 - Routing, dashboard, performance and pilot",
+      "name": "Sprint 8 - Pool retrieval, replanning and AI safety",
       "start": "2027-03-29",
       "end": "2027-04-09",
-      "goal": "Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch)."
+      "goal": "Hybrid search over the ATS pool beats keyword search; the UC-001 replan and escalation works end to end; prompt-injection defence and tracing are in place."
+    },
+    {
+      "id": 9,
+      "name": "Sprint 9 - Client pitches and drives (UC-004) and LLMOps",
+      "start": "2027-04-12",
+      "end": "2027-04-23",
+      "goal": "Anonymised pitch packs and drive summaries are built from audited, verified candidates; evaluation gate in CI; tamper-evident audit trail; LiteLLM routing."
+    },
+    {
+      "id": 10,
+      "name": "Sprint 10 - Dashboard, performance and pilot",
+      "start": "2027-04-26",
+      "end": "2027-05-07",
+      "goal": "Agent execution dashboard with audit, verification and pitch KPIs; performance targets met; 2-week recruiter pilot report against the baseline."
     }
   ],
   "epics": [
@@ -113,6 +127,24 @@
       "name": "Interoperability, delivery and pilot",
       "summary": "LiteLLM routing, parallelism, agent execution dashboard, performance testing, deployment, pilot, A2A (stretch).",
       "jira": "TS-8"
+    },
+    {
+      "id": "E7",
+      "name": "Submission quality audit",
+      "summary": "UC-002: audit every ATS submission against its requirement and CV (must-have evidence, detail accuracy, constraint fit, duplicates, completeness), score it, and give leads a review queue and recruiter scorecards.",
+      "jira": "TS-74"
+    },
+    {
+      "id": "E8",
+      "name": "Candidate verification",
+      "summary": "UC-003: approved WhatsApp and email verification messages through the ATS channels, opt-outs, reply capture and local classification, comparison with recruiter entries, follow-up and escalation of possible false submissions.",
+      "jira": "TS-75"
+    },
+    {
+      "id": "E9",
+      "name": "Client pitches and drives",
+      "summary": "UC-004: search the audited and verified ATS pool for a pitch brief and build anonymised pitch packs and drive summaries.",
+      "jira": "TS-76"
     }
   ],
   "stories": [
@@ -707,7 +739,8 @@
       "ac": [
         "Given a seed, when the generator runs, then the output is deterministic",
         "Given the UC-001 profile, when generated into a development ATS database (never the live one), then 500 resumes reproduce the funnel 500 -> 80 -> 25 -> 12 -> 2 and include serving-notice and alternative-title candidates that qualify",
-        "Given generated data, when checked, then no protected attributes are present in searchable fields"
+        "Given generated data, when checked, then no protected attributes are present in searchable fields",
+        "Given the audit scenario set, then it includes submissions with entered-vs-CV mismatches (experience, CTC, notice, location), cross-recruiter duplicates and incomplete rows, each labelled with the expected audit result"
       ],
       "status": "todo",
       "owner": "Claude",
@@ -770,7 +803,7 @@
     {
       "id": "TS-E2-04",
       "epic": "E2",
-      "sprint": 4,
+      "sprint": 8,
       "points": 5,
       "fr": [
         "FR-CAND-2",
@@ -789,7 +822,7 @@
     {
       "id": "TS-E2-05",
       "epic": "E2",
-      "sprint": 4,
+      "sprint": 8,
       "points": 5,
       "fr": [
         "FR-AGT-6",
@@ -808,7 +841,7 @@
     {
       "id": "TS-E2-06",
       "epic": "E2",
-      "sprint": 4,
+      "sprint": 8,
       "points": 4,
       "fr": [
         "NFR-7"
@@ -845,7 +878,7 @@
     {
       "id": "TS-E3-02",
       "epic": "E3",
-      "sprint": 5,
+      "sprint": 8,
       "points": 8,
       "fr": [
         "FR-AGT-3",
@@ -868,7 +901,7 @@
     {
       "id": "TS-E3-03",
       "epic": "E3",
-      "sprint": 5,
+      "sprint": 4,
       "points": 5,
       "fr": [
         "FR-AGT-6"
@@ -904,7 +937,7 @@
     {
       "id": "TS-E3-05",
       "epic": "E3",
-      "sprint": 6,
+      "sprint": 5,
       "points": 3,
       "fr": [
         "FR-AGT-10",
@@ -1030,7 +1063,7 @@
     {
       "id": "TS-E5-01",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 8,
       "points": 5,
       "fr": [
         "NFR-1"
@@ -1048,7 +1081,7 @@
     {
       "id": "TS-E5-02",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 5,
       "points": 3,
       "fr": [
         "NFR-2",
@@ -1067,7 +1100,7 @@
     {
       "id": "TS-E5-03",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 8,
       "points": 3,
       "fr": [
         "FR-OBS-2"
@@ -1085,7 +1118,7 @@
     {
       "id": "TS-E5-04",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 6,
       "points": 3,
       "fr": [
         "FR-AGT-5"
@@ -1102,7 +1135,7 @@
     {
       "id": "TS-E5-05",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 6,
       "points": 3,
       "fr": [
         "BR-5"
@@ -1120,7 +1153,7 @@
     {
       "id": "TS-E5-06",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 6,
       "points": 3,
       "fr": [
         "FR-AUTH-1"
@@ -1137,7 +1170,7 @@
     {
       "id": "TS-E5-07",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 9,
       "points": 3,
       "fr": [
         "FR-OBS-1",
@@ -1156,7 +1189,7 @@
     {
       "id": "TS-E5-08",
       "epic": "E5",
-      "sprint": 7,
+      "sprint": 9,
       "points": 5,
       "fr": [
         "NFR-7"
@@ -1174,7 +1207,7 @@
     {
       "id": "TS-E5-10",
       "epic": "E5",
-      "sprint": 8,
+      "sprint": 7,
       "points": 3,
       "fr": [
         "NFR-2"
@@ -1192,7 +1225,7 @@
     {
       "id": "TS-E6-01",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 9,
       "points": 5,
       "fr": [
         "NFR-3",
@@ -1211,7 +1244,7 @@
     {
       "id": "TS-E6-02",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 9,
       "points": 3,
       "fr": [
         "NFR-5"
@@ -1228,7 +1261,7 @@
     {
       "id": "TS-E6-03",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 10,
       "points": 5,
       "fr": [
         "FR-DASH-1",
@@ -1249,7 +1282,7 @@
     {
       "id": "TS-E6-04",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 10,
       "points": 5,
       "fr": [],
       "title": "A2A Talent Intelligence agent (stretch)",
@@ -1265,7 +1298,7 @@
     {
       "id": "TS-E6-05",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 10,
       "points": 3,
       "fr": [],
       "title": "Demo deployment",
@@ -1280,7 +1313,7 @@
     {
       "id": "TS-E6-07",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 10,
       "points": 3,
       "fr": [
         "NFR-5",
@@ -1299,7 +1332,7 @@
     {
       "id": "TS-E6-06",
       "epic": "E6",
-      "sprint": 8,
+      "sprint": 10,
       "points": 3,
       "fr": [
         "BO-1",
@@ -1313,6 +1346,349 @@
       "status": "todo",
       "owner": "You + recruiters",
       "jira": "TS-68"
+    },
+    {
+      "id": "TS-E7-01",
+      "epic": "E7",
+      "sprint": 4,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-2"
+      ],
+      "title": "Detail-accuracy check: recruiter entries vs CV",
+      "story": "As a delivery lead I want what the recruiter typed compared with the CV so that wrong experience, company, role, location or skills are caught before the client sees them.",
+      "ac": [
+        "Given a submission whose entered experience is 12 years and whose CV shows 6, then the check returns experience: mismatch with the CV quote",
+        "Given a field the CV does not mention, then the result is not_in_cv, not mismatch",
+        "Given real CV text, then extraction runs only on the local model (pii=true)"
+      ],
+      "jira": "TS-77"
+    },
+    {
+      "id": "TS-E7-02",
+      "epic": "E7",
+      "sprint": 4,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-3",
+        "FR-AUD-5",
+        "FR-AUD-6"
+      ],
+      "title": "Constraint fit, completeness and quality score",
+      "story": "As a delivery lead I want each submission scored 0-100 with every deduction explained so that I can prioritise reviews.",
+      "ac": [
+        "Given expected CTC above the requirement budget, then constraint fit for CTC is outside",
+        "Given configurable weights, then the score equals the weighted checks and each deduction names its check",
+        "Given a missing CV, then the status is incomplete and no LLM call is made"
+      ],
+      "jira": "TS-78"
+    },
+    {
+      "id": "TS-E7-03",
+      "epic": "E7",
+      "sprint": 4,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-4"
+      ],
+      "title": "Duplicate detection across recruiters",
+      "story": "As a delivery lead I want the same candidate submitted by different recruiters linked so that duplicates are not counted twice or sent twice to a client.",
+      "ac": [
+        "Given two submissions with the same email or phone, then they are linked as duplicates",
+        "Given different contact details but same name, company and a CV similarity above the threshold, then they are flagged as possible duplicates for review"
+      ],
+      "jira": "TS-79"
+    },
+    {
+      "id": "TS-E7-04",
+      "epic": "E7",
+      "sprint": 4,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-1",
+        "FR-AUD-7"
+      ],
+      "title": "Audit records and automatic audit on sync",
+      "story": "As a delivery lead I want every new or changed submission audited automatically so that nothing slips through.",
+      "ac": [
+        "Given a new submission synced by the connector, then an audit record exists within 1 hour (KPI-7)",
+        "Given an audit, then no row in the ATS database changes",
+        "Given the same unchanged submission synced twice, then it is audited once (idempotent)"
+      ],
+      "jira": "TS-80"
+    },
+    {
+      "id": "TS-E7-05",
+      "epic": "E7",
+      "sprint": 4,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-8",
+        "FR-AUD-9"
+      ],
+      "title": "Lead review queue and recruiter scorecard",
+      "story": "As a delivery lead I want a queue of flagged submissions and a scorecard per recruiter so that I can coach recruiters with evidence.",
+      "ac": [
+        "Given flagged submissions, then the queue shows score, failed checks, the recruiter's entry next to the CV fact, and accept/override with a reason",
+        "Given a recruiter, then the scorecard shows submissions, average score, mismatch and duplicate rates and confirmed flags per week and month",
+        "Given a recruiter user, then they see only their own scorecard and flags"
+      ],
+      "jira": "TS-81"
+    },
+    {
+      "id": "TS-E7-06",
+      "epic": "E7",
+      "sprint": 5,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-AUD-10"
+      ],
+      "title": "Golden audit dataset and precision evaluation",
+      "story": "As a QA owner I want audit precision measured on labelled submissions so that flag quality is known before leads rely on it.",
+      "ac": [
+        "Given the labelled synthetic audit set, then precision and recall per check are reported in CI",
+        "Given a prompt or model change, then a precision drop beyond the agreed threshold fails the evaluation gate"
+      ],
+      "jira": "TS-82"
+    },
+    {
+      "id": "TS-E8-01",
+      "epic": "E8",
+      "sprint": 5,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-4",
+        "FR-VER-5"
+      ],
+      "title": "Harden the WhatsApp relay and add inbound messages",
+      "story": "As an admin I want the ATS WhatsApp relay secured and able to report replies so that verification can use it safely.",
+      "ac": [
+        "Given no relay token configured, then the relay refuses to start",
+        "Given an inbound WhatsApp message, then it is available through an authenticated endpoint with sender, time and text",
+        "Given user text in logs, then it is escaped (fixes the CodeQL log-injection alerts)"
+      ],
+      "jira": "TS-83"
+    },
+    {
+      "id": "TS-E8-02",
+      "epic": "E8",
+      "sprint": 5,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-7"
+      ],
+      "title": "Opt-out and contact-consent registry",
+      "story": "As a candidate I want STOP to end all messages so that I am not contacted again.",
+      "ac": [
+        "Given a STOP reply on any channel, then the candidate is opted out on all channels and gets one confirmation",
+        "Given an opted-out candidate, then drafting and sending refuse them"
+      ],
+      "jira": "TS-84"
+    },
+    {
+      "id": "TS-E8-03",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-1",
+        "FR-VER-2"
+      ],
+      "title": "Verification batches, templates and drafting",
+      "story": "As a delivery lead I want the agent to draft verification messages for a sample I choose so that I can review them before anything is sent.",
+      "ac": [
+        "Given the weekly sample rule, then the batch includes all audit-flagged submissions plus a 20% random sample per recruiter",
+        "Given a versioned template, then each draft fills role, client or industry, location and the recruiter-entered CTC, ECTC and notice",
+        "Given an unapproved batch, then nothing is sent"
+      ],
+      "jira": "TS-85"
+    },
+    {
+      "id": "TS-E8-04",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-3",
+        "FR-VER-6"
+      ],
+      "title": "message.send tool with approval token, rate limits and email fallback",
+      "story": "As a security owner I want sending to be impossible without an approval token so that no candidate is contacted without a named approver.",
+      "ac": [
+        "Given a send without a valid approval token, then the tool refuses and logs the attempt (KPI-5 = 0)",
+        "Given more than 30 messages per hour on a channel, then the rest are queued",
+        "Given the WhatsApp relay is down, then the batch switches to email and the admin is alerted"
+      ],
+      "jira": "TS-86"
+    },
+    {
+      "id": "TS-E8-05",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-5"
+      ],
+      "title": "Reply capture from WhatsApp and email",
+      "story": "As a delivery lead I want candidate replies collected automatically so that I do not chase them by hand.",
+      "ac": [
+        "Given a WhatsApp or email reply, then it is linked to the right verification message within 10 minutes",
+        "Given a bounced email or invalid number, then the outcome is unreachable"
+      ],
+      "jira": "TS-87"
+    },
+    {
+      "id": "TS-E8-06",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-8",
+        "FR-VER-9"
+      ],
+      "title": "Local reply classification and outcome comparison",
+      "story": "As a delivery lead I want each reply turned into an outcome compared with what the recruiter entered so that false or wrong submissions stand out.",
+      "ac": [
+        "Given 'No, nobody called me', then the outcome is not_contacted and it is escalated",
+        "Given 'Yes, but my notice is 60 days' with 30 entered, then the outcome is details_mismatch listing notice 30 vs 60",
+        "Given a reply containing instructions to the model, then it is treated as data and the output is schema-checked",
+        "Given low classifier confidence, then the reply goes to the lead"
+      ],
+      "jira": "TS-88"
+    },
+    {
+      "id": "TS-E8-07",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-10",
+        "FR-VER-11"
+      ],
+      "title": "Follow-up replanning, escalation and results view",
+      "story": "As a delivery lead I want unanswered candidates followed up once and possible false submissions escalated with evidence so that I can decide fairly.",
+      "ac": [
+        "Given no WhatsApp reply in 48 h, then exactly one email follow-up is sent; after a further 72 h the outcome is no_response",
+        "Given not_contacted or wrong_role, then the lead sees the message, the reply and the recruiter's entry side by side and records a decision with a reason",
+        "Given any outcome, then no automatic action is taken against the recruiter (BR-11)"
+      ],
+      "jira": "TS-89"
+    },
+    {
+      "id": "TS-E8-08",
+      "epic": "E8",
+      "sprint": 7,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-VER-12"
+      ],
+      "title": "Verification evaluation set",
+      "story": "As a QA owner I want synthetic replies with known outcomes so that classification accuracy is measured.",
+      "ac": [
+        "Given the synthetic reply set (incl. Hinglish, partial answers and injection attempts), then outcome accuracy is reported in CI and gates prompt changes"
+      ],
+      "jira": "TS-90"
+    },
+    {
+      "id": "TS-E9-01",
+      "epic": "E9",
+      "sprint": 9,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-PIT-1",
+        "FR-PIT-2"
+      ],
+      "title": "Pitch brief and trust-ranked pool search",
+      "story": "As a business development lead I want to describe a pitch and get the best matches from our pool so that we pitch candidates we can actually deliver.",
+      "ac": [
+        "Given a pitch brief, then results come from the ATS pool with the funnel shown",
+        "Given equal fit, then candidates with a recent confirmed verification and a clean audit rank first",
+        "Given a brief the pool can't fill, then the run escalates with options instead of padding"
+      ],
+      "jira": "TS-91"
+    },
+    {
+      "id": "TS-E9-02",
+      "epic": "E9",
+      "sprint": 9,
+      "points": 5,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-PIT-3",
+        "FR-PIT-4"
+      ],
+      "title": "Anonymised pitch pack export",
+      "story": "As a business development lead I want an anonymised pitch pack so that I can share our talent with a client without exposing candidates.",
+      "ac": [
+        "Given a pack, then each profile has role, years, skills with evidence, notice band, CTC band and location, and no name, phone, email, employer or photo",
+        "Given an export, then it needs approval and is logged"
+      ],
+      "jira": "TS-92"
+    },
+    {
+      "id": "TS-E9-03",
+      "epic": "E9",
+      "sprint": 9,
+      "points": 3,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-PIT-5"
+      ],
+      "title": "Hiring-drive pool summary",
+      "story": "As a delivery lead planning a drive I want counts by skill, experience band, location and notice so that I can promise realistic numbers.",
+      "ac": [
+        "Given a drive brief, then the summary shows available counts by skill, experience band, location and notice period"
+      ],
+      "jira": "TS-93"
+    },
+    {
+      "id": "TS-E9-04",
+      "epic": "E9",
+      "sprint": 9,
+      "points": 2,
+      "status": "todo",
+      "owner": "Claude",
+      "fr": [
+        "FR-PIT-6"
+      ],
+      "title": "Anonymisation leak test",
+      "story": "As a privacy owner I want every pitch export scanned for identifiers so that no candidate is exposed by mistake.",
+      "ac": [
+        "Given a generated pack, then an automated scan finds no names, emails or phone numbers from the source records, else the export is blocked"
+      ],
+      "jira": "TS-94"
     }
   ],
   "owner_actions": [
@@ -1385,7 +1761,9 @@
       "5": 9,
       "6": 10,
       "7": 11,
-      "8": 12
+      "8": 12,
+      "9": 13,
+      "10": 14
     }
   }
 }
