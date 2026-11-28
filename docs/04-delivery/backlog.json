@@ -1322,8 +1322,8 @@
     },
     {
       "task": "Turn on Cloudflare Access for ats.hrgp.in",
-      "why": "Staff-only gate in front of the legacy ATS (runbook E8, risk R-15). Free up to 50 users.",
-      "status": "todo"
+      "why": "Deferred by the PO 2026-11-28 (not required at this stage). Risk R-15 accepted until ATS hardening TS-EA-07 (Sprint 1); revisit before wider rollout. Steps kept in runbook E8.",
+      "status": "deferred"
     },
     {
       "task": "Make a54000/hireflow private",

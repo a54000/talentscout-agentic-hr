@@ -9,7 +9,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 ## Your actions (outside the backlog)
 
 - [x] **Refresh the Cloudflare tunnel token**: Done 2026-11-28.
-- [ ] **Turn on Cloudflare Access for ats.hrgp.in**: Staff-only gate in front of the legacy ATS (runbook E8, risk R-15). Free up to 50 users.
+- [ ] **Turn on Cloudflare Access for ats.hrgp.in** _(deferred)_: Deferred by the PO 2026-11-28 (not required at this stage). Risk R-15 accepted until ATS hardening TS-EA-07 (Sprint 1); revisit before wider rollout. Steps kept in runbook E8.
 - [x] **Make a54000/hireflow private**: Done 2026-11-28 (hireflow private). Also review a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app, which are still public.
 - [x] **Run the ATS restore from ats.db on the Mac**: Done 2026-11-27: 9,988 candidates, 1,685 requirements restored; newest 2026-05-26.
 - [x] **Create the Jira project (Scrum, key TS, name TalentScout)**: The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.

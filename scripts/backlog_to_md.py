@@ -38,7 +38,8 @@ def write_checklist(data: dict, sprints: dict, by_sprint: dict) -> None:
            "## Your actions (outside the backlog)", ""]
     for a in data.get("owner_actions", []):
         box = "x" if a.get("status") == "done" else " "
-        out.append(f"- [{box}] **{a['task']}**: {a['why']}")
+        tag = " _(deferred)_" if a.get("status") == "deferred" else ""
+        out.append(f"- [{box}] **{a['task']}**{tag}: {a['why']}")
     out.append("")
     for sid, sp in sprints.items():
         out += [f"## {sp['name']} ({sp['start']} → {sp['end']})", ""]
