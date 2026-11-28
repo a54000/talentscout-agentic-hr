@@ -132,19 +132,19 @@
       "id": "E7",
       "name": "Submission quality audit",
       "summary": "UC-002: audit every ATS submission against its requirement and CV (must-have evidence, detail accuracy, constraint fit, duplicates, completeness), score it, and give leads a review queue and recruiter scorecards.",
-      "jira": null
+      "jira": "TS-74"
     },
     {
       "id": "E8",
       "name": "Candidate verification",
       "summary": "UC-003: approved WhatsApp and email verification messages through the ATS channels, opt-outs, reply capture and local classification, comparison with recruiter entries, follow-up and escalation of possible false submissions.",
-      "jira": null
+      "jira": "TS-75"
     },
     {
       "id": "E9",
       "name": "Client pitches and drives",
       "summary": "UC-004: search the audited and verified ATS pool for a pitch brief and build anonymised pitch packs and drive summaries.",
-      "jira": null
+      "jira": "TS-76"
     }
   ],
   "stories": [
@@ -1364,7 +1364,7 @@
         "Given a field the CV does not mention, then the result is not_in_cv, not mismatch",
         "Given real CV text, then extraction runs only on the local model (pii=true)"
       ],
-      "jira": null
+      "jira": "TS-77"
     },
     {
       "id": "TS-E7-02",
@@ -1385,7 +1385,7 @@
         "Given configurable weights, then the score equals the weighted checks and each deduction names its check",
         "Given a missing CV, then the status is incomplete and no LLM call is made"
       ],
-      "jira": null
+      "jira": "TS-78"
     },
     {
       "id": "TS-E7-03",
@@ -1403,7 +1403,7 @@
         "Given two submissions with the same email or phone, then they are linked as duplicates",
         "Given different contact details but same name, company and a CV similarity above the threshold, then they are flagged as possible duplicates for review"
       ],
-      "jira": null
+      "jira": "TS-79"
     },
     {
       "id": "TS-E7-04",
@@ -1423,7 +1423,7 @@
         "Given an audit, then no row in the ATS database changes",
         "Given the same unchanged submission synced twice, then it is audited once (idempotent)"
       ],
-      "jira": null
+      "jira": "TS-80"
     },
     {
       "id": "TS-E7-05",
@@ -1443,7 +1443,7 @@
         "Given a recruiter, then the scorecard shows submissions, average score, mismatch and duplicate rates and confirmed flags per week and month",
         "Given a recruiter user, then they see only their own scorecard and flags"
       ],
-      "jira": null
+      "jira": "TS-81"
     },
     {
       "id": "TS-E7-06",
@@ -1461,7 +1461,7 @@
         "Given the labelled synthetic audit set, then precision and recall per check are reported in CI",
         "Given a prompt or model change, then a precision drop beyond the agreed threshold fails the evaluation gate"
       ],
-      "jira": null
+      "jira": "TS-82"
     },
     {
       "id": "TS-E8-01",
@@ -1481,7 +1481,7 @@
         "Given an inbound WhatsApp message, then it is available through an authenticated endpoint with sender, time and text",
         "Given user text in logs, then it is escaped (fixes the CodeQL log-injection alerts)"
       ],
-      "jira": null
+      "jira": "TS-83"
     },
     {
       "id": "TS-E8-02",
@@ -1499,7 +1499,7 @@
         "Given a STOP reply on any channel, then the candidate is opted out on all channels and gets one confirmation",
         "Given an opted-out candidate, then drafting and sending refuse them"
       ],
-      "jira": null
+      "jira": "TS-84"
     },
     {
       "id": "TS-E8-03",
@@ -1519,7 +1519,7 @@
         "Given a versioned template, then each draft fills role, client or industry, location and the recruiter-entered CTC, ECTC and notice",
         "Given an unapproved batch, then nothing is sent"
       ],
-      "jira": null
+      "jira": "TS-85"
     },
     {
       "id": "TS-E8-04",
@@ -1539,7 +1539,7 @@
         "Given more than 30 messages per hour on a channel, then the rest are queued",
         "Given the WhatsApp relay is down, then the batch switches to email and the admin is alerted"
       ],
-      "jira": null
+      "jira": "TS-86"
     },
     {
       "id": "TS-E8-05",
@@ -1557,7 +1557,7 @@
         "Given a WhatsApp or email reply, then it is linked to the right verification message within 10 minutes",
         "Given a bounced email or invalid number, then the outcome is unreachable"
       ],
-      "jira": null
+      "jira": "TS-87"
     },
     {
       "id": "TS-E8-06",
@@ -1578,7 +1578,7 @@
         "Given a reply containing instructions to the model, then it is treated as data and the output is schema-checked",
         "Given low classifier confidence, then the reply goes to the lead"
       ],
-      "jira": null
+      "jira": "TS-88"
     },
     {
       "id": "TS-E8-07",
@@ -1598,7 +1598,7 @@
         "Given not_contacted or wrong_role, then the lead sees the message, the reply and the recruiter's entry side by side and records a decision with a reason",
         "Given any outcome, then no automatic action is taken against the recruiter (BR-11)"
       ],
-      "jira": null
+      "jira": "TS-89"
     },
     {
       "id": "TS-E8-08",
@@ -1615,7 +1615,7 @@
       "ac": [
         "Given the synthetic reply set (incl. Hinglish, partial answers and injection attempts), then outcome accuracy is reported in CI and gates prompt changes"
       ],
-      "jira": null
+      "jira": "TS-90"
     },
     {
       "id": "TS-E9-01",
@@ -1635,7 +1635,7 @@
         "Given equal fit, then candidates with a recent confirmed verification and a clean audit rank first",
         "Given a brief the pool can't fill, then the run escalates with options instead of padding"
       ],
-      "jira": null
+      "jira": "TS-91"
     },
     {
       "id": "TS-E9-02",
@@ -1654,7 +1654,7 @@
         "Given a pack, then each profile has role, years, skills with evidence, notice band, CTC band and location, and no name, phone, email, employer or photo",
         "Given an export, then it needs approval and is logged"
       ],
-      "jira": null
+      "jira": "TS-92"
     },
     {
       "id": "TS-E9-03",
@@ -1671,7 +1671,7 @@
       "ac": [
         "Given a drive brief, then the summary shows available counts by skill, experience band, location and notice period"
       ],
-      "jira": null
+      "jira": "TS-93"
     },
     {
       "id": "TS-E9-04",
@@ -1688,7 +1688,7 @@
       "ac": [
         "Given a generated pack, then an automated scan finds no names, emails or phone numbers from the source records, else the export is blocked"
       ],
-      "jira": null
+      "jira": "TS-94"
     }
   ],
   "owner_actions": [
@@ -1761,7 +1761,9 @@
       "5": 9,
       "6": 10,
       "7": 11,
-      "8": 12
+      "8": 12,
+      "9": 13,
+      "10": 14
     }
   }
 }

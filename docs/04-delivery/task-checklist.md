@@ -70,11 +70,11 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 - [ ] **TS-E3-01 LangGraph supervisor graph and state**: One goal to trigger a coordinated team of agents, so that I do not orchestrate steps myself. _(5 pts, owner: Claude, Jira TS-42)_
 - [ ] **TS-E3-03 Evidence-based matching per mandatory skill**: Each requirement judged with quotes from the resume, so that I can trust the score. _(5 pts, owner: Claude, Jira TS-44)_
-- [ ] **TS-E7-01 Detail-accuracy check: recruiter entries vs CV**: What the recruiter typed compared with the CV, so that wrong experience, company, role, location or skills are caught before the client sees them. _(5 pts, owner: Claude)_
-- [ ] **TS-E7-02 Constraint fit, completeness and quality score**: Each submission scored 0-100 with every deduction explained, so that I can prioritise reviews. _(3 pts, owner: Claude)_
-- [ ] **TS-E7-03 Duplicate detection across recruiters**: The same candidate submitted by different recruiters linked, so that duplicates are not counted twice or sent twice to a client. _(3 pts, owner: Claude)_
-- [ ] **TS-E7-04 Audit records and automatic audit on sync**: Every new or changed submission audited automatically, so that nothing slips through. _(3 pts, owner: Claude)_
-- [ ] **TS-E7-05 Lead review queue and recruiter scorecard**: A queue of flagged submissions and a scorecard per recruiter, so that I can coach recruiters with evidence. _(5 pts, owner: Claude)_
+- [ ] **TS-E7-01 Detail-accuracy check: recruiter entries vs CV**: What the recruiter typed compared with the CV, so that wrong experience, company, role, location or skills are caught before the client sees them. _(5 pts, owner: Claude, Jira TS-77)_
+- [ ] **TS-E7-02 Constraint fit, completeness and quality score**: Each submission scored 0-100 with every deduction explained, so that I can prioritise reviews. _(3 pts, owner: Claude, Jira TS-78)_
+- [ ] **TS-E7-03 Duplicate detection across recruiters**: The same candidate submitted by different recruiters linked, so that duplicates are not counted twice or sent twice to a client. _(3 pts, owner: Claude, Jira TS-79)_
+- [ ] **TS-E7-04 Audit records and automatic audit on sync**: Every new or changed submission audited automatically, so that nothing slips through. _(3 pts, owner: Claude, Jira TS-80)_
+- [ ] **TS-E7-05 Lead review queue and recruiter scorecard**: A queue of flagged submissions and a scorecard per recruiter, so that I can coach recruiters with evidence. _(5 pts, owner: Claude, Jira TS-81)_
 
 ## Sprint 5 - Audit quality and verification groundwork (2027-02-15 → 2027-02-26)
 
@@ -82,9 +82,9 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [ ] **TS-E3-05 Live run view over SSE (dashboard part 1)**: To watch the agents plan, act and replan, so that I understand what they are doing. _(3 pts, owner: Claude, Jira TS-46)_
 - [ ] **TS-E3-06 Human approval gate for shortlist and escalation**: To approve or reject each shortlisted candidate with a reason, so that I remain accountable. _(6 pts, owner: Claude, Jira TS-47)_
 - [ ] **TS-E5-02 PII masking and local-only routing enforcement**: PII masked and kept local, so that we comply with DPDP and provider terms. _(3 pts, owner: Claude, Jira TS-54)_
-- [ ] **TS-E7-06 Golden audit dataset and precision evaluation**: Audit precision measured on labelled submissions, so that flag quality is known before leads rely on it. _(3 pts, owner: Claude)_
-- [ ] **TS-E8-01 Harden the WhatsApp relay and add inbound messages**: The ATS WhatsApp relay secured and able to report replies, so that verification can use it safely. _(5 pts, owner: Claude)_
-- [ ] **TS-E8-02 Opt-out and contact-consent registry**: STOP to end all messages, so that I am not contacted again. _(3 pts, owner: Claude)_
+- [ ] **TS-E7-06 Golden audit dataset and precision evaluation**: Audit precision measured on labelled submissions, so that flag quality is known before leads rely on it. _(3 pts, owner: Claude, Jira TS-82)_
+- [ ] **TS-E8-01 Harden the WhatsApp relay and add inbound messages**: The ATS WhatsApp relay secured and able to report replies, so that verification can use it safely. _(5 pts, owner: Claude, Jira TS-83)_
+- [ ] **TS-E8-02 Opt-out and contact-consent registry**: STOP to end all messages, so that I am not contacted again. _(3 pts, owner: Claude, Jira TS-84)_
 
 ## Sprint 6 - MCP, memory, durable execution and approval controls (2027-03-01 → 2027-03-12)
 
@@ -100,12 +100,12 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 ## Sprint 7 - Candidate verification (UC-003) (2027-03-15 → 2027-03-26)
 
 - [ ] **TS-E5-10 DPDP compliance pack**: Consent, retention and erasure implemented, so that the pilot can use real data lawfully. _(3 pts, owner: Claude, Jira TS-61)_
-- [ ] **TS-E8-03 Verification batches, templates and drafting**: The agent to draft verification messages for a sample I choose, so that I can review them before anything is sent. _(5 pts, owner: Claude)_
-- [ ] **TS-E8-04 message.send tool with approval token, rate limits and email fallback**: Sending to be impossible without an approval token, so that no candidate is contacted without a named approver. _(5 pts, owner: Claude)_
-- [ ] **TS-E8-05 Reply capture from WhatsApp and email**: Candidate replies collected automatically, so that I do not chase them by hand. _(3 pts, owner: Claude)_
-- [ ] **TS-E8-06 Local reply classification and outcome comparison**: Each reply turned into an outcome compared with what the recruiter entered, so that false or wrong submissions stand out. _(5 pts, owner: Claude)_
-- [ ] **TS-E8-07 Follow-up replanning, escalation and results view**: Unanswered candidates followed up once and possible false submissions escalated with evidence, so that I can decide fairly. _(5 pts, owner: Claude)_
-- [ ] **TS-E8-08 Verification evaluation set**: Synthetic replies with known outcomes, so that classification accuracy is measured. _(3 pts, owner: Claude)_
+- [ ] **TS-E8-03 Verification batches, templates and drafting**: The agent to draft verification messages for a sample I choose, so that I can review them before anything is sent. _(5 pts, owner: Claude, Jira TS-85)_
+- [ ] **TS-E8-04 message.send tool with approval token, rate limits and email fallback**: Sending to be impossible without an approval token, so that no candidate is contacted without a named approver. _(5 pts, owner: Claude, Jira TS-86)_
+- [ ] **TS-E8-05 Reply capture from WhatsApp and email**: Candidate replies collected automatically, so that I do not chase them by hand. _(3 pts, owner: Claude, Jira TS-87)_
+- [ ] **TS-E8-06 Local reply classification and outcome comparison**: Each reply turned into an outcome compared with what the recruiter entered, so that false or wrong submissions stand out. _(5 pts, owner: Claude, Jira TS-88)_
+- [ ] **TS-E8-07 Follow-up replanning, escalation and results view**: Unanswered candidates followed up once and possible false submissions escalated with evidence, so that I can decide fairly. _(5 pts, owner: Claude, Jira TS-89)_
+- [ ] **TS-E8-08 Verification evaluation set**: Synthetic replies with known outcomes, so that classification accuracy is measured. _(3 pts, owner: Claude, Jira TS-90)_
 
 ## Sprint 8 - Pool retrieval, replanning and AI safety (2027-03-29 → 2027-04-09)
 
@@ -122,10 +122,10 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [ ] **TS-E5-08 Evaluation gate in CI**: Evals to run on agent changes, so that quality regressions block merges. _(5 pts, owner: Claude, Jira TS-60)_
 - [ ] **TS-E6-01 LiteLLM gateway with multi-provider fallback**: Routing across free providers with fallback, so that rate limits do not stop work. _(5 pts, owner: Claude, Jira TS-62)_
 - [ ] **TS-E6-02 Parallel screening fan-out**: Candidates screened in parallel, so that shortlists arrive faster. _(3 pts, owner: Claude, Jira TS-63)_
-- [ ] **TS-E9-01 Pitch brief and trust-ranked pool search**: To describe a pitch and get the best matches from our pool, so that we pitch candidates we can actually deliver. _(3 pts, owner: Claude)_
-- [ ] **TS-E9-02 Anonymised pitch pack export**: An anonymised pitch pack, so that I can share our talent with a client without exposing candidates. _(5 pts, owner: Claude)_
-- [ ] **TS-E9-03 Hiring-drive pool summary**: Counts by skill, experience band, location and notice, so that I can promise realistic numbers. _(3 pts, owner: Claude)_
-- [ ] **TS-E9-04 Anonymisation leak test**: Every pitch export scanned for identifiers, so that no candidate is exposed by mistake. _(2 pts, owner: Claude)_
+- [ ] **TS-E9-01 Pitch brief and trust-ranked pool search**: To describe a pitch and get the best matches from our pool, so that we pitch candidates we can actually deliver. _(3 pts, owner: Claude, Jira TS-91)_
+- [ ] **TS-E9-02 Anonymised pitch pack export**: An anonymised pitch pack, so that I can share our talent with a client without exposing candidates. _(5 pts, owner: Claude, Jira TS-92)_
+- [ ] **TS-E9-03 Hiring-drive pool summary**: Counts by skill, experience band, location and notice, so that I can promise realistic numbers. _(3 pts, owner: Claude, Jira TS-93)_
+- [ ] **TS-E9-04 Anonymisation leak test**: Every pitch export scanned for identifiers, so that no candidate is exposed by mistake. _(2 pts, owner: Claude, Jira TS-94)_
 
 ## Sprint 10 - Dashboard, performance and pilot (2027-04-26 → 2027-05-07)
 

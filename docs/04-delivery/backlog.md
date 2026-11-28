@@ -717,7 +717,7 @@ Acceptance criteria:
 
 UC-002: audit every ATS submission against its requirement and CV (must-have evidence, detail accuracy, constraint fit, duplicates, completeness), score it, and give leads a review queue and recruiter scorecards.
 
-### TS-E7-01: Detail-accuracy check: recruiter entries vs CV  (5 pts, Sprint 4, To do)
+### TS-E7-01: Detail-accuracy check: recruiter entries vs CV  (5 pts, Sprint 4, To do, Jira TS-77)
 
 *As a delivery lead I want what the recruiter typed compared with the CV so that wrong experience, company, role, location or skills are caught before the client sees them.*
 
@@ -728,7 +728,7 @@ Acceptance criteria:
 - Given a field the CV does not mention, then the result is not_in_cv, not mismatch
 - Given real CV text, then extraction runs only on the local model (pii=true)
 
-### TS-E7-02: Constraint fit, completeness and quality score  (3 pts, Sprint 4, To do)
+### TS-E7-02: Constraint fit, completeness and quality score  (3 pts, Sprint 4, To do, Jira TS-78)
 
 *As a delivery lead I want each submission scored 0-100 with every deduction explained so that I can prioritise reviews.*
 
@@ -739,7 +739,7 @@ Acceptance criteria:
 - Given configurable weights, then the score equals the weighted checks and each deduction names its check
 - Given a missing CV, then the status is incomplete and no LLM call is made
 
-### TS-E7-03: Duplicate detection across recruiters  (3 pts, Sprint 4, To do)
+### TS-E7-03: Duplicate detection across recruiters  (3 pts, Sprint 4, To do, Jira TS-79)
 
 *As a delivery lead I want the same candidate submitted by different recruiters linked so that duplicates are not counted twice or sent twice to a client.*
 
@@ -749,7 +749,7 @@ Acceptance criteria:
 - Given two submissions with the same email or phone, then they are linked as duplicates
 - Given different contact details but same name, company and a CV similarity above the threshold, then they are flagged as possible duplicates for review
 
-### TS-E7-04: Audit records and automatic audit on sync  (3 pts, Sprint 4, To do)
+### TS-E7-04: Audit records and automatic audit on sync  (3 pts, Sprint 4, To do, Jira TS-80)
 
 *As a delivery lead I want every new or changed submission audited automatically so that nothing slips through.*
 
@@ -760,7 +760,7 @@ Acceptance criteria:
 - Given an audit, then no row in the ATS database changes
 - Given the same unchanged submission synced twice, then it is audited once (idempotent)
 
-### TS-E7-05: Lead review queue and recruiter scorecard  (5 pts, Sprint 4, To do)
+### TS-E7-05: Lead review queue and recruiter scorecard  (5 pts, Sprint 4, To do, Jira TS-81)
 
 *As a delivery lead I want a queue of flagged submissions and a scorecard per recruiter so that I can coach recruiters with evidence.*
 
@@ -771,7 +771,7 @@ Acceptance criteria:
 - Given a recruiter, then the scorecard shows submissions, average score, mismatch and duplicate rates and confirmed flags per week and month
 - Given a recruiter user, then they see only their own scorecard and flags
 
-### TS-E7-06: Golden audit dataset and precision evaluation  (3 pts, Sprint 5, To do)
+### TS-E7-06: Golden audit dataset and precision evaluation  (3 pts, Sprint 5, To do, Jira TS-82)
 
 *As a QA owner I want audit precision measured on labelled submissions so that flag quality is known before leads rely on it.*
 
@@ -785,7 +785,7 @@ Acceptance criteria:
 
 UC-003: approved WhatsApp and email verification messages through the ATS channels, opt-outs, reply capture and local classification, comparison with recruiter entries, follow-up and escalation of possible false submissions.
 
-### TS-E8-01: Harden the WhatsApp relay and add inbound messages  (5 pts, Sprint 5, To do)
+### TS-E8-01: Harden the WhatsApp relay and add inbound messages  (5 pts, Sprint 5, To do, Jira TS-83)
 
 *As an admin I want the ATS WhatsApp relay secured and able to report replies so that verification can use it safely.*
 
@@ -796,7 +796,7 @@ Acceptance criteria:
 - Given an inbound WhatsApp message, then it is available through an authenticated endpoint with sender, time and text
 - Given user text in logs, then it is escaped (fixes the CodeQL log-injection alerts)
 
-### TS-E8-02: Opt-out and contact-consent registry  (3 pts, Sprint 5, To do)
+### TS-E8-02: Opt-out and contact-consent registry  (3 pts, Sprint 5, To do, Jira TS-84)
 
 *As a candidate I want STOP to end all messages so that I am not contacted again.*
 
@@ -806,7 +806,7 @@ Acceptance criteria:
 - Given a STOP reply on any channel, then the candidate is opted out on all channels and gets one confirmation
 - Given an opted-out candidate, then drafting and sending refuse them
 
-### TS-E8-03: Verification batches, templates and drafting  (5 pts, Sprint 7, To do)
+### TS-E8-03: Verification batches, templates and drafting  (5 pts, Sprint 7, To do, Jira TS-85)
 
 *As a delivery lead I want the agent to draft verification messages for a sample I choose so that I can review them before anything is sent.*
 
@@ -817,7 +817,7 @@ Acceptance criteria:
 - Given a versioned template, then each draft fills role, client or industry, location and the recruiter-entered CTC, ECTC and notice
 - Given an unapproved batch, then nothing is sent
 
-### TS-E8-04: message.send tool with approval token, rate limits and email fallback  (5 pts, Sprint 7, To do)
+### TS-E8-04: message.send tool with approval token, rate limits and email fallback  (5 pts, Sprint 7, To do, Jira TS-86)
 
 *As a security owner I want sending to be impossible without an approval token so that no candidate is contacted without a named approver.*
 
@@ -828,7 +828,7 @@ Acceptance criteria:
 - Given more than 30 messages per hour on a channel, then the rest are queued
 - Given the WhatsApp relay is down, then the batch switches to email and the admin is alerted
 
-### TS-E8-05: Reply capture from WhatsApp and email  (3 pts, Sprint 7, To do)
+### TS-E8-05: Reply capture from WhatsApp and email  (3 pts, Sprint 7, To do, Jira TS-87)
 
 *As a delivery lead I want candidate replies collected automatically so that I do not chase them by hand.*
 
@@ -838,7 +838,7 @@ Acceptance criteria:
 - Given a WhatsApp or email reply, then it is linked to the right verification message within 10 minutes
 - Given a bounced email or invalid number, then the outcome is unreachable
 
-### TS-E8-06: Local reply classification and outcome comparison  (5 pts, Sprint 7, To do)
+### TS-E8-06: Local reply classification and outcome comparison  (5 pts, Sprint 7, To do, Jira TS-88)
 
 *As a delivery lead I want each reply turned into an outcome compared with what the recruiter entered so that false or wrong submissions stand out.*
 
@@ -850,7 +850,7 @@ Acceptance criteria:
 - Given a reply containing instructions to the model, then it is treated as data and the output is schema-checked
 - Given low classifier confidence, then the reply goes to the lead
 
-### TS-E8-07: Follow-up replanning, escalation and results view  (5 pts, Sprint 7, To do)
+### TS-E8-07: Follow-up replanning, escalation and results view  (5 pts, Sprint 7, To do, Jira TS-89)
 
 *As a delivery lead I want unanswered candidates followed up once and possible false submissions escalated with evidence so that I can decide fairly.*
 
@@ -861,7 +861,7 @@ Acceptance criteria:
 - Given not_contacted or wrong_role, then the lead sees the message, the reply and the recruiter's entry side by side and records a decision with a reason
 - Given any outcome, then no automatic action is taken against the recruiter (BR-11)
 
-### TS-E8-08: Verification evaluation set  (3 pts, Sprint 7, To do)
+### TS-E8-08: Verification evaluation set  (3 pts, Sprint 7, To do, Jira TS-90)
 
 *As a QA owner I want synthetic replies with known outcomes so that classification accuracy is measured.*
 
@@ -874,7 +874,7 @@ Acceptance criteria:
 
 UC-004: search the audited and verified ATS pool for a pitch brief and build anonymised pitch packs and drive summaries.
 
-### TS-E9-01: Pitch brief and trust-ranked pool search  (3 pts, Sprint 9, To do)
+### TS-E9-01: Pitch brief and trust-ranked pool search  (3 pts, Sprint 9, To do, Jira TS-91)
 
 *As a business development lead I want to describe a pitch and get the best matches from our pool so that we pitch candidates we can actually deliver.*
 
@@ -885,7 +885,7 @@ Acceptance criteria:
 - Given equal fit, then candidates with a recent confirmed verification and a clean audit rank first
 - Given a brief the pool can't fill, then the run escalates with options instead of padding
 
-### TS-E9-02: Anonymised pitch pack export  (5 pts, Sprint 9, To do)
+### TS-E9-02: Anonymised pitch pack export  (5 pts, Sprint 9, To do, Jira TS-92)
 
 *As a business development lead I want an anonymised pitch pack so that I can share our talent with a client without exposing candidates.*
 
@@ -895,7 +895,7 @@ Acceptance criteria:
 - Given a pack, then each profile has role, years, skills with evidence, notice band, CTC band and location, and no name, phone, email, employer or photo
 - Given an export, then it needs approval and is logged
 
-### TS-E9-03: Hiring-drive pool summary  (3 pts, Sprint 9, To do)
+### TS-E9-03: Hiring-drive pool summary  (3 pts, Sprint 9, To do, Jira TS-93)
 
 *As a delivery lead planning a drive I want counts by skill, experience band, location and notice so that I can promise realistic numbers.*
 
@@ -904,7 +904,7 @@ Traces to: FR-PIT-5
 Acceptance criteria:
 - Given a drive brief, then the summary shows available counts by skill, experience band, location and notice period
 
-### TS-E9-04: Anonymisation leak test  (2 pts, Sprint 9, To do)
+### TS-E9-04: Anonymisation leak test  (2 pts, Sprint 9, To do, Jira TS-94)
 
 *As a privacy owner I want every pitch export scanned for identifiers so that no candidate is exposed by mistake.*
 
