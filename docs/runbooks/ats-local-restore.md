@@ -210,6 +210,16 @@ ops/backup/restore_drill.sh
 ops/backup/install_schedule.sh
 ```
 
+5. **macOS permission for cloud folders.** A scheduled (background) job cannot open Google Drive, iCloud or OneDrive folders until you allow it. Go to System Settings → Privacy & Security → **Full Disk Access** → **+** → Cmd+Shift+G → `/bin/bash`, and turn it on. Without this the scheduled run fails with *"macOS blocked access …"*, even though running the script by hand works.
+
+6. Test the scheduled run once:
+
+```bash
+launchctl kickstart gui/$(id -u)/in.hrgp.ats-backup && sleep 30 && tail -n 10 ~/Library/Logs/hrguru-ats-backup.log
+```
+
+**Current setup (2026-11-28):** the off-Mac copy goes to Google Drive `My Drive/HRGuruBackups`. First backup and restore drill passed (9,988 candidates, 1,685 requirements). The scheduled run is verified.
+
 **Monthly:** run `restore_drill.sh` and note the result in Jira (TS-14).
 
 To restore for real after a disaster, use procedure **B1** with the newest `hrguru_ats-*.dump`, then procedure **C** with the matching `uploads-*.tgz` (extract it first).

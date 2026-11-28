@@ -47,6 +47,7 @@ find "$BACKUP_DIR" -maxdepth 1 -type f \( -name 'hrguru_ats-*.dump' -o -name 'up
 
 if [ -n "$OFFSITE_DIR" ]; then
   [ -d "$OFFSITE_DIR" ] || fail "OFFSITE_DIR $OFFSITE_DIR is not available (disk unplugged or folder missing)"
+  ls "$OFFSITE_DIR" >/dev/null 2>&1 || fail "macOS blocked access to $OFFSITE_DIR. Give /bin/bash Full Disk Access (System Settings > Privacy & Security), then retry"
   log "Copying to off-Mac folder $OFFSITE_DIR"
   cp "$DB_FILE" "$UP_FILE" "$BACKUP_DIR/checksums-$TS.sha256" "$OFFSITE_DIR/"
   find "$OFFSITE_DIR" -maxdepth 1 -type f \( -name 'hrguru_ats-*.dump' -o -name 'uploads-*.tgz' -o -name 'checksums-*.sha256' \) -mtime +"$KEEP_DAYS" -delete
