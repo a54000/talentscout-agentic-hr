@@ -36,7 +36,7 @@ try:
 except ImportError:
     psycopg2 = None
 from ats_schema import ensure_ats_pipeline_schema
-from ats_pipeline import MATCH_PIPELINE_VERSION, looks_like_email, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
+from ats_pipeline import CLOUD_AI_DISABLED_MESSAGE, CLOUD_AI_FOR_CANDIDATE_DATA, MATCH_PIPELINE_VERSION, looks_like_email, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
 from embedding_engine import deserialize_embedding, serialize_embedding
 from services.match_analysis import build_match_dashboard
 from services.match_pdf import build_match_pdf
@@ -2024,6 +2024,9 @@ def save_candidate_ai_screening_pdf(candidate, requirement, report):
     return f"/uploads/{rel_path}"
 
 def queue_candidate_ai_screening(candidate_id, trigger="candidate_saved", gemini_api_key=None, requester_team_member_id=None):
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        print(f"AI SCREENING: skipped for candidate_id={candidate_id} ({CLOUD_AI_DISABLED_MESSAGE})", flush=True)
+        return False
     if trigger != "manual_trigger" and not AUTO_AI_SCREENING_ON_CV_UPLOAD:
         print(f"AI SCREENING DEBUG: auto screening skipped for candidate_id={candidate_id} trigger={trigger}", flush=True)
         return False
@@ -2071,6 +2074,9 @@ def queue_candidate_ai_screening(candidate_id, trigger="candidate_saved", gemini
 
 def run_candidate_ai_screening(candidate_id, trigger="candidate_saved", run_id=None, gemini_api_key=None, retry_count=0):
     run_id = run_id or f"ai_{candidate_id}_{int(datetime.now().timestamp() * 1000)}"
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        record_ai_screening_event(run_id, candidate_id=candidate_id, stage="skipped", status="skipped", message=CLOUD_AI_DISABLED_MESSAGE)
+        return {"ok": False, "skipped": True, "error": CLOUD_AI_DISABLED_MESSAGE}
     record_ai_screening_event(run_id, candidate_id=candidate_id, stage="queued", status="pending", message=f"Trigger={trigger}")
     conn = None
     try:
@@ -5074,6 +5080,8 @@ DEFAULT_RESUME_ANALYSIS_PROMPT = (
 )
 
 def call_resume_analysis_llm(cv_text, deterministic_candidate, sections, custom_prompt=""):
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        return {}, CLOUD_AI_DISABLED_MESSAGE
     analysis_instruction = re.sub(r"\s+", " ", str(custom_prompt or DEFAULT_RESUME_ANALYSIS_PROMPT)).strip()[:4000]
     prompt = (
         f"{analysis_instruction}\n\n"
@@ -5137,6 +5145,8 @@ def maybe_generate_gemini_screening_report(
     Optional Gemini-powered junior-recruiter screening report.
     Keeps the deterministic matcher as the source of truth for scores/ranking.
     """
+    if not CLOUD_AI_FOR_CANDIDATE_DATA:
+        return {"ok": False, "source": "gemini", "skipped": True, "error": CLOUD_AI_DISABLED_MESSAGE}
     if not (os.getenv("GEMINI_API_KEY") or "").strip():
         return {"ok": False, "source": "gemini", "error": "GEMINI_API_KEY is not configured."}
     try:
