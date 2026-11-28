@@ -5,7 +5,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | Sprint | Dates | Goal | Points | Load |
 |---|---|---|---|---|
 | 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts. | 39 | +13 over (stretch items flagged in planning) |
-| 1 | 2026-12-14 → 2026-12-24 | The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured. | 25 | OK |
+| 1 | 2026-12-14 → 2026-12-24 | The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured. | 28 | +2 over (stretch items flagged in planning) |
 | 2 | 2027-01-04 → 2027-01-15 | TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS. | 25 | OK |
 | 3 | 2027-01-18 → 2027-01-29 | The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists. | 23 | OK |
 | 4 | 2027-02-01 → 2027-02-12 | Every new ATS submission is audited within 1 hour: must-have evidence, detail accuracy, constraint fit, duplicates and completeness, with a quality score, a lead review queue and recruiter scorecards. | 29 | +3 over (stretch items flagged in planning) |
@@ -51,6 +51,7 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-12 | Asynchronous bulk upload with progress | 8 | To do |
 | TS-EA-13 | ATS performance baseline and load test | 3 | To do |
 | TS-EA-14 | Restore scheduled WhatsApp/email reports on the Mac | 3 | To do |
+| TS-EA-15 | Delete the retired AI screening code from the ATS | 3 | To do |
 | TS-E0-06 | Spike: local model selection on M2 16 GB | 3 | To do |
 | TS-E0-08 | Baseline measurement plan | 3 | To do |
 

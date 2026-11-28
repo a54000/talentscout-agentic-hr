@@ -5,7 +5,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | Epic | Name | Stories | Points |
 |---|---|---|---|
 | E0 | Inception and platform | 9 | 24 |
-| EA | HR Guru ATS restore and integration | 14 | 47 |
+| EA | HR Guru ATS restore and integration | 15 | 50 |
 | E1 | Requirement agent | 8 | 28 |
 | E2 | Intelligent retrieval | 7 | 29 |
 | E3 | Multi-agent orchestration | 6 | 32 |
@@ -15,7 +15,7 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Edit the JSON, not
 | E7 | Submission quality audit | 6 | 22 |
 | E8 | Candidate verification | 8 | 34 |
 | E9 | Client pitches and drives | 4 | 13 |
-| **Total** | | **83** | **308** |
+| **Total** | | **84** | **311** |
 
 ## E0: Inception and platform
 
@@ -265,6 +265,17 @@ Traces to: n/a
 Acceptance criteria:
 - Given the old systemd timers (apps/ats/deploy/systemd), when ported to launchd or a compose scheduler, then each report runs at its old time against the local ATS
 - Given a report fails, then it is logged and does not affect the ATS
+
+### TS-EA-15: Delete the retired AI screening code from the ATS  (3 pts, Sprint 1, To do, Jira TS-95)
+
+*As a tech lead I want the retired AI screening and JD/CV matching code deleted from the ATS so that dead code, the Gemini dependency and its keys are gone.*
+
+Traces to: NFR-1, BR-4
+
+Acceptance criteria:
+- Given the ATS, then the retired routes, the AI screening queue, services/gemini_screening.py, the JD/CV match and resume-analysis tabs and their JavaScript are deleted
+- Given the ATS requirements, then google-genai and other unused AI packages are removed, and GEMINI_* settings are dropped from .env.example
+- Given the smoke test and unit tests, then they pass, and candidate, requirement, upload and email flows still work on the live ATS
 
 ## E1: Requirement agent
 
