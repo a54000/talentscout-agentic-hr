@@ -36,7 +36,7 @@ try:
 except ImportError:
     psycopg2 = None
 from ats_schema import ensure_ats_pipeline_schema
-from ats_pipeline import MATCH_PIPELINE_VERSION, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
+from ats_pipeline import MATCH_PIPELINE_VERSION, looks_like_email, parse_jd as parse_jd_structured, parse_resume as parse_resume_structured, run_hybrid_match, versioned_text_hash
 from embedding_engine import deserialize_embedding, serialize_embedding
 from services.match_analysis import build_match_dashboard
 from services.match_pdf import build_match_pdf
@@ -2241,7 +2241,7 @@ def current_reply_to_email():
         or session.get("username")
         or ""
     ).strip().lower()
-    if re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+    if is_valid_email(email):
         return email
     return ""
 
@@ -2255,7 +2255,7 @@ def system_email(to_addr, subject, body, reply_to=None):
     msg["From"] = GMAIL_USER
     msg["To"] = to_addr
     reply_to = (reply_to or "").strip().lower()
-    if reply_to and re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", reply_to):
+    if reply_to and is_valid_email(reply_to):
         msg["Reply-To"] = reply_to
     msg.attach(MIMEText(body, "plain"))
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
@@ -5527,15 +5527,22 @@ EMAIL_DOMAIN_WORDS = {
     "live", "msn", "aol", "mail", "com", "co", "in", "net", "org", "edu"
 }
 
+def is_valid_email(value):
+    """Cheap structural email check without a backtracking regex."""
+    value = str(value or "")
+    if len(value) > 254 or any(ch.isspace() for ch in value) or value.count("@") != 1:
+        return False
+    local, domain = value.split("@")
+    return bool(local) and "." in domain and not domain.startswith(".") and not domain.endswith(".")
+
 def sanitize_candidate_name(value):
     raw = str(value or "").strip()
     if not raw:
         return ""
-    email_match = re.search(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", raw)
-    if email_match and raw.strip() == email_match.group(0):
-        raw = email_match.group(0).split("@", 1)[0]
+    if looks_like_email(raw):
+        raw = raw.split("@", 1)[0]
     raw = re.sub(r"^\s*(?:name|candidate\s+name|full\s+name)\s*[:\-]\s*", "", raw, flags=re.I)
-    raw = re.sub(r"\b(?:gmail|yahoo|hotmail|outlook|icloud|proton|zoho|rediffmail|live|msn|aol|mail)\s*(?:\.|\s+)?(?:com|co\.in|in|net|org|edu)\b.*$", "", raw, flags=re.I)
+    raw = re.sub(r"\b(?:gmail|yahoo|hotmail|outlook|icloud|proton|zoho|rediffmail|live|msn|aol|mail)[\s.]*(?:com|co\.in|in|net|org|edu)\b.*$", "", raw, flags=re.I)
     raw = re.sub(r"[@_]+", " ", raw)
     raw = re.sub(r"\.+", " ", raw)
     raw = re.sub(r"\b(?:email|e-mail|mail|phone|mobile|contact)\b.*$", "", raw, flags=re.I)
@@ -7583,7 +7590,7 @@ def normalize_requisition_id(value):
 
 def normalize_requirement_title_text(value):
     text = re.sub(r"\s+", " ", str(value or "").strip())
-    text = re.sub(r"\s*[-/|]\s*", " - ", text)
+    text = re.sub(r" ?[-/|] ?", " - ", text)  # whitespace is already collapsed above
     return text
 
 def normalize_requirement_title_key(value):
@@ -7992,7 +7999,7 @@ def api_update_me():
     notes = clean_value(data.get("notes") or "", 1000)
     if not name:
         return jsonify({"error": "Name is required."}), 400
-    if email and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+    if email and not is_valid_email(email):
         return jsonify({"error": "Please enter a valid email address."}), 400
 
     conn = get_db()
@@ -13154,7 +13161,7 @@ def clean_email_list(value):
     emails = []
     for item in items:
         email = str(item or "").strip().lower()
-        if email and re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) and email not in emails:
+        if email and is_valid_email(email) and email not in emails:
             emails.append(email)
     return emails
 
@@ -13568,7 +13575,7 @@ def daily_report_query_args_from_payload(data):
 def api_daily_work_report_email():
     data = request.get_json(silent=True) or {}
     to_addr = (data.get("to") or "").strip().lower()
-    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", to_addr):
+    if not is_valid_email(to_addr):
         return jsonify({"error": "Please enter a valid email address."}), 400
     cc_addrs = clean_email_list(data.get("cc") or [])
     if not email_list_is_valid(data.get("cc"), cc_addrs):
@@ -13653,7 +13660,7 @@ def api_daily_work_report_preview():
 def api_feedback_request_email():
     data = request.get_json(silent=True) or {}
     to_addr = (data.get("to") or "").strip().lower()
-    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", to_addr):
+    if not is_valid_email(to_addr):
         return jsonify({"error": "Please enter a valid email address."}), 400
     ids = [str(x) for x in data.get("ids") or [] if str(x).isdigit()]
     if not ids:
@@ -13980,7 +13987,7 @@ def linkedin_campaign_candidates(conn, segment, rules, filters=None):
     for row in rows:
         row = dict(row)
         email = (row.get("email_addr") or "").strip().lower()
-        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        if not is_valid_email(email):
             excluded["invalid email"] = excluded.get("invalid email", 0) + 1
             continue
         if email in seen_emails:
