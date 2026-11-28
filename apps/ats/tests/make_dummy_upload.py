@@ -40,12 +40,36 @@ def docx_bytes(lines):
     return buf.getvalue()
 
 
+def pdf_bytes(lines, pages):
+    """A multi-page text PDF like a real CV (needs reportlab, which the ATS already uses)."""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    buf = io.BytesIO()
+    pdf = canvas.Canvas(buf, pagesize=A4)
+    filler = ("Led cloud migration and platform work: designed landing zones, automated infrastructure with Terraform, "
+              "ran Kubernetes clusters, improved security posture and disaster recovery. ")
+    for page in range(pages):
+        y = 800
+        for line in (lines if page == 0 else []) + [f"Project {page}.{n}: " + filler for n in range(12)]:
+            for start in range(0, len(line), 95):
+                pdf.drawString(40, y, line[start:start + 95])
+                y -= 14
+                if y < 60:
+                    break
+        pdf.showPage()
+    pdf.save()
+    return buf.getvalue()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rows", type=int, default=20)
     parser.add_argument("--title", default="TEST - Dummy Cloud Architect")
     parser.add_argument("--out", default="dummy_upload")
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--format", choices=["docx", "pdf"], default="docx",
+                        help="pdf makes realistic multi-page CVs (needs reportlab)")
+    parser.add_argument("--pages", type=int, default=3, help="pages per PDF CV")
     args = parser.parse_args()
     rng = random.Random(args.seed)
     tag = f"{rng.randrange(16**4):04x}"
@@ -71,8 +95,9 @@ def main():
               f"Cloud Architect at {company} ({years} years of experience)",
               f"Skills: {skills}",
               "DUMMY CV for testing only - not a real person."]
-        with open(os.path.join(args.out, "cvs", f"{name.replace(' ', '_')}.docx"), "wb") as f:
-            f.write(docx_bytes(cv))
+        ext = args.format
+        with open(os.path.join(args.out, "cvs", f"{name.replace(' ', '_')}.{ext}"), "wb") as f:
+            f.write(pdf_bytes(cv, args.pages) if ext == "pdf" else docx_bytes(cv))
 
     with open(os.path.join(args.out, "candidates.csv"), "w", newline="") as f:
         writer = csv.writer(f)

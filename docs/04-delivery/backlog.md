@@ -234,7 +234,7 @@ Acceptance criteria:
 - Given SQLite mode, then the image falls back to 1 worker (file lock)
 - Verified on the Mac 2026-11-28: 3 gunicorn workers booted; 24/24 indexes present in PostgreSQL. Concurrent worker startup serialized with an advisory lock (all workers report 24/24)
 
-### TS-EA-12: Asynchronous bulk upload with progress  (8 pts, Sprint 1, To do, Jira TS-71)
+### TS-EA-12: Asynchronous bulk upload with progress  (8 pts, Sprint 1, In progress, Jira TS-71)
 
 *As a recruiter I want my bulk upload accepted immediately and processed in the background so that I can keep working and see progress.*
 
@@ -246,7 +246,7 @@ Acceptance criteria:
 - Given one bad row or CV, then other rows are still saved and the error is reported per row
 - Given the worker restarts mid-job, then the job resumes or is marked failed with no duplicate rows
 
-### TS-EA-13: ATS performance baseline and load test  (3 pts, Sprint 1, To do, Jira TS-72)
+### TS-EA-13: ATS performance baseline and load test  (3 pts, Sprint 1, Done, Jira TS-72)
 
 *As a tech lead I want measured response times under realistic load so that performance targets are verified, not assumed.*
 
