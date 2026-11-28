@@ -170,6 +170,15 @@ def run_phase(users, eps, seconds, during=None):
     return samples, errors, extra
 
 
+def default_cv_format():
+    """PDF CVs are more realistic but need reportlab (pip install reportlab); otherwise use .docx."""
+    try:
+        import reportlab  # noqa: F401
+        return "pdf"
+    except ImportError:
+        return "docx"
+
+
 class BulkUpload:
     """Admin bulk upload of dummy candidates, run while the recruiters keep working."""
 
@@ -182,7 +191,7 @@ class BulkUpload:
         self.dir = tempfile.mkdtemp(prefix="lt-upload-")
         subprocess.run([sys.executable, os.path.join(ATS_DIR, "tests", "make_dummy_upload.py"), "--rows",
                         str(UPLOAD_ROWS), "--title", self.title, "--out", self.dir,
-                        "--format", os.getenv("ATS_LOAD_CV_FORMAT", "pdf")], check=True, capture_output=True)
+                        "--format", os.getenv("ATS_LOAD_CV_FORMAT", default_cv_format())], check=True, capture_output=True)
         self.session = requests.Session()
         self.session.post(f"{BASE_URL}/login", data={"username": "admin", "password": self.admin_password},
                           allow_redirects=False, timeout=30)
