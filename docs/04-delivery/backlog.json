@@ -131,7 +131,7 @@
       "epic": "EA",
       "sprint": 0,
       "points": 3,
-      "status": "in_progress",
+      "status": "done",
       "owner": "Claude + You",
       "fr": [
         "FR-ATS-1"
@@ -188,7 +188,7 @@
       "epic": "EA",
       "sprint": 0,
       "points": 3,
-      "status": "in_progress",
+      "status": "done",
       "owner": "You + Claude",
       "fr": [
         "NFR-1"
@@ -1234,6 +1234,16 @@
   ],
   "owner_actions": [
     {
+      "task": "Refresh the Cloudflare tunnel token",
+      "why": "The token was pasted into a chat; refresh it in Zero Trust → Tunnels → hrguru-ats, update CLOUDFLARE_TUNNEL_TOKEN in .env, recreate the tunnel service.",
+      "status": "todo"
+    },
+    {
+      "task": "Turn on Cloudflare Access for ats.hrgp.in",
+      "why": "Staff-only gate in front of the legacy ATS (runbook E8, risk R-15). Free up to 50 users.",
+      "status": "todo"
+    },
+    {
       "task": "Make a54000/hireflow private",
       "why": "Its git history contains real candidate name, email and phone (tools/case_001). Also consider a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app.",
       "status": "todo"
@@ -1270,7 +1280,7 @@
     },
     {
       "task": "Install Docker Desktop, Ollama and cloudflared on the Mac",
-      "why": "Needed to run the ATS (runbook) and TalentScout locally.",
+      "why": "Docker done (ATS running). Ollama still needed for TalentScout agents (Sprint 1 spike).",
       "status": "todo"
     },
     {

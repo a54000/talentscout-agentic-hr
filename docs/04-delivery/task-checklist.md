@@ -4,10 +4,12 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 
 | Done | In progress | Blocked | To do | Total |
 |---|---|---|---|---|
-| 5 | 6 | 0 | 50 | 61 |
+| 7 | 4 | 0 | 50 | 61 |
 
 ## Your actions (outside the backlog)
 
+- [ ] **Refresh the Cloudflare tunnel token**: The token was pasted into a chat; refresh it in Zero Trust → Tunnels → hrguru-ats, update CLOUDFLARE_TUNNEL_TOKEN in .env, recreate the tunnel service.
+- [ ] **Turn on Cloudflare Access for ats.hrgp.in**: Staff-only gate in front of the legacy ATS (runbook E8, risk R-15). Free up to 50 users.
 - [ ] **Make a54000/hireflow private**: Its git history contains real candidate name, email and phone (tools/case_001). Also consider a54000/ATS, a54000/hrguru-ats and a54000/hireflow_app.
 - [x] **Run the ATS restore from ats.db on the Mac**: Done 2026-11-27: 9,988 candidates, 1,685 requirements restored; newest 2026-05-26.
 - [x] **Create the Jira project (Scrum, key TS, name TalentScout)**: The Atlassian tools here cannot create projects; Claude imports epics, stories and sprints once it exists.
@@ -15,16 +17,16 @@ _Generated from `backlog.json` by `scripts/backlog_to_md.py`. Update a story's `
 - [ ] **Review and merge the Sprint 0 and ATS pull requests**: Runs CI and all security scans on GitHub for the first time.
 - [ ] **Protect main and enable secret scanning push protection**: Repo Settings → Branches and → Code security; leave CodeQL default setup off (the workflow runs it).
 - [ ] **Create free accounts: MongoDB Atlas, Langfuse, Google AI Studio or Groq**: Story TS-E0-07; keys go only into the git-ignored .env.
-- [ ] **Install Docker Desktop, Ollama and cloudflared on the Mac**: Needed to run the ATS (runbook) and TalentScout locally.
+- [ ] **Install Docker Desktop, Ollama and cloudflared on the Mac**: Docker done (ATS running). Ollama still needed for TalentScout agents (Sprint 1 spike).
 - [ ] **Sign off the BRD, PRD and UC-001 (phase 1 gate)**: Approval table in the BRD.
 
 ## Sprint 0 - Inception, walking skeleton and ATS restore (2026-11-30 → 2026-12-11)
 
 - [x] **TS-EA-01 Import ATS into the monorepo**: The ATS code in this repository, so that one pipeline builds, tests and scans everything. _(2 pts, owner: Claude, Jira TS-9)_
-- [ ] **TS-EA-02 Make the ATS run locally on macOS** **[In progress]**: The ATS available again, so that I can keep uploading candidates and managing requirements. _(3 pts, owner: Claude + You, Jira TS-10)_
+- [x] **TS-EA-02 Make the ATS run locally on macOS**: The ATS available again, so that I can keep uploading candidates and managing requirements. _(3 pts, owner: Claude + You, Jira TS-10)_
 - [x] **TS-EA-03 Patch vulnerable ATS dependencies**: Known CVEs fixed, so that the live ATS is not exposed through old libraries. _(2 pts, owner: Claude, Jira TS-11)_
 - [x] **TS-EA-04 Recover production ATS data**: The production candidates, requirements and CVs back, so that recruiters do not start from zero. _(3 pts, owner: You (script: Claude), Jira TS-12)_
-- [ ] **TS-EA-05 Expose the local ATS to 25 recruiters securely** **[In progress]**: To reach the ATS from my own laptop, so that I can work as before. _(3 pts, owner: You + Claude, Jira TS-13)_
+- [x] **TS-EA-05 Expose the local ATS to 25 recruiters securely**: To reach the ATS from my own laptop, so that I can work as before. _(3 pts, owner: You + Claude, Jira TS-13)_
 - [ ] **TS-EA-06 ATS backups and restore drill**: Nightly backups and a tested restore, so that losing the host never loses data again. _(3 pts, owner: Claude + You, Jira TS-14)_
 - [ ] **TS-EA-09 ATS health monitoring**: To know within minutes if the ATS is down, so that recruiters are not blocked. _(2 pts, owner: Claude, Jira TS-17)_
 - [ ] **TS-EA-10 Close the post-May 2026 data gap**: Candidates and requirements added after 26 May 2026 recovered or re-entered, so that recruiters work from complete data. _(2 pts, owner: You, Jira TS-69)_
