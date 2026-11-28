@@ -46,23 +46,23 @@ Recruiter (primary; MVP rollout to 25 recruiters), Delivery Lead (secondary), Ad
 
 | ID | Feature | Priority | Sprint |
 |---|---|---|---|
-| F-00 | HR Guru ATS restored locally and used as the source of candidates, CVs and requirements (read-only connector) | Must | 0 (restore), 2 (connector) |
-| F-01 | Authentication and RBAC (Recruiter, Delivery Lead, Admin) | Must | 1 |
-| F-02 | Requirement intake, JD parsing and analysis with clarification questions | Must | 1–2 |
-| F-03 | Resume parsing and candidate store (synthetic data, embeddings, hybrid search) | Must | 2–3 |
-| F-04 | Sourcing agent with funnel analysis | Must | 3 |
-| F-05 | Multi-agent workflow: supervisor, replanning, escalation | Must | 4 |
-| F-06 | Evidence-based candidate matching (Screening and Quality) | Must | 4 |
-| F-07 | MCP server exposing recruitment tools | Must | 5 |
-| F-08 | Durable execution (checkpointing, resume) | Must | 5 |
-| F-09 | Agent memory: short-term state and long-term feedback | Must | 5 |
-| F-10 | Human approval workflow | Must | 4 (basic), 6 (hardened) |
-| F-11 | AI guardrails: PII masking, injection defence, tool scopes, limits | Must | 6 |
-| F-12 | Observability (tracing) and audit trail | Must | 2 (audit), 6 (tracing) |
-| F-13 | Evaluation suite and CI evaluation gate | Must | 6 |
-| F-14 | Agent execution dashboard: live run view, run history, KPIs, cost | Must | 5 (live view), 7 (dashboard) |
-| F-15 | Model routing (local / free cloud / fallback) | Should | 1 (v0), 7 (multi-provider) |
-| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 7 (stretch) |
+| F-00 | HR Guru ATS restored locally and used as the source of candidates, CVs and requirements (read-only connector) | Must | 0 (restore), 1 (stabilise), 2 (connector) |
+| F-01 | Authentication and RBAC (Recruiter, Delivery Lead, Admin) | Must | 2 |
+| F-02 | Requirement intake, JD parsing and analysis with clarification questions | Must | 2–3 |
+| F-03 | Resume parsing and candidate store (synthetic data, embeddings, hybrid search) | Must | 3–4 |
+| F-04 | Sourcing agent with funnel analysis | Must | 4 |
+| F-05 | Multi-agent workflow: supervisor, replanning, escalation | Must | 5 |
+| F-06 | Evidence-based candidate matching (Screening and Quality) | Must | 5 |
+| F-07 | MCP server exposing recruitment tools | Must | 6 |
+| F-08 | Durable execution (checkpointing, resume) | Must | 6 |
+| F-09 | Agent memory: short-term state and long-term feedback | Must | 6 |
+| F-10 | Human approval workflow | Must | 5 (basic), 7 (hardened) |
+| F-11 | AI guardrails: PII masking, injection defence, tool scopes, limits | Must | 7 |
+| F-12 | Observability (tracing) and audit trail | Must | 3 (audit), 7 (tracing) |
+| F-13 | Evaluation suite and CI evaluation gate | Must | 7 |
+| F-14 | Agent execution dashboard: live run view, run history, KPIs, cost | Must | 6 (live view), 8 (dashboard) |
+| F-15 | Model routing (local / free cloud / fallback) | Should | 2 (v0), 8 (multi-provider) |
+| F-16 | A2A: independently deployed Talent Intelligence agent | Could | 8 (stretch) |
 | F-17 | Automated candidate outreach | Won't (future) | — |
 | F-18 | Delivery monitoring agent | Won't (future) | — |
 | F-19 | Voice screening; ATS write-back; Naukri API (not available) | Won't (future) | — |
@@ -102,9 +102,9 @@ Recruiter (primary; MVP rollout to 25 recruiters), Delivery Lead (secondary), Ad
 | 1 Discovery and requirements | Business problem, BRD, FRD, PRD, success criteria, UC-001 | 0 | BRD/PRD sign-off |
 | 2 Solution and architecture | HLD, LLD (Sprint 1 scope), technology selection, data flow, ADRs | 0 | Architecture sign-off |
 | 3 Engineering planning | Epics, stories, acceptance criteria, estimates, sprint backlog | 0 | Backlog ready (DoR) |
-| 4 Incremental development | ATS restore and connector → agent fundamentals → RAG → LangGraph → MCP, memory → A2A | 0–5, 7 | Sprint reviews |
-| 5 AI engineering and governance | Guardrails, evaluations, observability, security, failure handling | 6 (and every sprint) | Governance review |
-| 6 Deployment and pilot | CI/CD (from Sprint 0), ATS hosting (Sprint 0), performance testing, recruiter feedback | 7 | Pilot report |
+| 4 Incremental development | ATS restore and stabilisation → connector → agent fundamentals → RAG → LangGraph → MCP, memory → A2A | 0–6, 8 | Sprint reviews |
+| 5 AI engineering and governance | Guardrails, evaluations, observability, security, failure handling | 7 (and every sprint) | Governance review |
+| 6 Deployment and pilot | CI/CD (from Sprint 0), ATS hosting (Sprint 0), performance testing, recruiter feedback | 8 | Pilot report |
 
 Sprint 0 contains **no TalentScout feature code**. It sets up the repository, CI/CD and security scanning, and restores the live ATS that recruiters depend on.
 

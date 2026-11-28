@@ -20,19 +20,19 @@
 
 ## 2. Sizing
 
-| Epic | Stories | Story points | Sprint |
+| Epic | Stories | Story points | Sprints |
 |---|---|---|---|
-| EA HR Guru ATS restore and integration | 9 | 28 | 0 (restore), 1 (hardening), 2 (connector) |
-| E0 Inception and platform | 9 | 24 | 0 (spike and baseline in 1) |
-| E1 Requirement agent | 8 | 28 | 1–2 |
-| E2 Intelligent retrieval | 7 | 29 | 2–3 |
-| E3 Multi-agent orchestration | 6 | 32 | 3–5 |
-| E4 MCP and memory | 5 | 21 | 5 |
-| E5 Responsible AI and LLMOps | 9 | 31 | 6 (DPDP pack in 7) |
-| E6 Interop, dashboard and pilot | 7 | 27 | 7 |
-| **Total** | **60** | **220** | 8 sprints × 2 weeks (to 2027-03-26) |
+| EA HR Guru ATS restore and integration | 14 | 47 | 0, 1, 2 |
+| E0 Inception and platform | 9 | 24 | 0, 1 |
+| E1 Requirement agent | 8 | 28 | 2, 3 |
+| E2 Intelligent retrieval | 7 | 29 | 3, 4 |
+| E3 Multi-agent orchestration | 6 | 32 | 4, 5, 6 |
+| E4 MCP and memory | 5 | 21 | 6 |
+| E5 Responsible AI and LLMOps | 9 | 31 | 7, 8 |
+| E6 Interop, dashboard and pilot | 7 | 27 | 8 |
+| **Total** | **65** | **239** | 9 sprints × 2 weeks (to 2027-04-09) |
 
-**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. Sprint 0 is over capacity by design (ATS restore is urgent), but most of it was completed during inception. TS-E5-10 (DPDP pack) is planned into Sprint 7. The A2A agent (TS-E6-04) is a stretch item and is the first to drop if capacity is short.
+**Planned velocity:** 26 points per sprint. This assumes one developer at about 25 focused hours a week, assisted by Claude Code and Codex. Sprint 0 and 1 velocity will recalibrate this. Sprint 0 is over capacity by design (ATS restore was urgent) but was largely completed during inception. Sprint 1 is an ATS stabilisation sprint (re-planned 2026-11-28 at the PO's decision): TalentScout feature work starts in Sprint 2 and the plan ends 2027-04-09. TS-E5-10 (DPDP pack) is in Sprint 8; the A2A agent (TS-E6-04) is a stretch item and the first to drop if capacity is short.
 
 ## 3. Budget
 

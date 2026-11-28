@@ -4,19 +4,20 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 
 | Sprint | Dates | Goal | Points | Load |
 |---|---|---|---|---|
-| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups. | 41 | +15 over (stretch items flagged in planning) |
-| 1 | 2026-12-14 → 2026-12-24 | The live ATS is hardened and measured (baseline); TalentScout has auth, requirements, the PII-aware model router and a parser reuse decision. | 40 | +14 over (stretch items flagged in planning) |
-| 2 | 2027-01-04 → 2027-01-15 | The Requirement agent analyses the UC-001 JD into validated structured output, and candidates, CVs and requirements sync read-only from the ATS. | 26 | OK |
-| 3 | 2027-01-18 → 2027-01-29 | Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists. | 26 | OK |
-| 4 | 2027-02-01 → 2027-02-12 | UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation. | 24 | OK |
-| 5 | 2027-02-15 → 2027-02-26 | Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live. | 24 | OK |
-| 6 | 2027-03-01 → 2027-03-12 | Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI. | 28 | +2 over (stretch items flagged in planning) |
-| 7 | 2027-03-15 → 2027-03-26 | Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch). | 30 | +4 over (stretch items flagged in planning) |
+| 0 | 2026-11-30 → 2026-12-11 | Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts. | 41 | +15 over (stretch items flagged in planning) |
+| 1 | 2026-12-14 → 2026-12-24 | The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured. | 25 | OK |
+| 2 | 2027-01-04 → 2027-01-15 | TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS. | 25 | OK |
+| 3 | 2027-01-18 → 2027-01-29 | The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists. | 23 | OK |
+| 4 | 2027-02-01 → 2027-02-12 | Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists. | 19 | OK |
+| 5 | 2027-02-15 → 2027-02-26 | UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation. | 24 | OK |
+| 6 | 2027-03-01 → 2027-03-12 | Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live. | 24 | OK |
+| 7 | 2027-03-15 → 2027-03-26 | Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI. | 28 | +2 over (stretch items flagged in planning) |
+| 8 | 2027-03-29 → 2027-04-09 | Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch). | 30 | +4 over (stretch items flagged in planning) |
 
 ## Sprint 0 - Inception, walking skeleton and ATS restore
 
 **Dates:** 2026-11-30 → 2026-12-11  
-**Goal:** Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups.
+**Goal:** Documents baselined, backlog ready, CI/CD and security scanning live, and the HR Guru ATS running locally again for recruiters with backups and alerts.
 
 | Story | Title | Points | Status |
 |---|---|---|---|
@@ -37,10 +38,10 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E0-07 | Free-tier accounts and secrets handling | 2 | To do |
 | TS-E0-09 | Agile artefacts in Jira | 3 | Done |
 
-## Sprint 1 - ATS hardening and product foundation
+## Sprint 1 - ATS stabilisation
 
 **Dates:** 2026-12-14 → 2026-12-24  
-**Goal:** The live ATS is hardened and measured (baseline); TalentScout has auth, requirements, the PII-aware model router and a parser reuse decision.
+**Goal:** The live ATS is secure, fast and complete: security hardening, background bulk uploads, a measured performance baseline and the scheduled reports restored; local model chosen and recruiter baseline measured.
 
 | Story | Title | Points | Status |
 |---|---|---|---|
@@ -50,43 +51,51 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-EA-14 | Restore scheduled WhatsApp/email reports on the Mac | 3 | To do |
 | TS-E0-06 | Spike: local model selection on M2 16 GB | 3 | To do |
 | TS-E0-08 | Baseline measurement plan | 3 | To do |
-| TS-E1-01 | Requirement CRUD API and UI | 5 | To do |
-| TS-E1-02 | Authentication and RBAC | 5 | To do |
-| TS-E1-03 | LLM router v0 with PII flag | 3 | To do |
-| TS-E1-08 | Review ATS JD and CV parsers and decide reuse | 2 | To do |
 
-## Sprint 2 - Single-agent foundation and ATS connector
+## Sprint 2 - Product foundation and ATS connector
 
 **Dates:** 2027-01-04 → 2027-01-15  
-**Goal:** The Requirement agent analyses the UC-001 JD into validated structured output, and candidates, CVs and requirements sync read-only from the ATS.
+**Goal:** TalentScout has auth, requirements, the PII-aware model router and the Requirement agent, and reads candidates, CVs and requirements read-only from the ATS.
 
 | Story | Title | Points | Status |
 |---|---|---|---|
 | TS-EA-08 | Read-only ATS connector | 5 | To do |
+| TS-E1-01 | Requirement CRUD API and UI | 5 | To do |
+| TS-E1-02 | Authentication and RBAC | 5 | To do |
+| TS-E1-03 | LLM router v0 with PII flag | 3 | To do |
 | TS-E1-04 | Requirement agent with structured output and repair loop | 5 | To do |
+| TS-E1-08 | Review ATS JD and CV parsers and decide reuse | 2 | To do |
+
+## Sprint 3 - Single-agent completion and data
+
+**Dates:** 2027-01-18 → 2027-01-29  
+**Goal:** The Requirement agent is evaluated on golden JDs with clarification questions and audit; resumes are parsed and the UC-001 synthetic dataset exists.
+
+| Story | Title | Points | Status |
+|---|---|---|---|
 | TS-E1-05 | Clarification questions UI | 3 | To do |
 | TS-E1-06 | Audit events v0 | 2 | To do |
 | TS-E1-07 | Golden JD dataset and test | 3 | To do |
 | TS-E2-01 | Synthetic candidate generator incl. UC-001 scenario set | 5 | To do |
 | TS-E2-07 | Resume parsing of ATS CVs | 3 | To do |
+| TS-E2-02 | Chunking, masking and embedding pipeline | 5 | To do |
+| TS-E2-03 | Atlas vector and text indexes | 2 | To do |
 
-## Sprint 3 - RAG and intelligent retrieval
+## Sprint 4 - RAG and intelligent retrieval
 
-**Dates:** 2027-01-18 → 2027-01-29  
+**Dates:** 2027-02-01 → 2027-02-12  
 **Goal:** Hybrid search with funnel counts over ATS-sourced candidates beats keyword search on golden queries; the supervisor graph exists.
 
 | Story | Title | Points | Status |
 |---|---|---|---|
-| TS-E2-02 | Chunking, masking and embedding pipeline | 5 | To do |
-| TS-E2-03 | Atlas vector and text indexes | 2 | To do |
 | TS-E2-04 | Hybrid search with RRF and filters | 5 | To do |
 | TS-E2-05 | Sourcing agent with tool calling | 5 | To do |
 | TS-E2-06 | Retrieval evaluation: hybrid vs keyword | 4 | To do |
 | TS-E3-01 | LangGraph supervisor graph and state | 5 | To do |
 
-## Sprint 4 - Multi-agent orchestration (UC-001 end to end)
+## Sprint 5 - Multi-agent orchestration (UC-001 end to end)
 
-**Dates:** 2027-02-01 → 2027-02-12  
+**Dates:** 2027-02-15 → 2027-02-26  
 **Goal:** UC-001 end to end: bottleneck diagnosis, replanning with frozen constraints, evidence per mandatory skill, approval or escalation.
 
 | Story | Title | Points | Status |
@@ -96,9 +105,9 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E3-04 | Quality agent evidence verification | 5 | To do |
 | TS-E3-06 | Human approval gate for shortlist and escalation | 6 | To do |
 
-## Sprint 5 - MCP, memory and durable execution
+## Sprint 6 - MCP, memory and durable execution
 
-**Dates:** 2027-02-15 → 2027-02-26  
+**Dates:** 2027-03-01 → 2027-03-12  
 **Goal:** Agents use tools only through a scoped MCP server, survive crashes via checkpoints, learn from approved feedback, and runs are visible live.
 
 | Story | Title | Points | Status |
@@ -110,9 +119,9 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E4-04 | Durable execution with MongoDB checkpointer | 5 | To do |
 | TS-E4-05 | Long-term feedback memory | 5 | To do |
 
-## Sprint 6 - Responsible AI and LLMOps
+## Sprint 7 - Responsible AI and LLMOps
 
-**Dates:** 2027-03-01 → 2027-03-12  
+**Dates:** 2027-03-15 → 2027-03-26  
 **Goal:** Guardrails, PII routing, limits, tracing, tamper-evident audit and an evaluation gate in CI.
 
 | Story | Title | Points | Status |
@@ -126,9 +135,9 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | TS-E5-07 | Tamper-evident audit trail | 3 | To do |
 | TS-E5-08 | Evaluation gate in CI | 5 | To do |
 
-## Sprint 7 - Routing, dashboard, performance and pilot
+## Sprint 8 - Routing, dashboard, performance and pilot
 
-**Dates:** 2027-03-15 → 2027-03-26  
+**Dates:** 2027-03-29 → 2027-04-09  
 **Goal:** Multi-provider routing, agent execution dashboard, performance testing, DPDP pack, and a recruiter pilot report (A2A as stretch).
 
 | Story | Title | Points | Status |
