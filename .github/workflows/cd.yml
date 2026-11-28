@@ -44,6 +44,7 @@ jobs:
           - { name: web, context: ., dockerfile: apps/web/Dockerfile }
           - { name: agents, context: services/agents, dockerfile: services/agents/Dockerfile }
           - { name: ats, context: apps/ats, dockerfile: apps/ats/Dockerfile }
+          - { name: whatsapp-relay, context: apps/ats/deploy/whatsapp-relay, dockerfile: apps/ats/deploy/whatsapp-relay/Dockerfile }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

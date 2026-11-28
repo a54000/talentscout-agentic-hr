@@ -4,7 +4,15 @@ const qrcode = require("qrcode");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 
 const PORT = process.env.PORT || 8090;
+const HOST = process.env.RELAY_HOST || "127.0.0.1";
 const TOKEN = process.env.WHATSAPP_RELAY_TOKEN || "";
+const AUTH_PATH = process.env.WWEBJS_SESSION_DIR || "/opt/hrguru-whatsapp-relay/.wwebjs_auth";
+
+// Reachable beyond localhost (e.g. inside Docker) only with a token (TS-EA-14; full hardening in TS-E8-01).
+if (HOST !== "127.0.0.1" && !TOKEN) {
+  console.error("Refusing to start: set WHATSAPP_RELAY_TOKEN when RELAY_HOST is not 127.0.0.1.");
+  process.exit(1);
+}
 const DEFAULT_GROUP_ID = process.env.WHATSAPP_GROUP_ID || "";
 
 const app = express();
@@ -18,10 +26,11 @@ const recentGroups = new Map();
 
 const client = new Client({
   authStrategy: new LocalAuth({
-    dataPath: "/opt/hrguru-whatsapp-relay/.wwebjs_auth"
+    dataPath: AUTH_PATH
   }),
   puppeteer: {
     headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -233,6 +242,6 @@ app.post("/send", async (req, res) => {
   }
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-  console.log(`WhatsApp relay listening on http://127.0.0.1:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`WhatsApp relay listening on http://${HOST}:${PORT}`);
 });

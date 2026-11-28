@@ -2409,6 +2409,8 @@ def init_db():
             conn.execute("ALTER TABLE team_members ADD COLUMN gemini_api_key_updated_at TEXT")
         if "last_login_at" not in team_columns:
             conn.execute("ALTER TABLE team_members ADD COLUMN last_login_at TEXT")
+        if "is_ex_employee" not in team_columns:  # used by reports and team filters (TS-EA-14)
+            conn.execute("ALTER TABLE team_members ADD COLUMN is_ex_employee INTEGER DEFAULT 0")
         user_columns = {
             row["name"] for row in conn.execute("PRAGMA table_info(app_users)").fetchall()
         }
@@ -2617,6 +2619,9 @@ def initialize_app_database():
         try:
             ensure_performance_indexes(conn)
             ensure_candidate_selection_schema(conn)
+            # Columns older ATS versions created that a fresh schema lacks (TS-EA-14)
+            conn.execute("ALTER TABLE team_members ADD COLUMN IF NOT EXISTS is_ex_employee INTEGER DEFAULT 0")
+            conn.commit()
             conn.execute("SELECT 1")
         finally:
             conn.close()

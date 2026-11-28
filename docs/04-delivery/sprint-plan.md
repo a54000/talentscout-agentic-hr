@@ -48,8 +48,8 @@ _Generated from `backlog.json`. Two-week sprints; planned velocity 26 points (re
 | Story | Title | Points | Status |
 |---|---|---|---|
 | TS-EA-07 | ATS security hardening baseline | 5 | Done |
-| TS-EA-12 | Asynchronous bulk upload with progress | 8 | To do |
-| TS-EA-13 | ATS performance baseline and load test | 3 | To do |
+| TS-EA-12 | Asynchronous bulk upload with progress | 8 | In progress |
+| TS-EA-13 | ATS performance baseline and load test | 3 | Done |
 | TS-EA-14 | Restore scheduled WhatsApp/email reports on the Mac | 3 | To do |
 | TS-EA-15 | Delete the retired AI screening code from the ATS | 3 | To do |
 | TS-E0-06 | Spike: local model selection on M2 16 GB | 3 | To do |
