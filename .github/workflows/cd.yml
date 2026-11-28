@@ -57,6 +57,9 @@ jobs:
             --label org.opencontainers.image.revision="${GITHUB_SHA}" \
             -t "$IMAGE:${GITHUB_SHA}" -t "$IMAGE:main" "${{ matrix.context }}"
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+      - name: Check web server config
+        if: matrix.name == 'web'
+        run: docker run --rm "$IMAGE:${GITHUB_SHA}" nginx -t
       - name: Scan image (block on CRITICAL, report HIGH)
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" \
